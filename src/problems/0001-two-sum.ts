@@ -266,4 +266,15 @@ export const twoSum: ProblemPack = {
     ],
     note: 'Placeholder timings for the hash-map approach. Asymptotics dominate language constants.',
   },
+  walkthrough: {
+    statement:
+      "Given an array of integers nums and an integer target, return indices of the two numbers that add up to target.",
+    keyIdea:
+      "Hash map of seen value→index; at each i look up target-nums[i].",
+    approach: [
+          "Scan left to right with an empty map.",
+          "For each value, if complement is in the map, return both indices.",
+          "Otherwise store value→index and continue."
+    ],
+  },
 }

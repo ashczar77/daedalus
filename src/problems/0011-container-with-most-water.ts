@@ -110,4 +110,15 @@ export const containerWithMostWater: ProblemPack = {
   benchmark: placeholderBenchmark(
     'One pass beats the O(n²) brute-force double loop by a huge constant-factor margin.',
   ),
+  walkthrough: {
+    statement:
+      "Given heights, choose two lines that form a container holding the most water.",
+    keyIdea:
+      "Area = min(h[L],h[R]) * (R-L). Move the shorter pointer inward.",
+    approach: [
+          "Start with widest container.",
+          "Track max area.",
+          "Advance the shorter side; stop when pointers meet."
+    ],
+  },
 }

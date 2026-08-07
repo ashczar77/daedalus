@@ -107,4 +107,14 @@ export const bestTimeToBuyAndSellStock: ProblemPack = {
   benchmark: placeholderBenchmark(
     'One pass over prices; language gaps stay small compared with a nested buy/sell search.',
   ),
+  walkthrough: {
+    statement:
+      "Pick one buy day and one later sell day to maximize profit (or 0).",
+    keyIdea:
+      "Track the minimum price so far; profit at i is price[i]-minSoFar.",
+    approach: [
+          "minBuy = first price, best = 0.",
+          "For each day, update best with price-minBuy, then update minBuy."
+    ],
+  },
 }

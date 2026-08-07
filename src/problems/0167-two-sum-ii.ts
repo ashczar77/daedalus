@@ -146,4 +146,14 @@ export const twoSumII: ProblemPack = {
     ],
     note: 'O(1) extra memory vs Two Sum’s hash map. Absolute times still favor the JVM, but the algorithmic win is the constant space.',
   },
+  walkthrough: {
+    statement:
+      "Numbers are sorted. Return 1-indexed indices of two numbers that add to target.",
+    keyIdea:
+      "Two pointers on a sorted array: move the side that fixes the sum toward target.",
+    approach: [
+          "left at start, right at end.",
+          "If sum too small, left++; too big, right--; equal → return."
+    ],
+  },
 }

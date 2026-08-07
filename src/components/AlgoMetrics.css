@@ -1,0 +1,44 @@
+.algo-metrics {
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  background: color-mix(in srgb, var(--surface) 92%, white);
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.algo-metrics__title {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.algo-metrics__list {
+  margin: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.algo-metrics__list > div {
+  display: grid;
+  grid-template-columns: 4.2rem minmax(0, 1fr);
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  min-width: 0;
+}
+
+.algo-metrics__list dt {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.algo-metrics__notes dd {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}

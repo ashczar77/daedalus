@@ -71,6 +71,8 @@ export type LinkedListScene = {
   cycleTo?: [string, string]
   label?: string
   focusIds?: string[]
+  /** Short teaching caption under the list (e.g. flip / meet) */
+  caption?: string
 }
 
 /**
@@ -87,6 +89,28 @@ export type TreeScene = {
   rootId: string | null
   focusIds?: string[]
   label?: string
+  /**
+   * Teaching overlays for DFS / recursion:
+   * returned depths, active formula, and null-child base cases.
+   */
+  viz?: TreeVizState
+}
+
+/** Optional drawings that make recursive returns visible on the tree. */
+export type TreeVizState = {
+  /** nodeId → depth already returned from that subtree (renders as d=N) */
+  depths?: Record<string, number>
+  /** Freeform badges under nodes, e.g. h=2, ✓, swapped */
+  marks?: Record<string, string>
+  /** Formula chip next to a node, e.g. 1+max(0,0)=1 */
+  formula?: { nodeId: string; text: string }
+  /** Ghost null child currently being evaluated */
+  nullCall?: {
+    parentId: string
+    side: 'left' | 'right'
+    /** Usually "0" or "return 0" */
+    text: string
+  }
 }
 
 /**
@@ -151,6 +175,7 @@ export type HeapObject =
       pointers?: Record<string, string | null>
       cycleTo?: [string, string]
       focusIds?: string[]
+      caption?: string
     })
   | (HeapObjectBase & {
       kind: 'tree'
@@ -162,6 +187,7 @@ export type HeapObject =
       }>
       rootId: string | null
       focusIds?: string[]
+      viz?: TreeVizState
     })
 
 /**
@@ -228,6 +254,16 @@ export type BenchmarkData = {
 
 export type Difficulty = 'Easy' | 'Medium' | 'Hard'
 
+/** Optional below-fold teaching copy for the walkthrough section. */
+export type ProblemWalkthrough = {
+  /** Short problem statement shown below the player */
+  statement: string
+  /** One-sentence key idea */
+  keyIdea: string
+  /** Numbered approach bullets */
+  approach: string[]
+}
+
 /**
  * Everything needed to render one catalog entry and its player page.
  * Solution sources are imported as raw text from /algorithms.
@@ -246,6 +282,8 @@ export type ProblemPack = {
   languages: Record<Language, string>
   steps: Step[]
   benchmark: BenchmarkData
+  /** Prefer for Codedive-style description / walkthrough below the player */
+  walkthrough?: ProblemWalkthrough
 }
 
 export function isHeapRef(value: unknown): value is HeapRef {

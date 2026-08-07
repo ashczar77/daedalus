@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  min-width: 0;
+  width: 100%;
 }
 
 .hash-viz__label {
@@ -24,39 +26,45 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.55rem;
+  min-width: 0;
 }
 
 .hash-viz__entry {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
+  max-width: 100%;
   padding: 0.55rem 0.75rem;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 0.55rem;
   background: color-mix(in srgb, var(--surface) 90%, white);
   font-family: var(--font-mono);
   font-size: 0.85rem;
+  overflow: hidden;
   transition:
     border-color 180ms ease,
     background 180ms ease,
-    transform 180ms ease;
+    box-shadow 180ms ease;
 }
 
 .hash-viz__entry.is-focus {
   border-color: var(--accent);
   background: color-mix(in srgb, var(--accent) 14%, white);
-  transform: translateY(-2px);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .hash-viz__key {
   color: var(--accent-2);
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .hash-viz__arrow {
   color: var(--muted);
+  flex-shrink: 0;
 }
 
 .hash-viz__val {
   color: var(--ink);
+  overflow-wrap: anywhere;
 }

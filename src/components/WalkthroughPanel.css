@@ -1,0 +1,66 @@
+.walkthrough {
+  display: grid;
+  gap: 0.85rem;
+  min-width: 0;
+  width: 100%;
+}
+
+@media (min-width: 900px) {
+  .walkthrough {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    align-items: start;
+  }
+}
+
+.walkthrough__card {
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  padding: 0.9rem 1rem;
+  background: color-mix(in srgb, var(--surface) 94%, white);
+  min-width: 0;
+  font-size: 14px;
+}
+
+.walkthrough__card h2 {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2.4vw, 1.15rem);
+}
+
+.walkthrough__card h3 {
+  margin: 0.75rem 0 0.35rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.walkthrough__card p {
+  margin: 0 0 0.5rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.walkthrough__card p:last-child {
+  margin-bottom: 0;
+}
+
+.walkthrough__input,
+.walkthrough__pattern {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.walkthrough__card ol {
+  margin: 0 0 0.65rem;
+  padding-left: 1.15rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+  font-size: 13px;
+}
+
+.walkthrough__card li + li {
+  margin-top: 0.3rem;
+}

@@ -1,9 +1,10 @@
 .problem {
-  width: min(1180px, calc(100% - 2rem));
+  width: min(1440px, calc(100% - 1rem));
   margin: 0 auto;
-  padding: 1.5rem 0 3.5rem;
+  padding: 0.85rem 0 2.5rem;
   display: grid;
-  gap: 1.1rem;
+  gap: 0.75rem;
+  min-width: 0;
 }
 
 .problem--missing {
@@ -12,14 +13,15 @@
 
 .problem__header {
   display: grid;
-  gap: 0.45rem;
+  gap: 0.25rem;
+  min-width: 0;
 }
 
 .problem__back {
   width: fit-content;
   color: var(--muted);
   text-decoration: none;
-  font-size: 0.92rem;
+  font-size: 0.85rem;
 }
 
 .problem__back:hover {
@@ -29,51 +31,72 @@
 .problem__meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.65rem;
+  gap: 0.5rem 0.75rem;
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-family: var(--font-mono);
 }
 
 .problem__header h1 {
-  margin: 0.15rem 0 0;
+  margin: 0.1rem 0 0;
   font-family: var(--font-display);
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-size: clamp(1.35rem, 3.5vw, 2rem);
   letter-spacing: 0.02em;
-  line-height: 1.15;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
-.problem__input {
-  margin: 0;
-  color: var(--ink-soft);
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-}
-
-.problem__stage {
+/* Main body: code | visualization (largest) | rail */
+.problem__main {
   display: grid;
-  gap: 1rem;
+  gap: 0.75rem;
+  min-width: 0;
+  align-items: stretch;
 }
 
-@media (min-width: 960px) {
-  .problem__stage {
-    grid-template-columns: 1.2fr 0.9fr;
-    align-items: start;
+.problem__code,
+.problem__viz,
+.problem__rail {
+  min-width: 0;
+  width: 100%;
+}
+
+.problem__code {
+  display: grid;
+  gap: 0.65rem;
+  align-content: start;
+}
+
+.problem__rail {
+  display: grid;
+  gap: 0.65rem;
+  align-content: start;
+}
+
+@media (min-width: 1000px) {
+  .problem__main {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.45fr) minmax(0, 0.85fr);
+  }
+
+  .problem__code .code-panel__pre {
+    max-height: min(32rem, 62vh);
   }
 }
 
-.problem__story {
-  min-width: 0;
-}
+@media (max-width: 999px) {
+  .problem__main {
+    grid-template-columns: 1fr;
+  }
 
-.problem__side {
-  display: grid;
-  gap: 0.85rem;
-  min-width: 0;
-  position: sticky;
-  top: 0.75rem;
+  /* Visualization first on smaller screens, then code, then rail */
+  .problem__viz {
+    order: -1;
+  }
 }
 
 .problem__below {
-  margin-top: 0.5rem;
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 0.35rem;
+  min-width: 0;
 }

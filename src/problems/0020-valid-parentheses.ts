@@ -206,4 +206,15 @@ export const validParentheses: ProblemPack = {
   benchmark: placeholderBenchmark(
     'Stack ops are amortized O(1); heap depth mirrors nesting depth of the input.',
   ),
+  walkthrough: {
+    statement:
+      "Given a string of brackets, determine if the input is valid (correctly matched and ordered).",
+    keyIdea:
+      "Stack openers; on a closer, it must match the top opener.",
+    approach: [
+          "Push opening brackets.",
+          "On closing, pop and check the pair; mismatch or empty → false.",
+          "Valid iff stack empty at the end."
+    ],
+  },
 }

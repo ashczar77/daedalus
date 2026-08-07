@@ -239,4 +239,15 @@ export const binarySearch: ProblemPack = {
     ],
     note: 'Logarithmic growth stays nearly flat. Locals are scalars — almost no heap pressure.',
   },
+  walkthrough: {
+    statement:
+      "Given a sorted array of distinct integers and a target, return its index or -1.",
+    keyIdea:
+      "Repeatedly test the middle; discard half the search space each step.",
+    approach: [
+          "left=0, right=n-1.",
+          "While left≤right: mid=(left+right)/2; compare nums[mid] to target.",
+          "Move left or right accordingly; return -1 if empty."
+    ],
+  },
 }

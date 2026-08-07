@@ -55,6 +55,7 @@ const steps: Step[] = [
         label: 'dummy / merged',
         nodes: [{ id: 'dummy', value: 0, next: null }],
         pointers: { runner: 'dummy' },
+        caption: 'dummy head · runner starts here',
       },
     ],
   },
@@ -82,6 +83,7 @@ const steps: Step[] = [
         pointers: { runner: 'a1' },
         focusIds: ['a1'],
         focused: true,
+        caption: 'splice 1 (list1 smaller)',
       },
       {
         id: 'list1',
@@ -104,7 +106,50 @@ const steps: Step[] = [
   },
   {
     id: 3,
-    narrative: '2 ≤ 3 — splice b1, then continue until one list empties and attach the leftover tail.',
+    narrative: '2 ≤ 3 — splice b1 from list2.',
+    why: 'Keep comparing heads until one list empties.',
+    codeFocus: { java: 17, kotlin: 14, python: 15 },
+    callStack: [
+      {
+        name: 'mergeTwoLists',
+        active: true,
+        locals: { list1: 'a2', list2: 'b2', runner: 'b1' },
+      },
+    ],
+    heap: [
+      {
+        id: 'merged',
+        kind: 'linkedList',
+        label: 'dummy / merged',
+        nodes: [
+          { id: 'dummy', value: 0, next: 'a1' },
+          { id: 'a1', value: 1, next: 'b1' },
+          { id: 'b1', value: 2, next: null },
+        ],
+        pointers: { runner: 'b1' },
+        focusIds: ['b1'],
+        focused: true,
+        caption: 'splice 2 (list2 smaller)',
+      },
+      {
+        id: 'list1',
+        kind: 'linkedList',
+        label: 'list1 remaining',
+        nodes: [{ id: 'a2', value: 3, next: null }],
+        pointers: { list1: 'a2' },
+      },
+      {
+        id: 'list2',
+        kind: 'linkedList',
+        label: 'list2 remaining',
+        nodes: [{ id: 'b2', value: 4, next: null }],
+        pointers: { list2: 'b2' },
+      },
+    ],
+  },
+  {
+    id: 4,
+    narrative: 'Finish splicing, attach leftover tail, return dummy.next.',
     why: 'One leftover attach finishes the merge in constant time.',
     codeFocus: { java: 25, kotlin: 22, python: 21 },
     callStack: [
@@ -128,6 +173,7 @@ const steps: Step[] = [
         pointers: { head: 'a1' },
         focusIds: ['a1', 'b1', 'a2', 'b2'],
         focused: true,
+        caption: 'result = dummy.next → [1,2,3,4]',
       },
     ],
   },
@@ -149,5 +195,19 @@ export const mergeTwoSortedLists: ProblemPack = {
   inputLabel: 'list1 = [1,3], list2 = [2,4]',
   languages: { java: javaSrc, kotlin: kotlinSrc, python: pythonSrc },
   steps,
-  benchmark: placeholderBenchmark('Pointer splicing dominates — language gaps are small at interview sizes.'),
+  benchmark: placeholderBenchmark(
+    'Pointer splicing dominates — language gaps are small at interview sizes.',
+  ),
+  walkthrough: {
+    statement:
+      'Merge two sorted linked lists and return the head of the merged sorted list.',
+    keyIdea:
+      'Dummy head + runner: always splice the smaller current head from list1 or list2.',
+    approach: [
+      'Create dummy; runner = dummy.',
+      'While both lists nonempty, attach the smaller head and advance that list.',
+      'Attach the nonempty leftover.',
+      'Return dummy.next.',
+    ],
+  },
 }

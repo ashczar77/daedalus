@@ -1,9 +1,13 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { BenchmarkPanel } from '../components/BenchmarkPanel'
+import { AlgoMetrics } from '../components/AlgoMetrics'
+import { CallStackPanel } from '../components/CallStackPanel'
 import { CodePanel } from '../components/CodePanel'
-import { MemoryStage } from '../components/MemoryStage'
+import { CodeRuntime } from '../components/CodeRuntime'
+import { HeapInspector } from '../components/HeapInspector'
 import { PlayerControls } from '../components/PlayerControls'
+import { StructureStage } from '../components/StructureStage'
+import { WalkthroughPanel } from '../components/WalkthroughPanel'
 import { normalizeStep } from '../engine/normalizeStep'
 import type { Language } from '../engine/types'
 import { usePlayback } from '../engine/usePlayback'
@@ -11,17 +15,21 @@ import { getProblem } from '../problems/registry'
 import './ProblemPage.css'
 
 /**
- * Step-through view for one problem pack:
- * storytelling memory stage (call stack + heap), code spine, playback, benchmarks.
+ * Problem player: header → controls → main body (code | viz | rail) → walkthrough.
+ * Layout mirrors Codedive: visualization is the centerpiece.
  */
 export function ProblemPage() {
   const { problemId = '' } = useParams()
   const problem = getProblem(problemId)
-  // Default to Java to match the learning-repo solutions.
   const [language, setLanguage] = useState<Language>('java')
+  const [runEpoch, setRunEpoch] = useState(0)
 
   const steps = useMemo(() => problem?.steps ?? [], [problem])
   const playback = usePlayback({ steps })
+
+  useEffect(() => {
+    setRunEpoch((value) => value + 1)
+  }, [problem?.id])
 
   const normalized = useMemo(
     () => (playback.step ? normalizeStep(playback.step) : null),
@@ -37,8 +45,17 @@ export function ProblemPage() {
     )
   }
 
-  // Remap the highlighted line when the user switches language without resetting the step.
   const focusLine = normalized?.codeFocus[language] ?? 1
+  const walkthrough = problem.walkthrough ?? {
+    statement: problem.insight,
+    keyIdea: problem.insight,
+    approach: [],
+  }
+
+  const handleReset = () => {
+    setRunEpoch((value) => value + 1)
+    playback.reset()
+  }
 
   return (
     <div className="problem">
@@ -52,23 +69,7 @@ export function ProblemPage() {
           <span>{problem.difficulty}</span>
         </div>
         <h1>{problem.title}</h1>
-        <p className="problem__input">{problem.inputLabel}</p>
       </header>
-
-      <div className="problem__stage">
-        <div className="problem__story">
-          {normalized ? <MemoryStage step={normalized} /> : null}
-        </div>
-
-        <aside className="problem__side">
-          <CodePanel
-            languages={problem.languages}
-            language={language}
-            onLanguageChange={setLanguage}
-            focusLine={focusLine}
-          />
-        </aside>
-      </div>
 
       <PlayerControls
         index={playback.index}
@@ -77,18 +78,56 @@ export function ProblemPage() {
         speed={playback.speed}
         atStart={playback.atStart}
         atEnd={playback.atEnd}
+        beat={normalized?.narrative}
         onToggle={playback.toggle}
         onBack={playback.stepBack}
         onForward={playback.stepForward}
-        onReset={playback.reset}
+        onReset={handleReset}
         onScrub={playback.scrub}
         onCycleSpeed={playback.cycleSpeed}
       />
 
+      <div className="problem__main">
+        <div className="problem__code">
+          <CodePanel
+            languages={problem.languages}
+            language={language}
+            onLanguageChange={setLanguage}
+            focusLine={focusLine}
+          />
+          <CodeRuntime
+            language={language}
+            benchmark={problem.benchmark}
+            playing={playback.playing}
+            atEnd={playback.atEnd}
+            runEpoch={runEpoch}
+          />
+        </div>
+
+        <div className="problem__viz">
+          <StructureStage objects={normalized?.heap ?? []} />
+        </div>
+
+        <aside className="problem__rail">
+          <CallStackPanel frames={normalized?.callStack ?? []} />
+          <HeapInspector
+            objects={normalized?.heap ?? []}
+            callStack={normalized?.callStack ?? []}
+          />
+          <AlgoMetrics
+            complexity={problem.complexity}
+            pattern={problem.pattern}
+          />
+        </aside>
+      </div>
+
       <div className="problem__below">
-        <BenchmarkPanel
-          complexity={problem.complexity}
-          benchmark={problem.benchmark}
+        <WalkthroughPanel
+          statement={walkthrough.statement}
+          inputLabel={problem.inputLabel}
+          pattern={problem.pattern}
+          keyIdea={walkthrough.keyIdea}
+          approach={walkthrough.approach}
           insight={problem.insight}
           invariant={problem.invariant}
         />

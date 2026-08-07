@@ -140,4 +140,15 @@ export const validAnagram: ProblemPack = {
   benchmark: placeholderBenchmark(
     'Fixed-size counting arrays keep memory flat; Python list ops still trail JVM tight loops.',
   ),
+  walkthrough: {
+    statement:
+      "Return true if t is an anagram of s (same characters with the same frequencies).",
+    keyIdea:
+      "Count character frequencies; anagrams have identical counts.",
+    approach: [
+          "If lengths differ, return false.",
+          "Count chars in s (increment) and t (decrement), or use two maps.",
+          "All counts must be zero."
+    ],
+  },
 }

@@ -1,7 +1,9 @@
 .array-viz {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.75rem;
+  min-width: 0;
+  width: 100%;
 }
 
 .array-viz__label {
@@ -15,19 +17,20 @@
 .array-viz__row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.55rem;
+  gap: 0.45rem;
+  min-width: 0;
 }
 
 .array-viz__cell {
   position: relative;
-  min-width: 3.1rem;
-  padding: 0.85rem 0.65rem 1.35rem;
+  min-width: 2.8rem;
+  max-width: 100%;
+  padding: 0.7rem 0.55rem 1.2rem;
   border: 1px solid var(--line);
   border-radius: 0.55rem;
   background: color-mix(in srgb, var(--surface) 88%, white);
   text-align: center;
   transition:
-    transform 180ms ease,
     background 180ms ease,
     border-color 180ms ease,
     box-shadow 180ms ease;
@@ -36,8 +39,7 @@
 .array-viz__cell.is-current {
   border-color: var(--accent);
   background: color-mix(in srgb, var(--accent) 16%, white);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 18%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .array-viz__cell.is-compare {
@@ -48,7 +50,6 @@
 .array-viz__cell.is-found {
   border-color: var(--good);
   background: color-mix(in srgb, var(--good) 18%, white);
-  transform: translateY(-4px);
 }
 
 .array-viz__cell.is-visited {
@@ -67,29 +68,30 @@
 .array-viz__value {
   display: block;
   font-family: var(--font-body);
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--ink);
+  overflow-wrap: anywhere;
 }
 
 .array-viz__index {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0.3rem;
-  font-size: 0.7rem;
+  bottom: 0.25rem;
+  font-size: 0.68rem;
   color: var(--muted);
 }
 
 .array-viz__pointers {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.65rem 1rem;
+  gap: 0.5rem 0.85rem;
 }
 
 .array-viz__pointer {
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--ink-soft);
 }
 

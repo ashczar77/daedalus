@@ -4,45 +4,44 @@ import { HashMapViz } from '../visualizers/HashMapViz'
 import { LinkedListViz } from '../visualizers/LinkedListViz'
 import { StackViz } from '../visualizers/StackViz'
 import { TreeViz } from '../visualizers/TreeViz'
-import './HeapPanel.css'
+import './StructureStage.css'
 
 type Props = {
   objects: HeapObject[]
 }
 
 /**
- * Abstract heap: live data structures the algorithm owns.
- * Reuses existing animated visualizers so choreography stays intact.
+ * Primary teaching surface: large structure drawings from the step's heap objects.
+ * Heap inspector (right rail) lists the same objects without re-drawing them.
  */
-export function HeapPanel({ objects }: Props) {
+export function StructureStage({ objects }: Props) {
+  if (objects.length === 0) {
+    return (
+      <section className="structure-stage" aria-label="Visualization">
+        <h3 className="structure-stage__title">Visualization</h3>
+        <p className="structure-stage__empty">No structures on this step</p>
+      </section>
+    )
+  }
+
   return (
-    <section className="heap" aria-label="Heap">
-      <h3 className="heap__title">Heap</h3>
-      {objects.length === 0 ? (
-        <p className="heap__empty">No heap objects yet</p>
-      ) : (
-        <div className="heap__objects">
-          {objects.map((object) => (
-            <article
-              key={object.id}
-              className={`heap__object${object.focused ? ' is-focused' : ''}`}
-            >
-              <header className="heap__object-head">
-                <span className="heap__id">{object.id}</span>
-                {object.label ? (
-                  <span className="heap__label">{object.label}</span>
-                ) : null}
-              </header>
-              <HeapObjectView object={object} />
-            </article>
-          ))}
-        </div>
-      )}
+    <section className="structure-stage" aria-label="Visualization">
+      <h3 className="structure-stage__title">Visualization</h3>
+      <div className="structure-stage__canvas">
+        {objects.map((object) => (
+          <div
+            key={object.id}
+            className={`structure-stage__item${object.focused ? ' is-focused' : ''}`}
+          >
+            <StructureView object={object} />
+          </div>
+        ))}
+      </div>
     </section>
   )
 }
 
-function HeapObjectView({ object }: { object: HeapObject }) {
+function StructureView({ object }: { object: HeapObject }) {
   if (object.kind === 'array') {
     return (
       <ArrayViz
@@ -51,6 +50,7 @@ function HeapObjectView({ object }: { object: HeapObject }) {
           values: object.values,
           highlights: object.highlights,
           pointers: object.pointers,
+          label: object.label,
         }}
       />
     )
@@ -63,6 +63,7 @@ function HeapObjectView({ object }: { object: HeapObject }) {
           type: 'hashmap',
           entries: object.entries,
           focusKeys: object.focusKeys,
+          label: object.label,
         }}
       />
     )
@@ -75,6 +76,7 @@ function HeapObjectView({ object }: { object: HeapObject }) {
           type: 'stack',
           items: object.items,
           topAction: object.topAction,
+          label: object.label,
         }}
       />
     )
@@ -89,6 +91,7 @@ function HeapObjectView({ object }: { object: HeapObject }) {
           pointers: object.pointers,
           cycleTo: object.cycleTo,
           focusIds: object.focusIds,
+          label: object.label,
           caption: object.caption,
         }}
       />
@@ -102,6 +105,7 @@ function HeapObjectView({ object }: { object: HeapObject }) {
         nodes: object.nodes,
         rootId: object.rootId,
         focusIds: object.focusIds,
+        label: object.label,
         viz: object.viz,
       }}
     />

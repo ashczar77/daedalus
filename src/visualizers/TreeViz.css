@@ -1,32 +1,50 @@
 .tree-viz {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.45rem;
+  min-width: 0;
+  width: 100%;
+  max-width: 36rem;
+  justify-self: center;
 }
 
 .tree-viz__label {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
+  text-align: center;
 }
 
 .tree-viz__empty {
   margin: 0;
   font-family: var(--font-mono);
   color: var(--muted);
+  text-align: center;
+}
+
+.tree-viz__frame {
+  width: 100%;
+  min-width: 0;
+  overflow: auto;
 }
 
 .tree-viz__svg {
+  display: block;
   width: 100%;
-  max-width: 420px;
   height: auto;
-  overflow: visible;
+  min-height: 12rem;
+  max-height: 24rem;
 }
 
 .tree-viz__edge {
   stroke: var(--line);
   stroke-width: 2;
+}
+
+.tree-viz__edge--null {
+  stroke-dasharray: 4 3;
+  stroke: var(--muted);
 }
 
 .tree-viz__node {
@@ -43,10 +61,65 @@
   stroke: var(--accent);
 }
 
+.tree-viz__node.has-depth {
+  stroke: color-mix(in srgb, var(--good) 55%, var(--line));
+}
+
 .tree-viz__value {
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   fill: var(--ink);
   pointer-events: none;
+}
+
+.tree-viz__null {
+  fill: color-mix(in srgb, var(--surface) 70%, white);
+  stroke: var(--muted);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 2;
+}
+
+.tree-viz__null-text {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  fill: var(--muted);
+}
+
+.tree-viz__null-return {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--accent);
+}
+
+.tree-viz__depth-bg {
+  fill: color-mix(in srgb, var(--good) 16%, white);
+  stroke: color-mix(in srgb, var(--good) 45%, var(--line));
+  stroke-width: 1;
+}
+
+.tree-viz__depth-text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--good);
+}
+
+.tree-viz__formula-bg {
+  fill: color-mix(in srgb, var(--ink) 92%, #0f766e);
+  stroke: none;
+}
+
+.tree-viz__formula {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  fill: #ecfdf5;
+}
+
+@media (max-width: 640px) {
+  .tree-viz__svg {
+    min-width: 18rem;
+  }
 }

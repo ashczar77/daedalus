@@ -193,4 +193,15 @@ export const containsDuplicate: ProblemPack = {
     ],
     note: 'Set membership is amortized O(1) in all three languages; Python stays slower in absolute time due to interpreter overhead.',
   },
+  walkthrough: {
+    statement:
+      "Return true if any value appears at least twice in the array; otherwise false.",
+    keyIdea:
+      "A hash set remembers values already seen — duplicate means membership hit.",
+    approach: [
+          "Create an empty set.",
+          "For each number, if already in the set return true; else insert.",
+          "If the loop finishes, return false."
+    ],
+  },
 }

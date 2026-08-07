@@ -128,4 +128,15 @@ export const evaluateReversePolishNotation: ProblemPack = {
   benchmark: placeholderBenchmark(
     'Single left-to-right pass; stack depth stays small for typical RPN expressions.',
   ),
+  walkthrough: {
+    statement:
+      "Evaluate the value of an arithmetic expression in Reverse Polish Notation.",
+    keyIdea:
+      "Stack operands; when an operator appears, pop two, push the result.",
+    approach: [
+          "Scan tokens left to right.",
+          "Numbers push; operators pop b,a and push a⊗b.",
+          "Final stack top is the answer."
+    ],
+  },
 }

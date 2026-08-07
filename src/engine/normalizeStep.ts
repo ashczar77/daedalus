@@ -124,6 +124,7 @@ function sceneNodeToHeap(scene: Scene, id: string): HeapObject[] {
         pointers: scene.pointers,
         cycleTo: scene.cycleTo,
         focusIds: scene.focusIds,
+        caption: scene.caption,
         focused: Boolean(scene.focusIds?.length || scene.pointers),
       },
     ]
@@ -137,6 +138,7 @@ function sceneNodeToHeap(scene: Scene, id: string): HeapObject[] {
       nodes: scene.nodes,
       rootId: scene.rootId,
       focusIds: scene.focusIds,
+      viz: scene.viz,
       focused: Boolean(scene.focusIds?.length),
     },
   ]

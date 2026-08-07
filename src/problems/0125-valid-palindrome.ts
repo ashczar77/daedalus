@@ -116,4 +116,15 @@ export const validPalindrome: ProblemPack = {
   benchmark: placeholderBenchmark(
     'Two-pointer scan is linear in all languages; Python is slower mainly from interpreter overhead.',
   ),
+  walkthrough: {
+    statement:
+      "Return true if s is a palindrome after converting to lowercase and removing non-alphanumeric characters.",
+    keyIdea:
+      "Two pointers from both ends, skipping junk, comparing equal characters.",
+    approach: [
+          "left=0, right=n-1.",
+          "Skip non-alphanumeric on each side.",
+          "Compare lowercased chars; mismatch → false; meet → true."
+    ],
+  },
 }

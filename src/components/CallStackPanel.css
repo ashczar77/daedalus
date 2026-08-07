@@ -1,30 +1,38 @@
 .call-stack {
   border: 1px solid var(--line);
-  border-radius: 0.9rem;
-  padding: 0.9rem 1rem;
+  border-radius: 0.75rem;
+  padding: 0.75rem 0.85rem;
   background: color-mix(in srgb, var(--surface) 92%, white);
   display: grid;
-  gap: 0.7rem;
+  gap: 0.55rem;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
 }
 
 .call-stack__title {
   margin: 0;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
   font-weight: 600;
 }
 
-.call-stack__empty {
+.call-stack__empty,
+.call-stack__no-locals {
   margin: 0;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .call-stack__frames {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: grid;
-  gap: 0.55rem;
+  gap: 0.45rem;
+  min-width: 0;
 }
 
 .call-stack__frame {
@@ -32,23 +40,42 @@
   border-radius: 0.65rem;
   padding: 0.65rem 0.75rem;
   background: white;
+  min-width: 0;
+  overflow: hidden;
   transition:
     border-color 180ms ease,
     box-shadow 180ms ease,
-    transform 180ms ease;
+    background 180ms ease;
 }
 
 .call-stack__frame.is-active {
   border-color: var(--accent);
-  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 14%, transparent);
-  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--accent) 8%, white);
+  box-shadow: inset 3px 0 0 var(--accent);
 }
 
 .call-stack__frame header {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 0.5rem;
   margin-bottom: 0.45rem;
+  min-width: 0;
+}
+
+.call-stack__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.55rem;
+  min-width: 0;
+}
+
+.call-stack__depth {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  flex-shrink: 0;
 }
 
 .call-stack__fname {
@@ -56,9 +83,11 @@
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--ink);
+  overflow-wrap: anywhere;
 }
 
 .call-stack__badge {
+  flex-shrink: 0;
   font-size: 0.68rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -70,14 +99,16 @@
   margin: 0;
   display: grid;
   gap: 0.3rem;
+  min-width: 0;
 }
 
 .call-stack__local {
   display: grid;
-  grid-template-columns: minmax(3.5rem, auto) 1fr;
-  gap: 0.55rem;
+  grid-template-columns: minmax(2.5rem, max-content) minmax(0, 1fr);
+  gap: 0.35rem 0.55rem;
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
+  min-width: 0;
 }
 
 .call-stack__local dt {
@@ -89,4 +120,5 @@
   margin: 0;
   color: var(--ink);
   overflow-wrap: anywhere;
+  word-break: break-word;
 }

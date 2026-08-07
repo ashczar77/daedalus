@@ -1,8 +1,10 @@
 .stack-viz {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  align-items: flex-start;
+  gap: 0.65rem;
+  align-items: stretch;
+  min-width: 0;
+  width: 100%;
 }
 
 .stack-viz__label {
@@ -17,11 +19,13 @@
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  min-width: 8rem;
-  padding: 0.75rem;
+  width: 100%;
+  max-width: 14rem;
+  padding: 0.7rem;
   border: 1px solid var(--line);
   border-radius: 0.75rem;
   background: color-mix(in srgb, var(--surface) 90%, white);
+  min-width: 0;
 }
 
 .stack-viz__empty {
@@ -37,22 +41,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 6.5rem;
-  padding: 0.65rem 1rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0.6rem 1.6rem 0.6rem 0.75rem;
   border: 1px solid var(--line);
   border-radius: 0.5rem;
   background: white;
   transition:
-    transform 180ms ease,
     border-color 180ms ease,
-    background 180ms ease;
+    background 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .stack-viz__item.is-push,
 .stack-viz__item.is-peek {
   border-color: var(--accent);
   background: color-mix(in srgb, var(--accent) 14%, white);
-  transform: translateY(-2px);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 16%, transparent);
 }
 
 .stack-viz__item.is-pop {
@@ -67,16 +72,18 @@
 
 .stack-viz__value {
   font-family: var(--font-body);
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--ink);
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 
 .stack-viz__top-tag {
   position: absolute;
-  right: 0.45rem;
-  top: 0.25rem;
-  font-size: 0.65rem;
+  right: 0.4rem;
+  top: 0.3rem;
+  font-size: 0.62rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--muted);

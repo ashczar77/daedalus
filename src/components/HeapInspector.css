@@ -1,0 +1,97 @@
+.heap-inspector {
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  background: color-mix(in srgb, var(--surface) 92%, white);
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.heap-inspector__title {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.heap-inspector__hint {
+  margin: 0;
+  font-size: 0.7rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.heap-inspector__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  max-height: 16rem;
+  overflow: auto;
+}
+
+.heap-inspector__row {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: white;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  min-width: 0;
+  transition:
+    opacity 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.heap-inspector__row.is-idle {
+  opacity: 0.45;
+}
+
+.heap-inspector__row.is-active {
+  opacity: 1;
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--line));
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.heap-inspector__main {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 0.3rem 0.45rem;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.heap-inspector__id {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.heap-inspector__kind {
+  color: var(--muted);
+}
+
+.heap-inspector__label {
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.heap-inspector__refs {
+  margin: 0;
+  font-size: 0.68rem;
+  color: var(--accent-2);
+  overflow-wrap: anywhere;
+}
+
+.heap-inspector__refs.is-muted {
+  color: var(--muted);
+}

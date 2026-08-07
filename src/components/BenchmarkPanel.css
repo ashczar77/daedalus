@@ -1,36 +1,43 @@
 .benchmark {
   display: grid;
   gap: 1rem;
+  min-width: 0;
+  width: 100%;
 }
 
 .benchmark__grid {
   display: grid;
   gap: 1rem;
+  min-width: 0;
 }
 
 @media (min-width: 800px) {
   .benchmark__grid {
-    grid-template-columns: 1fr 1.4fr;
+    grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.5fr);
   }
 }
 
 .benchmark__card {
   border: 1px solid var(--line);
   border-radius: 0.9rem;
-  padding: 1.1rem 1.2rem;
+  padding: 1rem 1.1rem;
   background: color-mix(in srgb, var(--surface) 94%, white);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .benchmark__card h3 {
   margin: 0 0 0.7rem;
   font-family: var(--font-display);
-  font-size: 1.15rem;
+  font-size: clamp(1rem, 2.5vw, 1.15rem);
+  overflow-wrap: anywhere;
 }
 
 .benchmark__card p {
   margin: 0 0 0.55rem;
   color: var(--ink-soft);
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .benchmark__card p:last-child {
@@ -38,7 +45,7 @@
 }
 
 .benchmark__note {
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   color: var(--muted) !important;
 }
 
@@ -46,11 +53,13 @@
   display: grid;
   gap: 1rem;
   margin-top: 0.85rem;
+  min-width: 0;
 }
 
 .benchmark__series {
   display: grid;
   gap: 0.45rem;
+  min-width: 0;
 }
 
 .benchmark__series-label {
@@ -64,8 +73,10 @@
 .benchmark__bars {
   display: flex;
   align-items: end;
-  gap: 0.65rem;
+  gap: 0.45rem;
   min-height: 7rem;
+  min-width: 0;
+  overflow-x: auto;
 }
 
 .benchmark__bar-wrap {
@@ -73,15 +84,15 @@
   grid-template-rows: 1fr auto auto;
   justify-items: center;
   gap: 0.2rem;
-  flex: 1;
-  min-width: 0;
-  font-size: 0.7rem;
+  flex: 1 1 3rem;
+  min-width: 2.6rem;
+  font-size: 0.65rem;
   color: var(--muted);
 }
 
 .benchmark__bar {
   width: 100%;
-  max-width: 2.4rem;
+  max-width: 2.2rem;
   border-radius: 0.35rem 0.35rem 0.15rem 0.15rem;
   align-self: end;
   transition: height 200ms ease;

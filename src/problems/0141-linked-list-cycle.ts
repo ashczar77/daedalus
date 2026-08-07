@@ -38,6 +38,7 @@ const steps: Step[] = [
         cycleTo: ['n4', 'n2'],
         focusIds: ['n1'],
         focused: true,
+        caption: 'slow & fast at head',
       },
     ],
   },
@@ -63,6 +64,7 @@ const steps: Step[] = [
         cycleTo: ['n4', 'n2'],
         focusIds: ['n2', 'n3'],
         focused: true,
+        caption: 'slow +1 · fast +2',
       },
     ],
   },
@@ -88,6 +90,7 @@ const steps: Step[] = [
         cycleTo: ['n4', 'n2'],
         focusIds: ['n3', 'n2'],
         focused: true,
+        caption: 'fast lapping inside the cycle',
       },
     ],
   },
@@ -113,6 +116,7 @@ const steps: Step[] = [
         cycleTo: ['n4', 'n2'],
         focusIds: ['n4'],
         focused: true,
+        caption: 'meet → cycle = true',
       },
     ],
   },
@@ -131,4 +135,15 @@ export const linkedListCycle: ProblemPack = {
   languages: { java: javaSrc, kotlin: kotlinSrc, python: pythonSrc },
   steps,
   benchmark: placeholderBenchmark('O(1) extra memory vs a HashSet of visited node identities.'),
+  walkthrough: {
+    statement:
+      'Given head of a linked list, determine if it has a cycle (some node can be reached again by continuously following next).',
+    keyIdea:
+      'Floyd’s tortoise and hare: slow moves 1, fast moves 2. If they meet, there is a cycle.',
+    approach: [
+      'Start both pointers at head.',
+      'While fast and fast.next exist, advance slow by 1 and fast by 2.',
+      'If slow == fast, return true; if fast hits null, return false.',
+    ],
+  },
 }
