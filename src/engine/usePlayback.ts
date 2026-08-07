@@ -1,15 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Step } from './types'
 
+/** Allowed autoplay multipliers; cycling the speed button walks this list. */
 const SPEEDS = [0.5, 1, 1.5, 2] as const
 export type PlaybackSpeed = (typeof SPEEDS)[number]
 
 type Options = {
   steps: Step[]
-  /** Base delay between auto-play steps at 1x, in ms */
+  /** Delay between auto-play advances at 1× speed (milliseconds). */
   baseDelayMs?: number
 }
 
+/**
+ * Owns the current step index and autoplay timer for a problem.
+ * Visualizers stay pure — they only render `steps[index]`.
+ */
 export function usePlayback({ steps, baseDelayMs = 900 }: Options) {
   const [index, setIndex] = useState(0)
   const [playing, setPlaying] = useState(false)
@@ -35,6 +40,7 @@ export function usePlayback({ steps, baseDelayMs = 900 }: Options) {
 
   const play = useCallback(() => {
     if (steps.length === 0) return
+    // Restart from the beginning if the user hits Play on the last step.
     if (index >= maxIndex) {
       setIndex(0)
     }
@@ -55,6 +61,7 @@ export function usePlayback({ steps, baseDelayMs = 900 }: Options) {
     setIndex((i) => Math.max(0, i - 1))
   }, [pause])
 
+  /** Jump to an absolute step (used by the scrubber); always pauses autoplay. */
   const scrub = useCallback(
     (next: number) => {
       pause()
@@ -75,12 +82,14 @@ export function usePlayback({ steps, baseDelayMs = 900 }: Options) {
     })
   }, [])
 
+  // Switching problems (new `steps` reference) should restart playback cleanly.
   useEffect(() => {
     setIndex(0)
     setPlaying(false)
     clearTimer()
   }, [steps, clearTimer])
 
+  // Autoplay: schedule the next step, scaled by the current speed multiplier.
   useEffect(() => {
     clearTimer()
     if (!playing) return

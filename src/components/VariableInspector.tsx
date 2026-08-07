@@ -4,6 +4,10 @@ type Props = {
   variables: Record<string, unknown>
 }
 
+/**
+ * Shows the locals attached to the current step (i, left, complement, …).
+ * Values come from the curated Step.variables map — not a live debugger.
+ */
 export function VariableInspector({ variables }: Props) {
   const entries = Object.entries(variables)
 

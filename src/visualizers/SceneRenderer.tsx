@@ -1,12 +1,17 @@
 import type { Scene } from '../engine/types'
 import { ArrayViz } from './ArrayViz'
 import { HashMapViz } from './HashMapViz'
+import { StackViz } from './StackViz'
 import './SceneRenderer.css'
 
 type Props = {
   scene: Scene
 }
 
+/**
+ * Picks the right visualizer for a step's scene.
+ * Groups recurse so one step can show multiple structures side by side.
+ */
 export function SceneRenderer({ scene }: Props) {
   if (scene.type === 'group') {
     return (
@@ -24,5 +29,9 @@ export function SceneRenderer({ scene }: Props) {
     return <ArrayViz scene={scene} />
   }
 
-  return <HashMapViz scene={scene} />
+  if (scene.type === 'hashmap') {
+    return <HashMapViz scene={scene} />
+  }
+
+  return <StackViz scene={scene} />
 }

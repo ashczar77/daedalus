@@ -5,9 +5,14 @@ type Props = {
   scene: ArrayScene
 }
 
+/**
+ * Renders an array as cells with optional highlight roles and named pointers.
+ * Highlight roles (current, found, window, …) come from the step's scene data.
+ */
 export function ArrayViz({ scene }: Props) {
+  // Index → role lookup so each cell can pick the right CSS state in O(1).
   const highlightMap = new Map(
-    (scene.highlights ?? []).map((h) => [h.index, h.role]),
+    (scene.highlights ?? []).map((highlight) => [highlight.index, highlight.role]),
   )
   const pointerEntries = Object.entries(scene.pointers ?? {})
 

@@ -1,3 +1,6 @@
+# Two Sum II — sorted array; opposite-end pointers; return 1-indexed indices.
+# Time O(n), Space O(1).
+
 class Solution:
     def twoSum(self, numbers: list[int], target: int) -> list[int]:
         left = 0

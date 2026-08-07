@@ -1,3 +1,6 @@
+// Binary Search — keep target in [left, right]; update with mid ± 1 (not ±+1 linear).
+// Time O(log n), Space O(1).
+
 class Solution {
     public int search(int[] nums, int target) {
         int left = 0;

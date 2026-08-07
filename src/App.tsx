@@ -3,6 +3,7 @@ import { CatalogPage } from './pages/CatalogPage'
 import { ProblemPage } from './pages/ProblemPage'
 import './App.css'
 
+/** Top-level routes for Daedalus. */
 export default function App() {
   return (
     <div className="app-shell">

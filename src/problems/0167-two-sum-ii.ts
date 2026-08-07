@@ -1,3 +1,7 @@
+/**
+ * LeetCode #167 — Two Sum II (sorted array, opposite-end two pointers).
+ * Demo input: numbers = [2,7,11,15], target = 9. Returns 1-indexed positions.
+ */
 import javaSrc from '../../algorithms/0167-two-sum-ii/Solution.java?raw'
 import kotlinSrc from '../../algorithms/0167-two-sum-ii/Solution.kt?raw'
 import pythonSrc from '../../algorithms/0167-two-sum-ii/solution.py?raw'
@@ -6,11 +10,12 @@ import type { ProblemPack, Step } from '../engine/types'
 const numbers = [2, 7, 11, 15]
 const target = 9
 
+/** Move left/right based on whether the current sum is too small or too large. */
 const steps: Step[] = [
   {
     id: 1,
     message: 'Array is sorted. Place left at the start and right at the end.',
-    codeFocus: { java: 4, kotlin: 4, python: 4 },
+    codeFocus: { java: 7, kotlin: 7, python: 7 },
     variables: { target, left: 0, right: 3 },
     scene: {
       type: 'array',
@@ -26,7 +31,7 @@ const steps: Step[] = [
   {
     id: 2,
     message: 'sum = 2 + 15 = 17, which is greater than 9 — move right leftward.',
-    codeFocus: { java: 13, kotlin: 10, python: 12 },
+    codeFocus: { java: 16, kotlin: 13, python: 15 },
     variables: { target, left: 0, right: 3, sum: 17 },
     scene: {
       type: 'array',
@@ -42,7 +47,7 @@ const steps: Step[] = [
   {
     id: 3,
     message: 'right = 2. sum = 2 + 11 = 13, still too large — move right again.',
-    codeFocus: { java: 13, kotlin: 10, python: 12 },
+    codeFocus: { java: 16, kotlin: 13, python: 15 },
     variables: { target, left: 0, right: 2, sum: 13 },
     scene: {
       type: 'array',
@@ -59,7 +64,7 @@ const steps: Step[] = [
   {
     id: 4,
     message: 'right = 1. sum = 2 + 7 = 9 — exact match.',
-    codeFocus: { java: 7, kotlin: 8, python: 7 },
+    codeFocus: { java: 10, kotlin: 11, python: 10 },
     variables: { target, left: 0, right: 1, sum: 9 },
     scene: {
       type: 'array',
@@ -75,7 +80,7 @@ const steps: Step[] = [
   {
     id: 5,
     message: 'Return 1-indexed positions [1, 2]. Sorted order removes the need for a hash map.',
-    codeFocus: { java: 8, kotlin: 8, python: 8 },
+    codeFocus: { java: 11, kotlin: 11, python: 11 },
     variables: { target, result: [1, 2] },
     scene: {
       type: 'array',
@@ -111,7 +116,7 @@ export const twoSumII: ProblemPack = {
     python: pythonSrc,
   },
   steps,
-  perf: {
+  benchmark: {
     sizes: [1_000, 10_000, 100_000],
     series: [
       {

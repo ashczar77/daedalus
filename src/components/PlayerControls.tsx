@@ -16,6 +16,10 @@ type Props = {
   onCycleSpeed: () => void
 }
 
+/**
+ * Transport controls for the step player: play/pause, step, reset, scrub, speed.
+ * All state lives in usePlayback; this component is presentational.
+ */
 export function PlayerControls({
   index,
   total,

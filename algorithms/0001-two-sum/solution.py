@@ -1,3 +1,6 @@
+# Two Sum — single-pass dict of value → index; look up target - num.
+# Time O(n), Space O(n).
+
 class Solution:
     def twoSum(self, nums: list[int], target: int) -> list[int]:
         seen: dict[int, int] = {}

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { BenchmarkPanel } from '../components/BenchmarkPanel'
 import { CodePanel } from '../components/CodePanel'
-import { PerfPanel } from '../components/PerfPanel'
 import { PlayerControls } from '../components/PlayerControls'
 import { VariableInspector } from '../components/VariableInspector'
 import type { Language } from '../engine/types'
@@ -10,9 +10,14 @@ import { getProblem } from '../problems/registry'
 import { SceneRenderer } from '../visualizers/SceneRenderer'
 import './ProblemPage.css'
 
+/**
+ * Step-through view for one problem pack:
+ * visualization stage, code + variables, playback controls, then teaching/benchmark panel.
+ */
 export function ProblemPage() {
   const { problemId = '' } = useParams()
   const problem = getProblem(problemId)
+  // Default to Java to match the learning-repo solutions.
   const [language, setLanguage] = useState<Language>('java')
 
   const steps = useMemo(() => problem?.steps ?? [], [problem])
@@ -27,6 +32,7 @@ export function ProblemPage() {
     )
   }
 
+  // Remap the highlighted line when the user switches language without resetting the step.
   const focusLine = playback.step?.codeFocus[language] ?? 1
 
   return (
@@ -79,9 +85,9 @@ export function ProblemPage() {
       />
 
       <div className="problem__below">
-        <PerfPanel
+        <BenchmarkPanel
           complexity={problem.complexity}
-          perf={problem.perf}
+          benchmark={problem.benchmark}
           insight={problem.insight}
           invariant={problem.invariant}
         />

@@ -5,8 +5,12 @@ type Props = {
   scene: HashMapScene
 }
 
+/**
+ * Renders a hash map (or a set shown as key → marker) for the current step.
+ * `focusKeys` marks the entries the algorithm is reading or writing right now.
+ */
 export function HashMapViz({ scene }: Props) {
-  const focus = new Set((scene.focusKeys ?? []).map(String))
+  const focusedKeys = new Set((scene.focusKeys ?? []).map(String))
 
   return (
     <div className="hash-viz">
@@ -16,7 +20,7 @@ export function HashMapViz({ scene }: Props) {
       ) : (
         <div className="hash-viz__grid" role="list">
           {scene.entries.map(([key, value]) => {
-            const focused = focus.has(String(key))
+            const focused = focusedKeys.has(String(key))
             return (
               <div
                 key={String(key)}
@@ -35,6 +39,7 @@ export function HashMapViz({ scene }: Props) {
   )
 }
 
+/** Keep the inspector / chips readable for nested values. */
 function formatValue(value: unknown): string {
   if (value === null || value === undefined) return String(value)
   if (typeof value === 'object') return JSON.stringify(value)

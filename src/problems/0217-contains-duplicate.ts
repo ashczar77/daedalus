@@ -1,3 +1,7 @@
+/**
+ * LeetCode #217 — Contains Duplicate (hash set membership).
+ * Demo input: nums = [1, 2, 3, 1]. The set is rendered via HashMapScene chips.
+ */
 import javaSrc from '../../algorithms/0217-contains-duplicate/Solution.java?raw'
 import kotlinSrc from '../../algorithms/0217-contains-duplicate/Solution.kt?raw'
 import pythonSrc from '../../algorithms/0217-contains-duplicate/solution.py?raw'
@@ -5,11 +9,12 @@ import type { ProblemPack, Step } from '../engine/types'
 
 const nums = [1, 2, 3, 1]
 
+/** Walk through inserting values until the first duplicate is found. */
 const steps: Step[] = [
   {
     id: 1,
     message: 'Create an empty set. We only need presence, not counts or indices.',
-    codeFocus: { java: 6, kotlin: 3, python: 3 },
+    codeFocus: { java: 9, kotlin: 6, python: 6 },
     variables: { result: null },
     scene: {
       type: 'group',
@@ -22,7 +27,7 @@ const steps: Step[] = [
   {
     id: 2,
     message: 'Read 1. It is not in the set, so add it.',
-    codeFocus: { java: 8, kotlin: 5, python: 7 },
+    codeFocus: { java: 11, kotlin: 8, python: 10 },
     variables: { num: 1 },
     scene: {
       type: 'group',
@@ -46,7 +51,7 @@ const steps: Step[] = [
   {
     id: 3,
     message: 'Read 2. New value — add it.',
-    codeFocus: { java: 8, kotlin: 5, python: 7 },
+    codeFocus: { java: 11, kotlin: 8, python: 10 },
     variables: { num: 2 },
     scene: {
       type: 'group',
@@ -76,7 +81,7 @@ const steps: Step[] = [
   {
     id: 4,
     message: 'Read 3. Still unique — add it.',
-    codeFocus: { java: 8, kotlin: 5, python: 7 },
+    codeFocus: { java: 11, kotlin: 8, python: 10 },
     variables: { num: 3 },
     scene: {
       type: 'group',
@@ -108,7 +113,7 @@ const steps: Step[] = [
   {
     id: 5,
     message: 'Read 1 again. Set.add returns false (Python: already in set) — duplicate found.',
-    codeFocus: { java: 9, kotlin: 6, python: 6 },
+    codeFocus: { java: 12, kotlin: 9, python: 9 },
     variables: { num: 1, result: true },
     scene: {
       type: 'group',
@@ -158,7 +163,7 @@ export const containsDuplicate: ProblemPack = {
     python: pythonSrc,
   },
   steps,
-  perf: {
+  benchmark: {
     sizes: [1_000, 10_000, 100_000],
     series: [
       {

@@ -6,6 +6,7 @@ import './index.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    {/* BrowserRouter so catalog + problem pages share client-side navigation */}
     <BrowserRouter>
       <App />
     </BrowserRouter>

@@ -1,59 +1,59 @@
-.perf {
+.benchmark {
   display: grid;
   gap: 1rem;
 }
 
-.perf__grid {
+.benchmark__grid {
   display: grid;
   gap: 1rem;
 }
 
 @media (min-width: 800px) {
-  .perf__grid {
+  .benchmark__grid {
     grid-template-columns: 1fr 1.4fr;
   }
 }
 
-.perf__card {
+.benchmark__card {
   border: 1px solid var(--line);
   border-radius: 0.9rem;
   padding: 1.1rem 1.2rem;
   background: color-mix(in srgb, var(--surface) 94%, white);
 }
 
-.perf__card h3 {
+.benchmark__card h3 {
   margin: 0 0 0.7rem;
   font-family: var(--font-display);
   font-size: 1.15rem;
 }
 
-.perf__card p {
+.benchmark__card p {
   margin: 0 0 0.55rem;
   color: var(--ink-soft);
   line-height: 1.5;
 }
 
-.perf__card p:last-child {
+.benchmark__card p:last-child {
   margin-bottom: 0;
 }
 
-.perf__note {
+.benchmark__note {
   font-size: 0.92rem;
   color: var(--muted) !important;
 }
 
-.perf__chart {
+.benchmark__chart {
   display: grid;
   gap: 1rem;
   margin-top: 0.85rem;
 }
 
-.perf__series {
+.benchmark__series {
   display: grid;
   gap: 0.45rem;
 }
 
-.perf__series-label {
+.benchmark__series-label {
   font-family: var(--font-mono);
   font-size: 0.8rem;
   text-transform: uppercase;
@@ -61,14 +61,14 @@
   color: var(--muted);
 }
 
-.perf__bars {
+.benchmark__bars {
   display: flex;
   align-items: end;
   gap: 0.65rem;
   min-height: 7rem;
 }
 
-.perf__bar-wrap {
+.benchmark__bar-wrap {
   display: grid;
   grid-template-rows: 1fr auto auto;
   justify-items: center;
@@ -79,7 +79,7 @@
   color: var(--muted);
 }
 
-.perf__bar {
+.benchmark__bar {
   width: 100%;
   max-width: 2.4rem;
   border-radius: 0.35rem 0.35rem 0.15rem 0.15rem;

@@ -1,11 +1,12 @@
 # Phase 1 Review — Foundation + first array problems
 
 **Status:** Complete — awaiting approval before Phase 2  
-**Date:** 2026-08-07
+**Date:** 2026-08-07  
+**Follow-up (same phase):** renamed `perf*` → `benchmark*`; added explanatory comments across Phase 1 code
 
 ## Goal
 
-Stand up the Daedalus app shell, language-agnostic step/playback engine, Array + HashMap visualizers, and ship four end-to-end problems with Java / Kotlin / Python solutions, curated traces, and basic cross-language perf charts.
+Stand up the Daedalus app shell, language-agnostic step/playback engine, Array + HashMap visualizers, and ship four end-to-end problems with Java / Kotlin / Python solutions, curated traces, and basic cross-language benchmark charts.
 
 ## What changed
 
@@ -13,7 +14,7 @@ Stand up the Daedalus app shell, language-agnostic step/playback engine, Array +
 | Path | Change |
 |---|---|
 | Vite React+TS scaffold | Created project (`npm create vite`) |
-| [`package.json`](../../package.json) | Added `react-router-dom` |
+| [`package.json`](../../package.json) | Package name `daedalus`; added `react-router-dom` |
 | [`src/main.tsx`](../../src/main.tsx) | Wired `BrowserRouter` |
 | [`src/App.tsx`](../../src/App.tsx) | Routes: catalog `/`, problem `/problems/:problemId` |
 | [`src/index.css`](../../src/index.css) | Design tokens, Syne / Source Sans 3 / IBM Plex Mono, cool mist palette |
@@ -22,7 +23,7 @@ Stand up the Daedalus app shell, language-agnostic step/playback engine, Array +
 ### Engine
 | Path | Change |
 |---|---|
-| [`src/engine/types.ts`](../../src/engine/types.ts) | `Step`, `Scene` (array / hashmap / group), `ProblemPack`, perf types |
+| [`src/engine/types.ts`](../../src/engine/types.ts) | `Step`, `Scene` (array / hashmap / group), `ProblemPack`, `BenchmarkData` / `BenchmarkSeries` |
 | [`src/engine/usePlayback.ts`](../../src/engine/usePlayback.ts) | Play / pause / step ±1 / scrub / speed / reset |
 
 ### Visualizers & UI
@@ -34,9 +35,9 @@ Stand up the Daedalus app shell, language-agnostic step/playback engine, Array +
 | [`src/components/CodePanel.tsx`](../../src/components/CodePanel.tsx) | Language tabs + line highlight |
 | [`src/components/VariableInspector.tsx`](../../src/components/VariableInspector.tsx) | Current-step locals |
 | [`src/components/PlayerControls.tsx`](../../src/components/PlayerControls.tsx) | Transport + scrubber |
-| [`src/components/PerfPanel.tsx`](../../src/components/PerfPanel.tsx) | Big-O, insight/invariant, language runtime bars |
+| [`src/components/BenchmarkPanel.tsx`](../../src/components/BenchmarkPanel.tsx) | Big-O, insight/invariant, language runtime bars |
 | [`src/pages/CatalogPage.tsx`](../../src/pages/CatalogPage.tsx) | Brand-first catalog |
-| [`src/pages/ProblemPage.tsx`](../../src/pages/ProblemPage.tsx) | Stage + code + controls + perf |
+| [`src/pages/ProblemPage.tsx`](../../src/pages/ProblemPage.tsx) | Stage + code + controls + benchmarks |
 
 ### Problem packs (algorithms + traces)
 | Problem | Sources | Pack module |
@@ -47,14 +48,15 @@ Stand up the Daedalus app shell, language-agnostic step/playback engine, Array +
 | #704 Binary Search | [`algorithms/0704-binary-search/`](../../algorithms/0704-binary-search/) | [`src/problems/0704-binary-search.ts`](../../src/problems/0704-binary-search.ts) |
 
 Registry: [`src/problems/registry.ts`](../../src/problems/registry.ts)  
-Sample perf JSON: [`public/perf/0001-two-sum.json`](../../public/perf/0001-two-sum.json) (charts currently read embedded pack data)
+Sample benchmark JSON: [`public/benchmarks/0001-two-sum.json`](../../public/benchmarks/0001-two-sum.json) (charts currently read embedded pack data)
 
 ## Why
 
 - **Curated `Step[]` schema first** keeps the UI language-agnostic so a future playground can emit the same frames.
 - **`group` scenes** let Two Sum / Contains Duplicate show array + map together without a one-off visualizer.
 - **Source files live under `algorithms/`** and are imported with Vite `?raw`, so the Code panel shows real Java/Kotlin/Python you can later feed to runners/benchmarks.
-- **Perf is precomputed placeholders** for Phase 1 — enough to teach the UI and language-constant story; Phase 4 can replace with measured offline benchmarks.
+- **`benchmark` naming** (not `perf`) makes the cross-language runtime comparison intent obvious.
+- **Benchmark numbers are precomputed placeholders** for Phase 1 — enough to teach the UI and language-constant story; later phases replace them with measured offline results.
 - **Default language Java** matches your learning repo; switching language remaps line focus without resetting the step.
 
 ## How it works
@@ -62,7 +64,7 @@ Sample perf JSON: [`public/perf/0001-two-sum.json`](../../public/perf/0001-two-s
 1. Catalog lists packs from `problems` registry.
 2. Problem page loads a `ProblemPack`, feeds `steps` into `usePlayback`.
 3. Each step drives: message, `SceneRenderer`, variable inspector, and `codeFocus[language]`.
-4. Below the fold, `PerfPanel` shows complexity + insight/invariant + bar chart of Java vs Kotlin vs Python.
+4. Below the fold, `BenchmarkPanel` shows complexity + insight/invariant + bar chart of Java vs Kotlin vs Python.
 
 ## How to verify
 
@@ -84,10 +86,11 @@ Then:
 
 ## Open questions / follow-ups
 
-- Perf numbers are illustrative, not measured — replace in the benchmark pipeline phase.
-- No custom input yet (Phase 4).
+- Benchmark numbers are illustrative, not measured — replace in the offline benchmark pipeline.
+- No custom input yet (Phase 4 — all problem types).
 - Stack / linked list / tree visualizers deferred to Phases 2–3.
 - Remaining 13 problems from `PROGRESS.md` not yet authored.
+- UI identity pass deferred to Phase 5.
 
 ## Approval gate
 

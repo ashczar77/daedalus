@@ -1,3 +1,6 @@
+// Binary Search — keep target in [left, right]; update with mid ± 1.
+// Time O(log n), Space O(1).
+
 class Solution {
     fun search(nums: IntArray, target: Int): Int {
         var left = 0

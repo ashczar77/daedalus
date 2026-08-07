@@ -1,3 +1,8 @@
+/**
+ * LeetCode #704 — Binary Search.
+ * Demo input: nums = [-1,0,3,5,9,12], target = 9.
+ * Highlights the mid ± 1 window rule that keeps the search O(log n).
+ */
 import javaSrc from '../../algorithms/0704-binary-search/Solution.java?raw'
 import kotlinSrc from '../../algorithms/0704-binary-search/Solution.kt?raw'
 import pythonSrc from '../../algorithms/0704-binary-search/solution.py?raw'
@@ -6,11 +11,12 @@ import type { ProblemPack, Step } from '../engine/types'
 const nums = [-1, 0, 3, 5, 9, 12]
 const target = 9
 
+/** Shrink the [left, right] window until mid lands on the target. */
 const steps: Step[] = [
   {
     id: 1,
     message: 'Initialize the search window to the full array: left = 0, right = 5.',
-    codeFocus: { java: 4, kotlin: 4, python: 4 },
+    codeFocus: { java: 7, kotlin: 7, python: 7 },
     variables: { target, left: 0, right: 5 },
     scene: {
       type: 'array',
@@ -30,7 +36,7 @@ const steps: Step[] = [
   {
     id: 2,
     message: 'mid = 0 + (5 − 0) / 2 = 2. nums[2] = 3, which is less than 9 — discard the left half including mid.',
-    codeFocus: { java: 11, kotlin: 9, python: 10 },
+    codeFocus: { java: 14, kotlin: 12, python: 13 },
     variables: { target, left: 0, right: 5, mid: 2, 'nums[mid]': 3 },
     scene: {
       type: 'array',
@@ -50,7 +56,7 @@ const steps: Step[] = [
   {
     id: 3,
     message: 'Move left to mid + 1 → left = 3. Window is now [3, 5].',
-    codeFocus: { java: 5, kotlin: 5, python: 5 },
+    codeFocus: { java: 8, kotlin: 8, python: 8 },
     variables: { target, left: 3, right: 5 },
     scene: {
       type: 'array',
@@ -70,7 +76,7 @@ const steps: Step[] = [
   {
     id: 4,
     message: 'mid = 3 + (5 − 3) / 2 = 4. nums[4] = 9 — exact match.',
-    codeFocus: { java: 7, kotlin: 8, python: 7 },
+    codeFocus: { java: 10, kotlin: 11, python: 10 },
     variables: { target, left: 3, right: 5, mid: 4, 'nums[mid]': 9 },
     scene: {
       type: 'array',
@@ -87,7 +93,7 @@ const steps: Step[] = [
   {
     id: 5,
     message: 'Return mid = 4. Critical detail: update with mid ± 1, never left++ / right-- (that would be O(n)).',
-    codeFocus: { java: 8, kotlin: 8, python: 8 },
+    codeFocus: { java: 11, kotlin: 11, python: 11 },
     variables: { target, result: 4 },
     scene: {
       type: 'array',
@@ -121,7 +127,7 @@ export const binarySearch: ProblemPack = {
     python: pythonSrc,
   },
   steps,
-  perf: {
+  benchmark: {
     sizes: [1_000, 10_000, 100_000],
     series: [
       {

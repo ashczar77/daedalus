@@ -1,3 +1,6 @@
+// Two Sum — single-pass hash map of value → index; look up target - nums[i].
+// Time O(n), Space O(n).
+
 import java.util.HashMap;
 import java.util.Map;
 

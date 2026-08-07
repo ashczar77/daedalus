@@ -1,3 +1,6 @@
+# Contains Duplicate — set membership; return True on first repeat.
+# Time O(n), Space O(n).
+
 class Solution:
     def containsDuplicate(self, nums: list[int]) -> bool:
         seen: set[int] = set()

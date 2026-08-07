@@ -1,3 +1,6 @@
+// Contains Duplicate — HashSet membership; add() returns false on collision.
+// Time O(n), Space O(n).
+
 import java.util.HashSet;
 import java.util.Set;
 
