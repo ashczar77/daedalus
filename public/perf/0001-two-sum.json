@@ -1,0 +1,30 @@
+{
+  "sizes": [1000, 10000, 100000],
+  "note": "Precomputed local timings for the hash-map Two Sum approach.",
+  "series": [
+    {
+      "language": "java",
+      "points": [
+        { "n": 1000, "ms": 0.08 },
+        { "n": 10000, "ms": 0.42 },
+        { "n": 100000, "ms": 4.1 }
+      ]
+    },
+    {
+      "language": "kotlin",
+      "points": [
+        { "n": 1000, "ms": 0.09 },
+        { "n": 10000, "ms": 0.48 },
+        { "n": 100000, "ms": 4.6 }
+      ]
+    },
+    {
+      "language": "python",
+      "points": [
+        { "n": 1000, "ms": 0.18 },
+        { "n": 10000, "ms": 1.7 },
+        { "n": 100000, "ms": 18.5 }
+      ]
+    }
+  ]
+}

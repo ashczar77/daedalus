@@ -1,0 +1,48 @@
+.player {
+  display: grid;
+  gap: 0.85rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: color-mix(in srgb, var(--surface) 94%, white);
+}
+
+.player__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.player button {
+  border: 1px solid var(--line);
+  background: white;
+  color: var(--ink);
+  border-radius: 0.55rem;
+  padding: 0.55rem 0.9rem;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.player button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.player__primary {
+  background: var(--ink) !important;
+  color: white !important;
+  border-color: var(--ink) !important;
+}
+
+.player__scrub {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.player__scrub input {
+  width: 100%;
+  accent-color: var(--accent);
+}

@@ -1,0 +1,140 @@
+.catalog {
+  width: min(1100px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2.5rem 0 4rem;
+}
+
+.catalog__hero {
+  position: relative;
+  padding: 2.5rem 0 3rem;
+  margin-bottom: 1.5rem;
+}
+
+.catalog__hero::before {
+  content: '';
+  position: absolute;
+  inset: -1rem -1.25rem auto;
+  height: 14rem;
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(circle at 12% 20%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 45%),
+    radial-gradient(circle at 88% 10%, color-mix(in srgb, var(--accent-2) 18%, transparent), transparent 40%),
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 80%, white), transparent);
+  z-index: -1;
+}
+
+.catalog__eyebrow {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.catalog__brand {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(3.2rem, 8vw, 5.4rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+}
+
+.catalog__lede {
+  margin: 1rem 0 0;
+  max-width: 36rem;
+  font-size: 1.1rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.catalog__list-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.catalog__list-head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+}
+
+.catalog__list-head p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.catalog__list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.catalog__card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  padding: 1.1rem 1.15rem;
+  border-radius: 0.9rem;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 88%, white);
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.catalog__card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+.catalog__card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.7rem;
+}
+
+.catalog__lc {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.catalog__diff {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.catalog__diff.is-easy {
+  color: var(--good);
+}
+
+.catalog__diff.is-medium {
+  color: var(--warn);
+}
+
+.catalog__diff.is-hard {
+  color: #b91c1c;
+}
+
+.catalog__card h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+}
+
+.catalog__card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}

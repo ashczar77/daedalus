@@ -1,0 +1,99 @@
+.array-viz {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.array-viz__label {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.array-viz__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.array-viz__cell {
+  position: relative;
+  min-width: 3.1rem;
+  padding: 0.85rem 0.65rem 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: 0.55rem;
+  background: color-mix(in srgb, var(--surface) 88%, white);
+  text-align: center;
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.array-viz__cell.is-current {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, white);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.array-viz__cell.is-compare {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 14%, white);
+}
+
+.array-viz__cell.is-found {
+  border-color: var(--good);
+  background: color-mix(in srgb, var(--good) 18%, white);
+  transform: translateY(-4px);
+}
+
+.array-viz__cell.is-visited {
+  background: color-mix(in srgb, var(--ink) 6%, white);
+}
+
+.array-viz__cell.is-window {
+  border-color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 14%, white);
+}
+
+.array-viz__cell.is-discard {
+  opacity: 0.45;
+}
+
+.array-viz__value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.array-viz__index {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.3rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.array-viz__pointers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
+}
+
+.array-viz__pointer {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.array-viz__pointer strong {
+  color: var(--accent);
+  font-weight: 600;
+}

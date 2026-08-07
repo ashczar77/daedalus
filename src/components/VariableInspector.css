@@ -1,0 +1,46 @@
+.vars {
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  padding: 0.9rem 1rem;
+  background: color-mix(in srgb, var(--surface) 92%, white);
+}
+
+.vars__title {
+  margin: 0 0 0.65rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.vars__empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.vars__list {
+  margin: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.vars__row {
+  display: grid;
+  grid-template-columns: minmax(4rem, auto) 1fr;
+  gap: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.vars__row dt {
+  color: var(--accent-2);
+  font-weight: 600;
+}
+
+.vars__row dd {
+  margin: 0;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}

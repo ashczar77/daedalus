@@ -1,0 +1,15 @@
+.scene-group {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 720px) {
+  .scene-group {
+    grid-template-columns: 1.3fr 1fr;
+    align-items: start;
+  }
+}
+
+.scene-group__panel {
+  min-width: 0;
+}

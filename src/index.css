@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Source+Sans+3:wght@400;600;700&family=Syne:wght@700;800&display=swap');
+
+:root {
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Source Sans 3', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  --bg: #eef3f6;
+  --surface: #e7eef3;
+  --ink: #14212b;
+  --ink-soft: #314554;
+  --muted: #6a7c8a;
+  --line: #c9d6e0;
+  --accent: #0f766e;
+  --accent-2: #0369a1;
+  --good: #15803d;
+  --warn: #b45309;
+
+  font-family: var(--font-body);
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 15% -10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 34%),
+    radial-gradient(circle at 90% 0%, color-mix(in srgb, #0369a1 12%, transparent), transparent 28%),
+    linear-gradient(180deg, #f5f8fa 0%, var(--bg) 40%, #e8eef2 100%);
+  background-attachment: fixed;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}
