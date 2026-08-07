@@ -1,9 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Source+Sans+3:wght@400;600;700&family=Syne:wght@700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bungee+Outline&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-  --font-display: 'Syne', sans-serif;
-  --font-body: 'Source Sans 3', sans-serif;
-  --font-mono: 'IBM Plex Mono', monospace;
+  /* Brand + headings: https://fonts.google.com/specimen/Bungee+Outline */
+  --font-display: 'Bungee Outline', sans-serif;
+  /* Body, UI, and code: https://fonts.google.com/specimen/Space+Mono */
+  --font-body: 'Space Mono', monospace;
+  --font-mono: 'Space Mono', monospace;
 
   --bg: #eef3f6;
   --surface: #e7eef3;

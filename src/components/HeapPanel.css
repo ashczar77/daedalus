@@ -1,0 +1,67 @@
+.heap {
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  padding: 0.9rem 1rem 1.1rem;
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--accent) 8%, white), transparent 42%),
+    color-mix(in srgb, var(--surface) 92%, white);
+  display: grid;
+  gap: 0.75rem;
+  min-height: 14rem;
+}
+
+.heap__title {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.heap__empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.heap__objects {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.heap__object {
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  background: color-mix(in srgb, white 88%, var(--surface));
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.heap__object.is-focused {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--ink) 8%, transparent);
+  transform: translateY(-2px);
+}
+
+.heap__object-head {
+  display: flex;
+  gap: 0.55rem;
+  align-items: baseline;
+  margin-bottom: 0.65rem;
+}
+
+.heap__id {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.heap__label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}

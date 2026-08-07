@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import type { Language } from '../engine/types'
 import './CodePanel.css'
 
@@ -28,22 +29,33 @@ export function CodePanel({
 }: Props) {
   const source = languages[language] ?? ''
   const lines = source.replace(/\n$/, '').split('\n')
+  const focusRef = useRef<HTMLSpanElement | null>(null)
+
+  // Keep the executing line visible as the story advances.
+  useEffect(() => {
+    focusRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [focusLine, language])
 
   return (
     <section className="code-panel">
-      <div className="code-panel__tabs" role="tablist" aria-label="Language">
-        {(Object.keys(LABELS) as Language[]).map((lang) => (
-          <button
-            key={lang}
-            type="button"
-            role="tab"
-            aria-selected={language === lang}
-            className={`code-panel__tab${language === lang ? ' is-active' : ''}`}
-            onClick={() => onLanguageChange(lang)}
-          >
-            {LABELS[lang]}
-          </button>
-        ))}
+      <div className="code-panel__header">
+        <div className="code-panel__tabs" role="tablist" aria-label="Language">
+          {(Object.keys(LABELS) as Language[]).map((lang) => (
+            <button
+              key={lang}
+              type="button"
+              role="tab"
+              aria-selected={language === lang}
+              className={`code-panel__tab${language === lang ? ' is-active' : ''}`}
+              onClick={() => onLanguageChange(lang)}
+            >
+              {LABELS[lang]}
+            </button>
+          ))}
+        </div>
+        <p className="code-panel__now">
+          Executing line <strong>{focusLine}</strong>
+        </p>
       </div>
       <pre
         className="code-panel__pre"
@@ -56,10 +68,16 @@ export function CodePanel({
             return (
               <span
                 key={lineNo}
+                ref={focused ? focusRef : undefined}
                 className={`code-panel__line${focused ? ' is-focus' : ''}`}
               >
                 <span className="code-panel__gutter">{lineNo}</span>
                 <span className="code-panel__text">{line || ' '}</span>
+                {focused ? (
+                  <span className="code-panel__caret" aria-hidden>
+                    ▶
+                  </span>
+                ) : null}
               </span>
             )
           })}

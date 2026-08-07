@@ -2,17 +2,17 @@ import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { BenchmarkPanel } from '../components/BenchmarkPanel'
 import { CodePanel } from '../components/CodePanel'
+import { MemoryStage } from '../components/MemoryStage'
 import { PlayerControls } from '../components/PlayerControls'
-import { VariableInspector } from '../components/VariableInspector'
+import { normalizeStep } from '../engine/normalizeStep'
 import type { Language } from '../engine/types'
 import { usePlayback } from '../engine/usePlayback'
 import { getProblem } from '../problems/registry'
-import { SceneRenderer } from '../visualizers/SceneRenderer'
 import './ProblemPage.css'
 
 /**
  * Step-through view for one problem pack:
- * visualization stage, code + variables, playback controls, then teaching/benchmark panel.
+ * storytelling memory stage (call stack + heap), code spine, playback, benchmarks.
  */
 export function ProblemPage() {
   const { problemId = '' } = useParams()
@@ -22,6 +22,11 @@ export function ProblemPage() {
 
   const steps = useMemo(() => problem?.steps ?? [], [problem])
   const playback = usePlayback({ steps })
+
+  const normalized = useMemo(
+    () => (playback.step ? normalizeStep(playback.step) : null),
+    [playback.step],
+  )
 
   if (!problem) {
     return (
@@ -33,7 +38,7 @@ export function ProblemPage() {
   }
 
   // Remap the highlighted line when the user switches language without resetting the step.
-  const focusLine = playback.step?.codeFocus[language] ?? 1
+  const focusLine = normalized?.codeFocus[language] ?? 1
 
   return (
     <div className="problem">
@@ -51,12 +56,9 @@ export function ProblemPage() {
       </header>
 
       <div className="problem__stage">
-        <section className="problem__viz" aria-live="polite">
-          <p className="problem__message">
-            {playback.step?.message ?? 'No steps yet.'}
-          </p>
-          {playback.step ? <SceneRenderer scene={playback.step.scene} /> : null}
-        </section>
+        <div className="problem__story">
+          {normalized ? <MemoryStage step={normalized} /> : null}
+        </div>
 
         <aside className="problem__side">
           <CodePanel
@@ -65,7 +67,6 @@ export function ProblemPage() {
             onLanguageChange={setLanguage}
             focusLine={focusLine}
           />
-          <VariableInspector variables={playback.step?.variables ?? {}} />
         </aside>
       </div>
 

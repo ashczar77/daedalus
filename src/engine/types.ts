@@ -1,9 +1,8 @@
 /**
  * Shared types for Daedalus problem packs and the step-through player.
  *
- * A problem pack is curated content: solution source in several languages,
- * a sequence of Steps that describe what the algorithm is doing, and
- * optional benchmark numbers comparing language runtimes.
+ * Steps tell an execution story: code focus + narrative + abstract call stack
+ * and heap (Python-Tutor style). Structure animations still live on heap objects.
  */
 
 /** Languages we display (and later may run) for each solution. */
@@ -61,9 +60,8 @@ export type StackScene = {
 }
 
 /**
- * What to draw on the visualization stage for one step.
- * `group` lets a step show more than one structure at once
- * (e.g. array beside the hash map for Two Sum).
+ * Legacy stage payload (still supported via normalizeStep).
+ * Prefer putting structures on the heap going forward.
  */
 export type Scene =
   | ArrayScene
@@ -74,18 +72,81 @@ export type Scene =
 /** 1-based line numbers to highlight in each language's source. */
 export type CodeFocus = Record<Language, number>
 
+/** Local that points at a heap object instead of storing a nested value. */
+export type HeapRef = {
+  ref: string
+}
+
+export type LocalValue = unknown | HeapRef
+
+/** One frame on the abstract call stack. */
+export type CallFrame = {
+  /** Function / method name shown in the frame header */
+  name: string
+  locals: Record<string, LocalValue>
+  /** True when this frame is the active execution context */
+  active?: boolean
+}
+
+type HeapObjectBase = {
+  id: string
+  label?: string
+  /** Draws attention to this object on the current beat */
+  focused?: boolean
+}
+
+/** Heap-resident structures the algorithm is manipulating. */
+export type HeapObject =
+  | (HeapObjectBase & {
+      kind: 'array'
+      values: Array<number | string>
+      highlights?: ArrayHighlight[]
+      pointers?: Record<string, number>
+    })
+  | (HeapObjectBase & {
+      kind: 'hashmap'
+      entries: Array<[string | number, unknown]>
+      focusKeys?: Array<string | number>
+    })
+  | (HeapObjectBase & {
+      kind: 'stack'
+      items: unknown[]
+      topAction?: 'push' | 'pop' | 'peek' | 'mismatch'
+    })
+
 /**
- * One frame of the algorithm walkthrough.
- * Language-agnostic on purpose: a future playground can emit the same shape.
+ * One frame of the algorithm walkthrough — a storytelling beat.
+ * Language-agnostic so a future playground can emit the same shape.
  */
 export type Step = {
   id: number
-  /** Plain-language explanation shown above the visualization */
-  message: string
+  /**
+   * Primary story beat: what just happened.
+   * Prefer `narrative`; `message` remains as a legacy alias.
+   */
+  narrative?: string
+  message?: string
+  /** Optional “why this matters” line under the narrative */
+  why?: string
   codeFocus: CodeFocus
-  /** Locals / intermediates for the variable inspector */
-  variables: Record<string, unknown>
-  scene: Scene
+  /** Abstract call stack (top of array = deepest / active frame preferred last) */
+  callStack?: CallFrame[]
+  /** Abstract heap objects referenced by locals */
+  heap?: HeapObject[]
+  /** @deprecated Prefer callStack locals — kept for older packs */
+  variables?: Record<string, unknown>
+  /** @deprecated Prefer heap — kept for older packs */
+  scene?: Scene
+}
+
+/** Normalized step always has narrative + callStack + heap filled in. */
+export type NormalizedStep = {
+  id: number
+  narrative: string
+  why?: string
+  codeFocus: CodeFocus
+  callStack: CallFrame[]
+  heap: HeapObject[]
 }
 
 /** Big-O summary shown below the player. */
@@ -135,4 +196,13 @@ export type ProblemPack = {
   languages: Record<Language, string>
   steps: Step[]
   benchmark: BenchmarkData
+}
+
+export function isHeapRef(value: unknown): value is HeapRef {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'ref' in value &&
+    typeof (value as HeapRef).ref === 'string'
+  )
 }

@@ -1,6 +1,7 @@
 /**
- * LeetCode #20 — Valid Parentheses (stack of unmatched opens).
- * Demo: s = "()[]{}" → true.
+ * LeetCode #20 — Valid Parentheses.
+ * Storytelling pack: call-stack locals + heap stack growing/shrinking.
+ * Demo: s = "()[]{}".
  */
 import javaSrc from '../../algorithms/0020-valid-parentheses/Solution.java?raw'
 import kotlinSrc from '../../algorithms/0020-valid-parentheses/Solution.kt?raw'
@@ -13,81 +14,179 @@ const chars = ['(', ')', '[', ']', '{', '}']
 const steps: Step[] = [
   {
     id: 1,
-    message: 'Read "(" — an opener — push it onto the stack.',
-    codeFocus: { java: 14, kotlin: 10, python: 10 },
-    variables: { ch: '(', stack: ['('] },
-    scene: {
-      type: 'group',
-      children: [
-        {
-          type: 'array',
-          label: 's',
-          values: chars,
-          highlights: [{ index: 0, role: 'current' }],
-          pointers: { i: 0 },
+    narrative: 'Enter isValid. Allocate an empty stack on the heap for unmatched openers.',
+    why: 'Parentheses must close in LIFO order — a stack is the natural memory shape for that rule.',
+    codeFocus: { java: 11, kotlin: 7, python: 7 },
+    callStack: [
+      {
+        name: 'isValid',
+        active: true,
+        locals: {
+          s: { ref: 's' },
+          stack: { ref: 'stack' },
         },
-        { type: 'stack', label: 'stack', items: ['('], topAction: 'push' },
-      ],
-    },
+      },
+    ],
+    heap: [
+      {
+        id: 's',
+        kind: 'array',
+        label: 'char[] s',
+        values: chars,
+        focused: true,
+      },
+      {
+        id: 'stack',
+        kind: 'stack',
+        label: 'Deque stack',
+        items: [],
+        focused: true,
+      },
+    ],
   },
   {
     id: 2,
-    message: 'Read ")" — a closer. Pop "(" and confirm it matches.',
-    codeFocus: { java: 17, kotlin: 13, python: 12 },
-    variables: { ch: ')', popped: '(', match: true },
-    scene: {
-      type: 'group',
-      children: [
-        {
-          type: 'array',
-          label: 's',
-          values: chars,
-          highlights: [
-            { index: 0, role: 'visited' },
-            { index: 1, role: 'current' },
-          ],
-          pointers: { i: 1 },
+    narrative: 'Read "(" — not a closer — push it onto the heap stack.',
+    why: 'We must remember this opener until a matching closer arrives.',
+    codeFocus: { java: 14, kotlin: 10, python: 10 },
+    callStack: [
+      {
+        name: 'isValid',
+        active: true,
+        locals: {
+          s: { ref: 's' },
+          stack: { ref: 'stack' },
+          ch: '(',
         },
-        { type: 'stack', label: 'stack', items: [], topAction: 'pop' },
-      ],
-    },
+      },
+    ],
+    heap: [
+      {
+        id: 's',
+        kind: 'array',
+        label: 'char[] s',
+        values: chars,
+        highlights: [{ index: 0, role: 'current' }],
+        pointers: { i: 0 },
+        focused: true,
+      },
+      {
+        id: 'stack',
+        kind: 'stack',
+        label: 'Deque stack',
+        items: ['('],
+        topAction: 'push',
+        focused: true,
+      },
+    ],
   },
   {
     id: 3,
-    message: 'Same pattern for "[]": push "[", then pop on "]".',
-    codeFocus: { java: 14, kotlin: 10, python: 10 },
-    variables: { ch: '[', stack: ['['] },
-    scene: {
-      type: 'group',
-      children: [
-        {
-          type: 'array',
-          label: 's',
-          values: chars,
-          highlights: [{ index: 2, role: 'current' }],
-          pointers: { i: 2 },
+    narrative: 'Read ")". Pop the stack top "(" and confirm it matches the closer.',
+    why: 'A mismatch or empty pop would fail immediately — the invariant held.',
+    codeFocus: { java: 17, kotlin: 13, python: 12 },
+    callStack: [
+      {
+        name: 'isValid',
+        active: true,
+        locals: {
+          s: { ref: 's' },
+          stack: { ref: 'stack' },
+          ch: ')',
+          popped: '(',
+          match: true,
         },
-        { type: 'stack', label: 'stack', items: ['['], topAction: 'push' },
-      ],
-    },
+      },
+    ],
+    heap: [
+      {
+        id: 's',
+        kind: 'array',
+        label: 'char[] s',
+        values: chars,
+        highlights: [
+          { index: 0, role: 'visited' },
+          { index: 1, role: 'current' },
+        ],
+        pointers: { i: 1 },
+      },
+      {
+        id: 'stack',
+        kind: 'stack',
+        label: 'Deque stack',
+        items: [],
+        topAction: 'pop',
+        focused: true,
+      },
+    ],
   },
   {
     id: 4,
-    message: 'After "{}" the stack is empty again. Empty stack at the end ⇒ valid.',
-    codeFocus: { java: 21, kotlin: 15, python: 14 },
-    variables: { result: true },
-    scene: {
-      type: 'group',
-      children: [
-        {
-          type: 'array',
-          label: 's',
-          values: chars,
-          highlights: chars.map((_, index) => ({ index, role: 'found' as const })),
+    narrative: 'Same story for "[": push onto the heap stack.',
+    why: 'Each nested/sequential opener claims a new stack frame slot until closed.',
+    codeFocus: { java: 14, kotlin: 10, python: 10 },
+    callStack: [
+      {
+        name: 'isValid',
+        active: true,
+        locals: {
+          s: { ref: 's' },
+          stack: { ref: 'stack' },
+          ch: '[',
         },
-        { type: 'stack', label: 'stack', items: [] },
-      ],
-    },
+      },
+    ],
+    heap: [
+      {
+        id: 's',
+        kind: 'array',
+        label: 'char[] s',
+        values: chars,
+        highlights: [{ index: 2, role: 'current' }],
+        pointers: { i: 2 },
+      },
+      {
+        id: 'stack',
+        kind: 'stack',
+        label: 'Deque stack',
+        items: ['['],
+        topAction: 'push',
+        focused: true,
+      },
+    ],
+  },
+  {
+    id: 5,
+    narrative: 'After "[]{}" complete, the heap stack is empty — return true.',
+    why: 'Empty stack means every opener found its closer in the correct order.',
+    codeFocus: { java: 21, kotlin: 15, python: 14 },
+    callStack: [
+      {
+        name: 'isValid',
+        active: true,
+        locals: {
+          s: { ref: 's' },
+          stack: { ref: 'stack' },
+          result: true,
+        },
+      },
+    ],
+    heap: [
+      {
+        id: 's',
+        kind: 'array',
+        label: 'char[] s',
+        values: chars,
+        highlights: chars.map((_, index) => ({ index, role: 'found' as const })),
+      },
+      {
+        id: 'stack',
+        kind: 'stack',
+        label: 'Deque stack',
+        items: [],
+        focused: true,
+      },
+    ],
   },
 ]
 
@@ -105,6 +204,6 @@ export const validParentheses: ProblemPack = {
   languages: { java: javaSrc, kotlin: kotlinSrc, python: pythonSrc },
   steps,
   benchmark: placeholderBenchmark(
-    'Stack ops are amortized O(1); Python lists are fine but still slower than JVM ArrayDeque.',
+    'Stack ops are amortized O(1); heap depth mirrors nesting depth of the input.',
   ),
 }

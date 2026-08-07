@@ -66,8 +66,8 @@
 
 .array-viz__value {
   display: block;
-  font-family: var(--font-display);
-  font-size: 1.35rem;
+  font-family: var(--font-body);
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--ink);
 }
