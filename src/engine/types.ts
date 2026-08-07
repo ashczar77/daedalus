@@ -60,6 +60,36 @@ export type StackScene = {
 }
 
 /**
+ * Snapshot of a linked list on the heap.
+ * `pointers` map names (prev/cur/fast) → node id; `cycleTo` draws a back-edge.
+ */
+export type LinkedListScene = {
+  type: 'linkedList'
+  nodes: Array<{ id: string; value: unknown; next: string | null }>
+  pointers?: Record<string, string | null>
+  /** Optional cycle edge from node id → node id (Floyd demos) */
+  cycleTo?: [string, string]
+  label?: string
+  focusIds?: string[]
+}
+
+/**
+ * Snapshot of a binary tree. Layout is derived from parent/left/right links.
+ */
+export type TreeScene = {
+  type: 'tree'
+  nodes: Array<{
+    id: string
+    value: unknown
+    left: string | null
+    right: string | null
+  }>
+  rootId: string | null
+  focusIds?: string[]
+  label?: string
+}
+
+/**
  * Legacy stage payload (still supported via normalizeStep).
  * Prefer putting structures on the heap going forward.
  */
@@ -67,6 +97,8 @@ export type Scene =
   | ArrayScene
   | HashMapScene
   | StackScene
+  | LinkedListScene
+  | TreeScene
   | { type: 'group'; children: Scene[] }
 
 /** 1-based line numbers to highlight in each language's source. */
@@ -112,6 +144,24 @@ export type HeapObject =
       kind: 'stack'
       items: unknown[]
       topAction?: 'push' | 'pop' | 'peek' | 'mismatch'
+    })
+  | (HeapObjectBase & {
+      kind: 'linkedList'
+      nodes: Array<{ id: string; value: unknown; next: string | null }>
+      pointers?: Record<string, string | null>
+      cycleTo?: [string, string]
+      focusIds?: string[]
+    })
+  | (HeapObjectBase & {
+      kind: 'tree'
+      nodes: Array<{
+        id: string
+        value: unknown
+        left: string | null
+        right: string | null
+      }>
+      rootId: string | null
+      focusIds?: string[]
     })
 
 /**

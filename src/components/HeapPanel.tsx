@@ -1,7 +1,9 @@
 import type { HeapObject } from '../engine/types'
 import { ArrayViz } from '../visualizers/ArrayViz'
 import { HashMapViz } from '../visualizers/HashMapViz'
+import { LinkedListViz } from '../visualizers/LinkedListViz'
 import { StackViz } from '../visualizers/StackViz'
+import { TreeViz } from '../visualizers/TreeViz'
 import './HeapPanel.css'
 
 type Props = {
@@ -66,12 +68,39 @@ function HeapObjectView({ object }: { object: HeapObject }) {
     )
   }
 
+  if (object.kind === 'stack') {
+    return (
+      <StackViz
+        scene={{
+          type: 'stack',
+          items: object.items,
+          topAction: object.topAction,
+        }}
+      />
+    )
+  }
+
+  if (object.kind === 'linkedList') {
+    return (
+      <LinkedListViz
+        scene={{
+          type: 'linkedList',
+          nodes: object.nodes,
+          pointers: object.pointers,
+          cycleTo: object.cycleTo,
+          focusIds: object.focusIds,
+        }}
+      />
+    )
+  }
+
   return (
-    <StackViz
+    <TreeViz
       scene={{
-        type: 'stack',
-        items: object.items,
-        topAction: object.topAction,
+        type: 'tree',
+        nodes: object.nodes,
+        rootId: object.rootId,
+        focusIds: object.focusIds,
       }}
     />
   )

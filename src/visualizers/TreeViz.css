@@ -1,0 +1,52 @@
+.tree-viz {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.tree-viz__label {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.tree-viz__empty {
+  margin: 0;
+  font-family: var(--font-mono);
+  color: var(--muted);
+}
+
+.tree-viz__svg {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  overflow: visible;
+}
+
+.tree-viz__edge {
+  stroke: var(--line);
+  stroke-width: 2;
+}
+
+.tree-viz__node {
+  fill: white;
+  stroke: var(--line);
+  stroke-width: 2;
+  transition:
+    fill 180ms ease,
+    stroke 180ms ease;
+}
+
+.tree-viz__node.is-focus {
+  fill: color-mix(in srgb, var(--accent) 22%, white);
+  stroke: var(--accent);
+}
+
+.tree-viz__value {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--ink);
+  pointer-events: none;
+}

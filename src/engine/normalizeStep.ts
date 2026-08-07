@@ -101,14 +101,43 @@ function sceneNodeToHeap(scene: Scene, id: string): HeapObject[] {
     ]
   }
 
+  if (scene.type === 'stack') {
+    return [
+      {
+        id,
+        kind: 'stack',
+        label: scene.label,
+        items: scene.items,
+        topAction: scene.topAction,
+        focused: Boolean(scene.topAction),
+      },
+    ]
+  }
+
+  if (scene.type === 'linkedList') {
+    return [
+      {
+        id,
+        kind: 'linkedList',
+        label: scene.label,
+        nodes: scene.nodes,
+        pointers: scene.pointers,
+        cycleTo: scene.cycleTo,
+        focusIds: scene.focusIds,
+        focused: Boolean(scene.focusIds?.length || scene.pointers),
+      },
+    ]
+  }
+
   return [
     {
       id,
-      kind: 'stack',
+      kind: 'tree',
       label: scene.label,
-      items: scene.items,
-      topAction: scene.topAction,
-      focused: Boolean(scene.topAction),
+      nodes: scene.nodes,
+      rootId: scene.rootId,
+      focusIds: scene.focusIds,
+      focused: Boolean(scene.focusIds?.length),
     },
   ]
 }

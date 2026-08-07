@@ -4,11 +4,11 @@ Step-through visualizer for coding-interview algorithms. Curated execution trace
 
 Repo: https://github.com/ashczar77/daedalus
 
-## Phase 1–2b
+## Phase 1–3
 
-- Catalog + storytelling player (call stack + heap + narrative)
-- Array, hash-map, and stack animations (now on the heap)
-- 10 problems shipped; three packs fully retrofitted for storytelling: Two Sum, Valid Parentheses, Binary Search
+- Storytelling player (call stack + heap + narrative)
+- Array, hash-map, stack, linked-list, and tree animations
+- All 17 PROGRESS problems shipped (Java / Kotlin / Python)
 
 ## Develop
 

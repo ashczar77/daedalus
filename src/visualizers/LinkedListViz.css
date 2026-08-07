@@ -1,0 +1,95 @@
+.ll-viz {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.ll-viz__label {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ll-viz__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.35rem 0.15rem;
+}
+
+.ll-viz__slot {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ll-viz__pointers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-height: 1.4rem;
+  margin-bottom: 0.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.ll-viz__pointers--spacer {
+  min-height: 1.4rem;
+}
+
+.ll-viz__node {
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  min-width: 3.2rem;
+  padding: 0.65rem 0.7rem 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 0.55rem;
+  background: white;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.ll-viz__node.is-focus {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, white);
+  transform: translateY(-3px);
+}
+
+.ll-viz__value {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.ll-viz__id {
+  font-size: 0.65rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+.ll-viz__arrow {
+  color: var(--muted);
+  font-size: 1.1rem;
+  padding-bottom: 0.9rem;
+}
+
+.ll-viz__null {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  padding-bottom: 0.95rem;
+}
+
+.ll-viz__cycle,
+.ll-viz__null-ptr {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
