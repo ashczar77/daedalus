@@ -5,8 +5,12 @@
  * and heap (Python-Tutor style). Structure animations still live on heap objects.
  */
 
+import type { ProblemInputSpec } from './input/types'
+
 /** Languages we display (and later may run) for each solution. */
 export type Language = 'java' | 'kotlin' | 'python'
+
+export type { ProblemInputSpec }
 
 /**
  * Visual role of an array cell in a step.
@@ -299,6 +303,12 @@ export type ProblemPack = {
   benchmark: BenchmarkData
   /** Prefer for Codedive-style description / walkthrough below the player */
   walkthrough?: ProblemWalkthrough
+  /**
+   * Optional custom-input contract (Phase 4).
+   * When set, InputPanel can regenerate `steps` from learner input.
+   * Pack-agnostic: UI never branches on problem id.
+   */
+  input?: ProblemInputSpec
   /**
    * Trace completeness checks used by validate:traces.
    * - indices: every 0..n-1 must appear as pointers.i / current highlight

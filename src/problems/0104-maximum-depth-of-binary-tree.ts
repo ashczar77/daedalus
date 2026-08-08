@@ -1,10 +1,16 @@
 /**
  * LeetCode #104 — Maximum Depth of Binary Tree.
- * Gold-standard pack: methodical DFS with depth/null/formula overlays on the tree.
+ * Phase 4: level-order input + DFS generator with depth/null/formula overlays.
  */
 import javaSrc from '../../algorithms/0104-maximum-depth-of-binary-tree/Solution.java?raw'
 import kotlinSrc from '../../algorithms/0104-maximum-depth-of-binary-tree/Solution.kt?raw'
 import pythonSrc from '../../algorithms/0104-maximum-depth-of-binary-tree/solution.py?raw'
+import {
+  defineInput,
+  formatLevelOrder,
+  parseLevelOrder,
+  type TreeNode,
+} from '../engine/input'
 import type {
   CallFrame,
   HeapObject,
@@ -14,26 +20,10 @@ import type {
 } from '../engine/types'
 import { placeholderBenchmark } from './benchmarkPlaceholders'
 
-const treeNodes = [
-  { id: 'n1', value: 1, left: 'n2', right: 'n3' },
-  { id: 'n2', value: 2, left: 'n4', right: null },
-  { id: 'n3', value: 3, left: null, right: null },
-  { id: 'n4', value: 4, left: null, right: null },
-]
-
-function heap(focusIds: string[], viz?: TreeVizState): HeapObject[] {
-  return [
-    {
-      id: 'tree',
-      kind: 'tree',
-      label: 'TreeNode root',
-      nodes: treeNodes,
-      rootId: 'n1',
-      focusIds,
-      focused: true,
-      viz,
-    },
-  ]
+type TreeInput = {
+  nodes: TreeNode[]
+  rootId: string | null
+  values: Array<number | null>
 }
 
 const L = {
@@ -45,219 +35,291 @@ const L = {
   retDepth: { java: 18, kotlin: 11, python: 16 },
 } as const
 
-function frames(...items: CallFrame[]): CallFrame[] {
-  return items
+const TREE_LIMITS = { maxNodes: 12, minVal: -99, maxVal: 99 }
+
+function heap(
+  nodes: TreeNode[],
+  rootId: string | null,
+  focusIds: string[],
+  viz?: TreeVizState,
+): HeapObject[] {
+  return [
+    {
+      id: 'tree',
+      kind: 'tree',
+      label: 'TreeNode root',
+      nodes,
+      rootId,
+      focusIds,
+      focused: true,
+      viz,
+    },
+  ]
 }
 
-const steps: Step[] = [
-  {
-    id: 1,
-    narrative: 'Enter maxDepth at root node 1. Root is not null — we will measure both subtrees.',
-    why: 'Depth is defined only after children return.',
-    codeFocus: L.enter,
-    callStack: frames({
-      name: 'maxDepth',
-      active: true,
-      locals: { root: 'n1' },
-    }),
-    heap: heap(['n1']),
-  },
-  {
-    id: 2,
-    narrative: 'Recurse into the left child of 1 → call maxDepth(2).',
-    why: 'Post-order: left depth must finish before right.',
-    codeFocus: L.left,
-    callStack: frames(
-      { name: 'maxDepth', locals: { root: 'n1' } },
-      { name: 'maxDepth', active: true, locals: { root: 'n2' } },
-    ),
-    heap: heap(['n2']),
-  },
-  {
-    id: 3,
-    narrative: 'At node 2: not null. Recurse left again → maxDepth(4).',
-    why: 'Keep going down the left spine until we hit null.',
-    codeFocus: L.left,
-    callStack: frames(
-      { name: 'maxDepth', locals: { root: 'n1' } },
-      { name: 'maxDepth', locals: { root: 'n2' } },
-      { name: 'maxDepth', active: true, locals: { root: 'n4' } },
-    ),
-    heap: heap(['n4']),
-  },
-  {
-    id: 4,
-    narrative: 'At leaf 4: recurse left → maxDepth(null). Null returns 0.',
-    why: 'Every missing child is a base-case call.',
-    codeFocus: L.left,
-    callStack: frames(
-      { name: 'maxDepth', locals: { root: 'n1' } },
-      { name: 'maxDepth', locals: { root: 'n2' } },
-      { name: 'maxDepth', locals: { root: 'n4' } },
-      { name: 'maxDepth', active: true, locals: { root: null } },
-    ),
-    heap: heap(['n4'], {
-      nullCall: { parentId: 'n4', side: 'left', text: 'return 0' },
-    }),
-  },
-  {
-    id: 5,
-    narrative: 'Left of 4 is 0. Now take the right child — also null.',
-    why: 'Null contributes depth 0 so a leaf becomes 1 + max(0, 0).',
-    codeFocus: L.retZero,
-    callStack: frames(
-      { name: 'maxDepth', locals: { root: 'n1' } },
-      { name: 'maxDepth', locals: { root: 'n2' } },
-      { name: 'maxDepth', active: true, locals: { root: 'n4', left: 0 } },
-    ),
-    heap: heap(['n4'], {
-      nullCall: { parentId: 'n4', side: 'left', text: '0' },
-    }),
-  },
-  {
-    id: 6,
-    narrative: 'Right of 4 is null → return 0.',
-    why: 'Same base case on the other side.',
-    codeFocus: L.right,
-    callStack: frames(
-      { name: 'maxDepth', locals: { root: 'n1' } },
-      { name: 'maxDepth', locals: { root: 'n2' } },
-      { name: 'maxDepth', locals: { root: 'n4', left: 0 } },
-      { name: 'maxDepth', active: true, locals: { root: null } },
-    ),
-    heap: heap(['n4'], {
-      nullCall: { parentId: 'n4', side: 'right', text: 'return 0' },
-    }),
-  },
-  {
-    id: 7,
-    narrative: 'Node 4 combines both sides: 1 + max(0, 0) = 1.',
-    why: 'A leaf has depth 1.',
-    codeFocus: L.retDepth,
-    callStack: frames(
-      { name: 'maxDepth', locals: { root: 'n1' } },
-      { name: 'maxDepth', locals: { root: 'n2' } },
+type StackFrame = {
+  nodeId: string | null
+  left?: number
+  right?: number
+  result?: number
+}
+
+function locals(f: StackFrame): CallFrame['locals'] {
+  const out: CallFrame['locals'] = { root: f.nodeId }
+  if (f.left !== undefined) out.left = f.left
+  if (f.right !== undefined) out.right = f.right
+  if (f.result !== undefined) out.result = f.result
+  return out
+}
+
+function callStack(frames: StackFrame[], activeIndex: number): CallFrame[] {
+  return frames.map((f, i) => ({
+    name: 'maxDepth',
+    active: i === activeIndex,
+    locals: locals(f),
+  }))
+}
+
+function generateMaxDepthSteps(input: TreeInput): Step[] {
+  const { nodes, rootId } = input
+  if (!rootId || nodes.length === 0) {
+    return [
       {
-        name: 'maxDepth',
-        active: true,
-        locals: { root: 'n4', left: 0, right: 0, result: 1 },
+        id: 1,
+        narrative: 'Empty tree: maxDepth(null) hits the base case immediately.',
+        why: 'Null nodes contribute depth 0.',
+        codeFocus: L.retZero,
+        callStack: callStack([{ nodeId: null, result: 0 }], 0),
+        heap: heap([], null, []),
       },
-    ),
-    heap: heap(['n4'], {
-      depths: { n4: 1 },
-      formula: { nodeId: 'n4', text: '1+max(0,0)=1' },
-    }),
-  },
-  {
-    id: 8,
-    narrative: 'Back at node 2 with left=1. Right child is null → return 0.',
-    why: 'Node 2 has no right child.',
-    codeFocus: L.right,
-    callStack: frames(
-      { name: 'maxDepth', locals: { root: 'n1' } },
-      { name: 'maxDepth', locals: { root: 'n2', left: 1 } },
-      { name: 'maxDepth', active: true, locals: { root: null } },
-    ),
-    heap: heap(['n2'], {
-      depths: { n4: 1 },
-      nullCall: { parentId: 'n2', side: 'right', text: 'return 0' },
-    }),
-  },
-  {
-    id: 9,
-    narrative: 'Node 2 returns 1 + max(1, 0) = 2.',
-    why: 'Longer path through the left child wins.',
-    codeFocus: L.retDepth,
-    callStack: frames(
-      { name: 'maxDepth', locals: { root: 'n1' } },
-      {
-        name: 'maxDepth',
-        active: true,
-        locals: { root: 'n2', left: 1, right: 0, result: 2 },
-      },
-    ),
-    heap: heap(['n2', 'n4'], {
-      depths: { n4: 1, n2: 2 },
-      formula: { nodeId: 'n2', text: '1+max(1,0)=2' },
-    }),
-  },
-  {
-    id: 10,
-    narrative: 'Back at root 1 with left=2. Recurse right → maxDepth(3).',
-    why: 'Now measure the right subtree the same way.',
-    codeFocus: L.right,
-    callStack: frames(
-      { name: 'maxDepth', locals: { root: 'n1', left: 2 } },
-      { name: 'maxDepth', active: true, locals: { root: 'n3' } },
-    ),
-    heap: heap(['n3'], {
-      depths: { n4: 1, n2: 2 },
-    }),
-  },
-  {
-    id: 11,
-    narrative: 'At node 3: left child is null → return 0.',
-    why: 'Leaf path on the right side.',
-    codeFocus: L.left,
-    callStack: frames(
-      { name: 'maxDepth', locals: { root: 'n1', left: 2 } },
-      { name: 'maxDepth', locals: { root: 'n3' } },
-      { name: 'maxDepth', active: true, locals: { root: null } },
-    ),
-    heap: heap(['n3'], {
-      depths: { n4: 1, n2: 2 },
-      nullCall: { parentId: 'n3', side: 'left', text: 'return 0' },
-    }),
-  },
-  {
-    id: 12,
-    narrative: 'Right of 3 is also null → return 0.',
-    why: 'Both children of 3 are missing.',
-    codeFocus: L.right,
-    callStack: frames(
-      { name: 'maxDepth', locals: { root: 'n1', left: 2 } },
-      { name: 'maxDepth', locals: { root: 'n3', left: 0 } },
-      { name: 'maxDepth', active: true, locals: { root: null } },
-    ),
-    heap: heap(['n3'], {
-      depths: { n4: 1, n2: 2 },
-      nullCall: { parentId: 'n3', side: 'right', text: 'return 0' },
-    }),
-  },
-  {
-    id: 13,
-    narrative: 'Node 3 returns 1 + max(0, 0) = 1.',
-    why: 'Right subtree depth is 1.',
-    codeFocus: L.retDepth,
-    callStack: frames(
-      { name: 'maxDepth', locals: { root: 'n1', left: 2 } },
-      {
-        name: 'maxDepth',
-        active: true,
-        locals: { root: 'n3', left: 0, right: 0, result: 1 },
-      },
-    ),
-    heap: heap(['n3'], {
-      depths: { n4: 1, n2: 2, n3: 1 },
-      formula: { nodeId: 'n3', text: '1+max(0,0)=1' },
-    }),
-  },
-  {
-    id: 14,
-    narrative: 'Root combines: 1 + max(2, 1) = 3. Maximum depth is 3.',
-    why: 'Answer is the longest root-to-leaf path in nodes (1→2→4).',
-    codeFocus: L.retDepth,
-    callStack: frames({
-      name: 'maxDepth',
-      active: true,
-      locals: { root: 'n1', left: 2, right: 1, result: 3 },
-    }),
-    heap: heap(['n1', 'n2', 'n4'], {
-      depths: { n4: 1, n2: 2, n3: 1, n1: 3 },
-      formula: { nodeId: 'n1', text: '1+max(2,1)=3' },
-    }),
-  },
-]
+    ]
+  }
+
+  const dense = nodes.length > 7
+  return dense ? generateMaxDepthStepsDense(input) : generateMaxDepthStepsVerbose(input)
+}
+
+function generateMaxDepthStepsVerbose(input: TreeInput): Step[] {
+  const { nodes, rootId } = input
+  const byId = new Map(nodes.map((n) => [n.id, n]))
+  const depths: Record<string, number> = {}
+  const steps: Step[] = []
+  let stepId = 1
+  const stack: StackFrame[] = []
+
+  const push = (step: Omit<Step, 'id'>) => {
+    steps.push({ ...step, id: stepId++ })
+  }
+
+  function viz(extra?: Partial<TreeVizState>): TreeVizState {
+    return { depths: { ...depths }, ...extra }
+  }
+
+  function dfs(nodeId: string | null, parentId: string | null, side: 'left' | 'right' | null): number {
+    if (nodeId === null) {
+      if (parentId && side) {
+        stack.push({ nodeId: null })
+        push({
+          narrative: `Recurse ${side} → maxDepth(null). Null returns 0.`,
+          why: 'Every missing child is a base-case call.',
+          codeFocus: side === 'left' ? L.left : L.right,
+          callStack: callStack(stack, stack.length - 1),
+          heap: heap(nodes, rootId!, [parentId], {
+            ...viz(),
+            nullCall: { parentId, side, text: 'return 0' },
+          }),
+        })
+        stack.pop()
+      }
+      return 0
+    }
+
+    const node = byId.get(nodeId)!
+    stack.push({ nodeId })
+    push({
+      narrative:
+        stack.length === 1
+          ? `Enter maxDepth at root node ${node.value}. Root is not null — we will measure both subtrees.`
+          : `At node ${node.value}: not null. Recurse into children.`,
+      why: 'Depth is defined only after children return.',
+      codeFocus: stack.length === 1 ? L.enter : L.left,
+      callStack: callStack(stack, stack.length - 1),
+      heap: heap(nodes, rootId!, [nodeId], viz()),
+    })
+
+    if (node.left !== null) {
+      push({
+        narrative: `Recurse into the left child of ${node.value} → maxDepth(${byId.get(node.left)!.value}).`,
+        why: 'Post-order: left depth must finish before right.',
+        codeFocus: L.left,
+        callStack: callStack(stack, stack.length - 1),
+        heap: heap(nodes, rootId!, [node.left], viz()),
+      })
+    }
+
+    const leftDepth = dfs(node.left, nodeId, 'left')
+    stack[stack.length - 1]!.left = leftDepth
+
+    if (node.left === null) {
+      push({
+        narrative: `Left of ${node.value} is null → treated as depth 0.`,
+        why: 'Null contributes depth 0 so a leaf becomes 1 + max(0, 0).',
+        codeFocus: L.retZero,
+        callStack: callStack(stack, stack.length - 1),
+        heap: heap(nodes, rootId!, [nodeId], {
+          ...viz(),
+          nullCall: { parentId: nodeId, side: 'left', text: '0' },
+        }),
+      })
+    }
+
+    if (node.right !== null) {
+      push({
+        narrative: `Recurse into the right child of ${node.value}.`,
+        why: 'Now measure the other side.',
+        codeFocus: L.right,
+        callStack: callStack(stack, stack.length - 1),
+        heap: heap(nodes, rootId!, [node.right], viz()),
+      })
+    }
+
+    const rightDepth = dfs(node.right, nodeId, 'right')
+    stack[stack.length - 1]!.right = rightDepth
+
+    if (node.right === null) {
+      push({
+        narrative: `Right of ${node.value} is null → return 0.`,
+        why: 'Same base case on the other side.',
+        codeFocus: L.right,
+        callStack: callStack(stack, stack.length - 1),
+        heap: heap(nodes, rootId!, [nodeId], {
+          ...viz(),
+          nullCall: { parentId: nodeId, side: 'right', text: '0' },
+        }),
+      })
+    }
+
+    const result = 1 + Math.max(leftDepth, rightDepth)
+    stack[stack.length - 1]!.result = result
+    depths[nodeId] = result
+
+    push({
+      narrative:
+        stack.length === 1
+          ? `Root combines: 1 + max(${leftDepth}, ${rightDepth}) = ${result}. Maximum depth is ${result}.`
+          : `Node ${node.value} returns 1 + max(${leftDepth}, ${rightDepth}) = ${result}.`,
+      why:
+        stack.length === 1
+          ? 'Answer is the longest root-to-leaf path in nodes.'
+          : 'Returned value = max depth of this subtree.',
+      codeFocus: L.retDepth,
+      callStack: callStack(stack, stack.length - 1),
+      heap: heap(nodes, rootId!, [nodeId], {
+        ...viz(),
+        formula: {
+          nodeId,
+          text: `1+max(${leftDepth},${rightDepth})=${result}`,
+        },
+      }),
+    })
+
+    stack.pop()
+    return result
+  }
+
+  dfs(rootId!, null, null)
+  return steps
+}
+
+/** Enter/return pair per visited node when verbose mode would exceed ~40 steps. */
+function generateMaxDepthStepsDense(input: TreeInput): Step[] {
+  const { nodes, rootId } = input
+  const byId = new Map(nodes.map((n) => [n.id, n]))
+  const depths: Record<string, number> = {}
+  const steps: Step[] = []
+  let stepId = 1
+  const stack: StackFrame[] = []
+
+  const push = (step: Omit<Step, 'id'>) => {
+    steps.push({ ...step, id: stepId++ })
+  }
+
+  function viz(extra?: Partial<TreeVizState>): TreeVizState {
+    return { depths: { ...depths }, ...extra }
+  }
+
+  function dfs(nodeId: string | null): number {
+    if (nodeId === null) return 0
+    const node = byId.get(nodeId)!
+    stack.push({ nodeId })
+    push({
+      narrative: `Enter maxDepth(${node.value}).`,
+      why: 'DFS post-order: children first, then combine.',
+      codeFocus: L.enter,
+      callStack: callStack(stack, stack.length - 1),
+      heap: heap(nodes, rootId!, [nodeId], viz()),
+    })
+
+    const leftDepth = dfs(node.left)
+    const rightDepth = dfs(node.right)
+    const result = 1 + Math.max(leftDepth, rightDepth)
+    const top = stack[stack.length - 1]!
+    top.left = leftDepth
+    top.right = rightDepth
+    top.result = result
+    depths[nodeId] = result
+
+    push({
+      narrative: `Return from ${node.value}: 1 + max(${leftDepth}, ${rightDepth}) = ${result}.`,
+      why: 'Null children counted as 0 without extra frames.',
+      codeFocus: L.retDepth,
+      callStack: callStack(stack, stack.length - 1),
+      heap: heap(nodes, rootId!, [nodeId], {
+        ...viz(),
+        formula: {
+          nodeId,
+          text: `1+max(${leftDepth},${rightDepth})=${result}`,
+        },
+      }),
+    })
+    stack.pop()
+    return result
+  }
+
+  dfs(rootId!)
+  return steps
+}
+
+const defaultValues: Array<number | null> = [1, 2, 3, 4]
+
+const input = defineInput<TreeInput>({
+  kind: 'levelOrderTree',
+  fields: [
+    {
+      key: 'root',
+      label: 'root (level-order)',
+      widget: 'text',
+      placeholder: '1, 2, 3, 4',
+      hint: 'Up to 12 nodes, values -99–99; use null for missing children',
+    },
+  ],
+  defaultRaw: { root: formatLevelOrder(defaultValues) },
+  parse: (raw) =>
+    parseLevelOrder(raw.root ?? '', { name: 'root', ...TREE_LIMITS }),
+  formatLabel: (value) =>
+    value.rootId
+      ? `root = [${formatLevelOrder(value.values)}]`
+      : 'root = [] (empty)',
+  generateSteps: generateMaxDepthSteps,
+  fixtures: [{ name: 'empty', raw: { root: '' } }],
+})
+
+const defaultParsed = input.parse(input.defaultRaw)
+if (!defaultParsed.ok) {
+  throw new Error(
+    `Max Depth default input invalid: ${defaultParsed.errors.join('; ')}`,
+  )
+}
 
 export const maximumDepthOfBinaryTree: ProblemPack = {
   id: '0104-maximum-depth-of-binary-tree',
@@ -268,9 +330,10 @@ export const maximumDepthOfBinaryTree: ProblemPack = {
   insight: '1 + max(leftDepth, rightDepth); null → 0.',
   invariant: 'Return value = max depth of the subtree rooted at this node.',
   complexity: { time: 'O(n)', space: 'O(h)' },
-  inputLabel: 'root = [1,2,3,4]  (1 → left 2 → left 4; right 3)',
+  inputLabel: input.formatLabel(defaultParsed.value),
   languages: { java: javaSrc, kotlin: kotlinSrc, python: pythonSrc },
-  steps,
+  steps: input.generateSteps(defaultParsed.value),
+  input,
   benchmark: placeholderBenchmark(
     'Call-stack depth tracks tree height; heap holds the shared tree object.',
   ),

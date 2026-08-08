@@ -1,7 +1,8 @@
 # Phase 3 Review — Linked lists + trees on the storytelling model
 
-**Status:** Complete — awaiting approval before Phase 4  
-**Date:** 2026-08-07
+**Status:** Approved — Phase 4 started  
+**Date:** 2026-08-07  
+**Approved:** 2026-08-08
 
 ## Goal
 

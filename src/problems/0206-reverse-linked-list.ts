@@ -1,24 +1,81 @@
 /**
  * LeetCode #206 — Reverse Linked List (iterative pointer flip).
- * Demo: 1 → 2 → 3 becomes 3 → 2 → 1. Captions show each flip.
+ * Steps generated from validated list values (Phase 4).
  */
 import javaSrc from '../../algorithms/0206-reverse-linked-list/Solution.java?raw'
 import kotlinSrc from '../../algorithms/0206-reverse-linked-list/Solution.kt?raw'
 import pythonSrc from '../../algorithms/0206-reverse-linked-list/solution.py?raw'
+import {
+  defineInput,
+  formatIntList,
+  listNodeId,
+  listNodesFromValues,
+  parseIntList,
+} from '../engine/input'
 import type { ProblemPack, Step } from '../engine/types'
 import { placeholderBenchmark } from './benchmarkPlaceholders'
 
-const steps: Step[] = [
-  {
-    id: 1,
-    narrative: 'Start with prev=null and cur=head on the list 1→2→3.',
+const defaultList = [1, 2, 3]
+
+const L = {
+  init: { java: 13, kotlin: 9, python: 12 },
+  flip: { java: 16, kotlin: 12, python: 15 },
+  ret: { java: 20, kotlin: 16, python: 18 },
+} as const
+
+type ListNodeSnap = { id: string; value: number; next: string | null }
+
+function cloneNodes(nodes: ListNodeSnap[]): ListNodeSnap[] {
+  return nodes.map((n) => ({ ...n }))
+}
+
+function generateSteps(values: number[]): Step[] {
+  if (values.length === 0) {
+    return [
+      {
+        id: 1,
+        narrative: 'Empty list — head is null. Return null in one step.',
+        why: 'Nothing to reverse; prev stays null.',
+        codeFocus: L.ret,
+        callStack: [
+          {
+            name: 'reverseList',
+            active: true,
+            locals: { head: null, prev: null, cur: null, result: null },
+          },
+        ],
+        heap: [
+          {
+            id: 'list',
+            kind: 'linkedList',
+            label: 'ListNode chain',
+            nodes: [],
+            pointers: { prev: null, cur: null },
+            focused: true,
+            caption: 'empty → return null',
+          },
+        ],
+      },
+    ]
+  }
+
+  const steps: Step[] = []
+  let stepId = 1
+  const nodes = cloneNodes(listNodesFromValues(values))
+  let prev: string | null = null
+  let cur: string | null = listNodeId(0)
+
+  const valueStr = values.join('→')
+  steps.push({
+    id: stepId++,
+    narrative: `Start with prev=null and cur=head on ${valueStr}.`,
     why: 'Everything before cur becomes the reversed prefix; cur is next to flip.',
-    codeFocus: { java: 13, kotlin: 9, python: 12 },
+    codeFocus: L.init,
     callStack: [
       {
         name: 'reverseList',
         active: true,
-        locals: { head: { ref: 'list' }, prev: null, cur: 'n1' },
+        locals: { head: { ref: 'list' }, prev: null, cur },
       },
     ],
     heap: [
@@ -26,115 +83,61 @@ const steps: Step[] = [
         id: 'list',
         kind: 'linkedList',
         label: 'ListNode chain',
-        nodes: [
-          { id: 'n1', value: 1, next: 'n2' },
-          { id: 'n2', value: 2, next: 'n3' },
-          { id: 'n3', value: 3, next: null },
-        ],
-        pointers: { cur: 'n1', prev: null },
-        focusIds: ['n1'],
+        nodes: cloneNodes(nodes),
+        pointers: { cur, prev },
+        focusIds: cur ? [cur] : [],
         focused: true,
         caption: 'setup: prev=null · cur=head',
       },
     ],
-  },
-  {
-    id: 2,
-    narrative: 'Cache next=n2, then flip n1.next → prev (null).',
-    why: 'Must save next before overwriting the pointer or the rest is lost.',
-    codeFocus: { java: 16, kotlin: 12, python: 15 },
-    callStack: [
-      {
-        name: 'reverseList',
-        active: true,
-        locals: { prev: null, cur: 'n1', next: 'n2' },
-      },
-    ],
-    heap: [
-      {
-        id: 'list',
-        kind: 'linkedList',
-        label: 'ListNode chain',
-        nodes: [
-          { id: 'n1', value: 1, next: null },
-          { id: 'n2', value: 2, next: 'n3' },
-          { id: 'n3', value: 3, next: null },
-        ],
-        pointers: { prev: null, cur: 'n1', next: 'n2' },
-        focusIds: ['n1'],
-        focused: true,
-        caption: 'flip: n1.next → null',
-      },
-    ],
-  },
-  {
-    id: 3,
-    narrative: 'Advance prev=n1, cur=n2. Flip n2.next → n1.',
-    why: 'Reversed prefix grows behind prev as cur walks forward.',
-    codeFocus: { java: 16, kotlin: 12, python: 15 },
-    callStack: [
-      {
-        name: 'reverseList',
-        active: true,
-        locals: { prev: 'n1', cur: 'n2', next: 'n3' },
-      },
-    ],
-    heap: [
-      {
-        id: 'list',
-        kind: 'linkedList',
-        label: 'ListNode chain',
-        nodes: [
-          { id: 'n1', value: 1, next: null },
-          { id: 'n2', value: 2, next: 'n1' },
-          { id: 'n3', value: 3, next: null },
-        ],
-        pointers: { prev: 'n1', cur: 'n2', next: 'n3' },
-        focusIds: ['n2'],
-        focused: true,
-        caption: 'flip: n2.next → n1',
-      },
-    ],
-  },
-  {
-    id: 4,
-    narrative: 'Flip n3.next → n2, then cur becomes null.',
-    why: 'Last node joins the reversed chain.',
-    codeFocus: { java: 16, kotlin: 12, python: 15 },
-    callStack: [
-      {
-        name: 'reverseList',
-        active: true,
-        locals: { prev: 'n2', cur: 'n3', next: null },
-      },
-    ],
-    heap: [
-      {
-        id: 'list',
-        kind: 'linkedList',
-        label: 'ListNode chain',
-        nodes: [
-          { id: 'n1', value: 1, next: null },
-          { id: 'n2', value: 2, next: 'n1' },
-          { id: 'n3', value: 3, next: 'n2' },
-        ],
-        pointers: { prev: 'n2', cur: 'n3', next: null },
-        focusIds: ['n3'],
-        focused: true,
-        caption: 'flip: n3.next → n2',
-      },
-    ],
-  },
-  {
-    id: 5,
-    narrative: 'cur is null. Return prev=n3 as the new head.',
+  })
+
+  while (cur) {
+    const curNode = nodes.find((n) => n.id === cur)!
+    const next = curNode.next
+    const prevLabel = prev ?? 'null'
+    curNode.next = prev
+
+    steps.push({
+      id: stepId++,
+      narrative: `Cache next=${next ?? 'null'}, flip ${cur}.next → ${prevLabel}, advance prev/cur.`,
+      why: 'Save next before overwriting the pointer or the rest is lost.',
+      codeFocus: L.flip,
+      callStack: [
+        {
+          name: 'reverseList',
+          active: true,
+          locals: { prev, cur, next },
+        },
+      ],
+      heap: [
+        {
+          id: 'list',
+          kind: 'linkedList',
+          label: 'ListNode chain',
+          nodes: cloneNodes(nodes),
+          pointers: { prev, cur, next },
+          focusIds: [cur],
+          focused: true,
+          caption: `flip: ${cur}.next → ${prevLabel}`,
+        },
+      ],
+    })
+
+    prev = cur
+    cur = next
+  }
+
+  steps.push({
+    id: stepId++,
+    narrative: `cur is null. Return prev=${prev ?? 'null'} as the new head.`,
     why: 'When cur hits null, prev is the tip of the fully reversed list.',
-    codeFocus: { java: 20, kotlin: 16, python: 18 },
+    codeFocus: L.ret,
     callStack: [
       {
         name: 'reverseList',
         active: true,
-        locals: { prev: 'n3', cur: null, result: 'n3' },
+        locals: { prev, cur: null, result: prev },
       },
     ],
     heap: [
@@ -142,19 +145,49 @@ const steps: Step[] = [
         id: 'list',
         kind: 'linkedList',
         label: 'ListNode chain',
-        nodes: [
-          { id: 'n1', value: 1, next: null },
-          { id: 'n2', value: 2, next: 'n1' },
-          { id: 'n3', value: 3, next: 'n2' },
-        ],
-        pointers: { prev: 'n3', cur: null },
-        focusIds: ['n3', 'n2', 'n1'],
+        nodes: cloneNodes(nodes),
+        pointers: { prev, cur: null },
+        focusIds: prev ? nodes.map((n) => n.id) : [],
         focused: true,
         caption: 'done: return prev (new head)',
       },
     ],
-  },
-]
+  })
+
+  return steps
+}
+
+const input = defineInput<number[]>({
+  kind: 'linkedList',
+  fields: [
+    {
+      key: 'list',
+      label: 'list',
+      widget: 'text',
+      placeholder: '1, 2, 3',
+      hint: 'Up to 10 integers from -99–99',
+    },
+  ],
+  defaultRaw: { list: formatIntList(defaultList) },
+  parse: (raw) =>
+    parseIntList(raw.list ?? '', {
+      name: 'list',
+      minLen: 0,
+      maxLen: 10,
+      minVal: -99,
+      maxVal: 99,
+    }),
+  formatLabel: (value) =>
+    value.length === 0 ? 'head = []' : `head = [${value.join(', ')}]`,
+  generateSteps,
+  fixtures: [
+    { name: 'empty', raw: { list: '' } },
+    { name: 'single', raw: { list: '7' } },
+  ],
+})
+
+const defaultParsed = input.parse(input.defaultRaw)
+if (!defaultParsed.ok) throw new Error(defaultParsed.errors.join('; '))
 
 export const reverseLinkedList: ProblemPack = {
   id: '0206-reverse-linked-list',
@@ -163,11 +196,13 @@ export const reverseLinkedList: ProblemPack = {
   pattern: 'Linked List',
   difficulty: 'Easy',
   insight: 'Save next before overwriting cur.next; return prev as the new head.',
-  invariant: 'Nodes before cur are reversed and linked from prev; cur is the next flip target.',
+  invariant:
+    'Nodes before cur are reversed and linked from prev; cur is the next flip target.',
   complexity: { time: 'O(n)', space: 'O(1)' },
-  inputLabel: 'head = [1,2,3]',
+  inputLabel: input.formatLabel(defaultParsed.value),
   languages: { java: javaSrc, kotlin: kotlinSrc, python: pythonSrc },
-  steps,
+  steps: input.generateSteps(defaultParsed.value),
+  input,
   benchmark: placeholderBenchmark(
     'In-place pointer rewrites — no extra heap nodes allocated.',
   ),

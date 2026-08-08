@@ -1,5 +1,6 @@
 .structure-stage {
   display: grid;
+  grid-template-rows: auto 1fr;
   gap: 0.65rem;
   min-width: 0;
   width: 100%;
@@ -8,6 +9,14 @@
   border: 1px solid var(--line);
   border-radius: 0.75rem;
   background: color-mix(in srgb, var(--surface) 88%, white);
+}
+
+.structure-stage__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
 }
 
 .structure-stage__title {
@@ -19,10 +28,49 @@
   font-weight: 600;
 }
 
+.structure-stage__zoom {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.structure-stage__zoom-btn {
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, white 70%, var(--surface));
+  color: var(--ink-soft);
+  border-radius: 0.35rem;
+  padding: 0.15rem 0.5rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.structure-stage__zoom-btn:hover:not(:disabled) {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  background: color-mix(in srgb, var(--accent) 8%, white);
+}
+
+.structure-stage__zoom-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .structure-stage__empty {
   margin: 0;
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+.structure-stage__viewport {
+  min-width: 0;
+  min-height: 14rem;
+  overflow: auto;
+  display: grid;
+  align-content: center;
+  justify-items: center;
 }
 
 .structure-stage__canvas {
@@ -31,8 +79,10 @@
   align-content: center;
   justify-items: center;
   min-width: 0;
-  min-height: 14rem;
+  width: 100%;
   padding: 0.5rem 0;
+  /* Scales layout + SVG + text together (Chromium / Safari / modern Firefox). */
+  zoom: var(--viz-scale, 1);
 }
 
 .structure-stage__item {
@@ -44,4 +94,12 @@
 
 .structure-stage__item.is-focused {
   /* Focus lives on nodes inside the visualizer; keep stage calm. */
+}
+
+@supports not (zoom: 1) {
+  .structure-stage__canvas {
+    zoom: unset;
+    transform: scale(var(--viz-scale, 1));
+    transform-origin: top center;
+  }
 }

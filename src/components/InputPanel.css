@@ -1,0 +1,115 @@
+.input-panel {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--surface) 88%, white);
+}
+
+.input-panel__fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
+  align-items: end;
+  min-width: 0;
+}
+
+.input-panel__field {
+  display: grid;
+  gap: 0.25rem;
+  min-width: min(100%, 14rem);
+  flex: 1 1 14rem;
+}
+
+.input-panel__label {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.input-panel__text-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.input-panel__text-row .input-panel__control {
+  flex: 1 1 10rem;
+}
+
+.input-panel__control {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  padding: 0.4rem 0.55rem;
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--ink);
+  background: color-mix(in srgb, white 80%, var(--surface));
+}
+
+.input-panel__control:focus {
+  outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  outline-offset: 1px;
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+}
+
+.input-panel__hint {
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.input-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.input-panel__btn {
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, white 70%, var(--surface));
+  color: var(--ink-soft);
+  border-radius: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.input-panel__btn:hover:not(:disabled) {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+}
+
+.input-panel__btn--primary {
+  background: color-mix(in srgb, var(--accent) 14%, white);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  color: var(--accent);
+}
+
+.input-panel__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.input-panel__errors {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #9a3412;
+  font-size: 0.78rem;
+}
+
+.input-panel__ok {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+}

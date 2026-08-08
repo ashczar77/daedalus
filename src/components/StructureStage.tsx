@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { HeapObject } from '../engine/types'
 import { ArrayViz } from '../visualizers/ArrayViz'
 import { HashMapViz } from '../visualizers/HashMapViz'
@@ -10,35 +11,75 @@ type Props = {
   objects: HeapObject[]
 }
 
+const SCALE_MIN = 0.7
+const SCALE_MAX = 1.6
+const SCALE_STEP = 0.15
+const SCALE_DEFAULT = 1
+
 /**
  * Primary teaching surface: large structure drawings from the step's heap objects.
  * Heap inspector (right rail) lists the same objects without re-drawing them.
+ * Zoom controls scale every visualizer (arrays, bars, lists, trees).
  */
 export function StructureStage({ objects }: Props) {
-  if (objects.length === 0) {
-    return (
-      <section className="structure-stage" aria-label="Visualization">
-        <h3 className="structure-stage__title">Visualization</h3>
-        <p className="structure-stage__empty">No structures on this step</p>
-      </section>
-    )
-  }
+  const [scale, setScale] = useState(SCALE_DEFAULT)
 
   return (
-    <section className="structure-stage" aria-label="Visualization">
-      <h3 className="structure-stage__title">Visualization</h3>
-      <div className="structure-stage__canvas">
-        {objects.map((object) => (
-          <div
-            key={object.id}
-            className={`structure-stage__item${object.focused ? ' is-focused' : ''}`}
+    <section
+      className="structure-stage"
+      aria-label="Visualization"
+      style={{ ['--viz-scale' as string]: String(scale) }}
+    >
+      <div className="structure-stage__header">
+        <h3 className="structure-stage__title">Visualization</h3>
+        <div className="structure-stage__zoom" role="group" aria-label="Visualization size">
+          <button
+            type="button"
+            className="structure-stage__zoom-btn"
+            aria-label="Decrease visualization size"
+            disabled={scale <= SCALE_MIN + 0.001}
+            onClick={() =>
+              setScale((value) => Math.max(SCALE_MIN, roundScale(value - SCALE_STEP)))
+            }
           >
-            <StructureView object={object} />
-          </div>
-        ))}
+            −
+          </button>
+          <button
+            type="button"
+            className="structure-stage__zoom-btn"
+            aria-label="Increase visualization size"
+            disabled={scale >= SCALE_MAX - 0.001}
+            onClick={() =>
+              setScale((value) => Math.min(SCALE_MAX, roundScale(value + SCALE_STEP)))
+            }
+          >
+            +
+          </button>
+        </div>
       </div>
+
+      {objects.length === 0 ? (
+        <p className="structure-stage__empty">No structures on this step</p>
+      ) : (
+        <div className="structure-stage__viewport">
+          <div className="structure-stage__canvas">
+            {objects.map((object) => (
+              <div
+                key={object.id}
+                className={`structure-stage__item${object.focused ? ' is-focused' : ''}`}
+              >
+                <StructureView object={object} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   )
+}
+
+function roundScale(value: number): number {
+  return Math.round(value * 100) / 100
 }
 
 function StructureView({ object }: { object: HeapObject }) {

@@ -1,147 +1,198 @@
 /**
- * LeetCode #217 — Contains Duplicate (hash set membership).
- * Demo input: nums = [1, 2, 3, 1]. The set is rendered via HashMapScene chips.
+ * LeetCode #217 — Contains Duplicate.
+ * Steps generated from validated nums (Phase 4).
  */
 import javaSrc from '../../algorithms/0217-contains-duplicate/Solution.java?raw'
 import kotlinSrc from '../../algorithms/0217-contains-duplicate/Solution.kt?raw'
 import pythonSrc from '../../algorithms/0217-contains-duplicate/solution.py?raw'
-import type { ProblemPack, Step } from '../engine/types'
+import { defineInput, formatIntList, parseIntList } from '../engine/input'
+import type { ArrayHighlight, ProblemPack, Step } from '../engine/types'
 
 const nums = [1, 2, 3, 1]
 
-/** Walk through inserting values until the first duplicate is found. */
-const steps: Step[] = [
-  {
-    id: 1,
-    message: 'Create an empty set. We only need presence, not counts or indices.',
-    codeFocus: { java: 9, kotlin: 6, python: 6 },
-    variables: { result: null },
-    scene: {
-      type: 'group',
-      children: [
-        { type: 'array', label: 'nums', values: nums },
-        { type: 'hashmap', label: 'seen (set)', entries: [] },
-      ],
-    },
-  },
-  {
-    id: 2,
-    message: 'Read 1. It is not in the set, so add it.',
-    codeFocus: { java: 11, kotlin: 8, python: 10 },
-    variables: { num: 1 },
-    scene: {
-      type: 'group',
-      children: [
+const L = {
+  set: { java: 9, kotlin: 6, python: 6 },
+  add: { java: 11, kotlin: 8, python: 10 },
+  hit: { java: 12, kotlin: 9, python: 9 },
+  retFalse: { java: 15, kotlin: 12, python: 12 },
+} as const
+
+function generateSteps(arr: number[]): Step[] {
+  const steps: Step[] = []
+  let id = 1
+  const seen = new Set<number>()
+
+  steps.push({
+    id: id++,
+    narrative: 'Create an empty set. We only need presence, not counts or indices.',
+    why: 'HashSet membership is the right tool for “seen before?”.',
+    codeFocus: L.set,
+    callStack: [
+      {
+        name: 'containsDuplicate',
+        active: true,
+        locals: { nums: { ref: 'nums' }, seen: { ref: 'seen' } },
+      },
+    ],
+    heap: [
+      { id: 'nums', kind: 'array', label: 'nums', values: arr, focused: true },
+      {
+        id: 'seen',
+        kind: 'hashmap',
+        label: 'seen (set)',
+        entries: [],
+        focused: true,
+      },
+    ],
+  })
+
+  for (let i = 0; i < arr.length; i++) {
+    const num = arr[i]!
+    const isDup = seen.has(num)
+    const highlights: ArrayHighlight[] = []
+    for (let j = 0; j < i; j++) highlights.push({ index: j, role: 'visited' })
+    highlights.push({ index: i, role: isDup ? 'found' : 'current' })
+    if (isDup) {
+      const first = arr.indexOf(num)
+      if (first !== i) highlights[first] = { index: first, role: 'found' }
+    }
+
+    if (isDup) {
+      steps.push({
+        id: id++,
+        narrative: `Read ${num} again. Set already contains it — duplicate found → true.`,
+        why: 'add would return false / membership hit means a prior occurrence.',
+        codeFocus: L.hit,
+        callStack: [
+          {
+            name: 'containsDuplicate',
+            active: true,
+            locals: {
+              nums: { ref: 'nums' },
+              seen: { ref: 'seen' },
+              num,
+              result: true,
+            },
+          },
+        ],
+        heap: [
+          {
+            id: 'nums',
+            kind: 'array',
+            label: 'nums',
+            values: arr,
+            pointers: { i },
+            highlights,
+            focused: true,
+          },
+          {
+            id: 'seen',
+            kind: 'hashmap',
+            label: 'seen (set)',
+            entries: [...seen].map((v) => [v, '✓'] as [number, string]),
+            focusKeys: [num],
+            focused: true,
+          },
+        ],
+      })
+      return steps
+    }
+
+    seen.add(num)
+    steps.push({
+      id: id++,
+      narrative: `Read ${num}. Not in the set — add it.`,
+      why: 'Unique so far; remember it for later comparisons.',
+      codeFocus: L.add,
+      callStack: [
         {
-          type: 'array',
+          name: 'containsDuplicate',
+          active: true,
+          locals: { nums: { ref: 'nums' }, seen: { ref: 'seen' }, num },
+        },
+      ],
+      heap: [
+        {
+          id: 'nums',
+          kind: 'array',
           label: 'nums',
-          values: nums,
-          highlights: [{ index: 0, role: 'current' }],
-          pointers: { i: 0 },
+          values: arr,
+          pointers: { i },
+          highlights,
+          focused: true,
         },
         {
-          type: 'hashmap',
+          id: 'seen',
+          kind: 'hashmap',
           label: 'seen (set)',
-          entries: [[1, '✓']],
-          focusKeys: [1],
+          entries: [...seen].map((v) => [v, '✓'] as [number, string]),
+          focusKeys: [num],
+          focused: true,
         },
       ],
+    })
+  }
+
+  steps.push({
+    id: id++,
+    narrative: 'Loop finished with no membership hit → return false.',
+    why: 'Every value was unique.',
+    codeFocus: L.retFalse,
+    callStack: [
+      {
+        name: 'containsDuplicate',
+        active: true,
+        locals: {
+          nums: { ref: 'nums' },
+          seen: { ref: 'seen' },
+          result: false,
+        },
+      },
+    ],
+    heap: [
+      { id: 'nums', kind: 'array', label: 'nums', values: arr },
+      {
+        id: 'seen',
+        kind: 'hashmap',
+        label: 'seen (set)',
+        entries: [...seen].map((v) => [v, '✓'] as [number, string]),
+      },
+    ],
+  })
+
+  return steps
+}
+
+const input = defineInput<number[]>({
+  kind: 'intArray',
+  fields: [
+    {
+      key: 'nums',
+      label: 'nums',
+      widget: 'text',
+      placeholder: '1, 2, 3, 1',
+      hint: 'Up to 16 integers from -99–99',
     },
-  },
-  {
-    id: 3,
-    message: 'Read 2. New value — add it.',
-    codeFocus: { java: 11, kotlin: 8, python: 10 },
-    variables: { num: 2 },
-    scene: {
-      type: 'group',
-      children: [
-        {
-          type: 'array',
-          label: 'nums',
-          values: nums,
-          highlights: [
-            { index: 0, role: 'visited' },
-            { index: 1, role: 'current' },
-          ],
-          pointers: { i: 1 },
-        },
-        {
-          type: 'hashmap',
-          label: 'seen (set)',
-          entries: [
-            [1, '✓'],
-            [2, '✓'],
-          ],
-          focusKeys: [2],
-        },
-      ],
-    },
-  },
-  {
-    id: 4,
-    message: 'Read 3. Still unique — add it.',
-    codeFocus: { java: 11, kotlin: 8, python: 10 },
-    variables: { num: 3 },
-    scene: {
-      type: 'group',
-      children: [
-        {
-          type: 'array',
-          label: 'nums',
-          values: nums,
-          highlights: [
-            { index: 0, role: 'visited' },
-            { index: 1, role: 'visited' },
-            { index: 2, role: 'current' },
-          ],
-          pointers: { i: 2 },
-        },
-        {
-          type: 'hashmap',
-          label: 'seen (set)',
-          entries: [
-            [1, '✓'],
-            [2, '✓'],
-            [3, '✓'],
-          ],
-          focusKeys: [3],
-        },
-      ],
-    },
-  },
-  {
-    id: 5,
-    message: 'Read 1 again. Set.add returns false (Python: already in set) — duplicate found.',
-    codeFocus: { java: 12, kotlin: 9, python: 9 },
-    variables: { num: 1, result: true },
-    scene: {
-      type: 'group',
-      children: [
-        {
-          type: 'array',
-          label: 'nums',
-          values: nums,
-          highlights: [
-            { index: 0, role: 'found' },
-            { index: 3, role: 'found' },
-          ],
-          pointers: { i: 3 },
-        },
-        {
-          type: 'hashmap',
-          label: 'seen (set)',
-          entries: [
-            [1, '✓'],
-            [2, '✓'],
-            [3, '✓'],
-          ],
-          focusKeys: [1],
-        },
-      ],
-    },
-  },
-]
+  ],
+  defaultRaw: { nums: formatIntList(nums) },
+  parse: (raw) =>
+    parseIntList(raw.nums ?? '', {
+      name: 'nums',
+      minLen: 0,
+      maxLen: 16,
+      minVal: -99,
+      maxVal: 99,
+    }),
+  formatLabel: (value) => `nums = [${value.join(', ')}]`,
+  generateSteps,
+  fixtures: [
+    { name: 'empty', raw: { nums: '' } },
+    { name: 'unique', raw: { nums: '1, 2, 3' } },
+  ],
+})
+
+const defaultParsed = input.parse(input.defaultRaw)
+if (!defaultParsed.ok) throw new Error(defaultParsed.errors.join('; '))
 
 export const containsDuplicate: ProblemPack = {
   id: '0217-contains-duplicate',
@@ -152,17 +203,11 @@ export const containsDuplicate: ProblemPack = {
   insight: 'Only presence matters — HashSet is the right tool, not a map of counts.',
   invariant:
     'The set holds every value seen so far; a duplicate is found if the current value is already present before insert.',
-  complexity: {
-    time: 'O(n)',
-    space: 'O(n)',
-  },
-  inputLabel: 'nums = [1, 2, 3, 1]',
-  languages: {
-    java: javaSrc,
-    kotlin: kotlinSrc,
-    python: pythonSrc,
-  },
-  steps,
+  complexity: { time: 'O(n)', space: 'O(n)' },
+  inputLabel: input.formatLabel(defaultParsed.value),
+  languages: { java: javaSrc, kotlin: kotlinSrc, python: pythonSrc },
+  steps: input.generateSteps(defaultParsed.value),
+  input,
   benchmark: {
     sizes: [1_000, 10_000, 100_000],
     series: [
@@ -191,17 +236,15 @@ export const containsDuplicate: ProblemPack = {
         ],
       },
     ],
-    note: 'Set membership is amortized O(1) in all three languages; Python stays slower in absolute time due to interpreter overhead.',
+    note: 'Set membership is amortized O(1); Python stays slower in absolute time.',
   },
   walkthrough: {
-    statement:
-      "Return true if any value appears at least twice in the array; otherwise false.",
-    keyIdea:
-      "A hash set remembers values already seen — duplicate means membership hit.",
+    statement: 'Return true if any value appears at least twice; otherwise false.',
+    keyIdea: 'A hash set remembers values already seen — duplicate means membership hit.',
     approach: [
-          "Create an empty set.",
-          "For each number, if already in the set return true; else insert.",
-          "If the loop finishes, return false."
+      'Create an empty set.',
+      'For each number, if already in the set return true; else insert.',
+      'If the loop finishes, return false.',
     ],
   },
 }

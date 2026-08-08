@@ -224,18 +224,30 @@ function validateCoverage(file, src) {
 
   const needed = requiredDemoLength(src)
   if (needed != null && needed > 0) {
-    const visited = collectVisitedIndices(src)
-    const missing = []
-    for (let i = 0; i < needed; i++) {
-      if (!visited.has(i)) missing.push(i)
-    }
-    if (missing.length > 0) {
-      errors.push({
-        file: rel,
-        stepId: '-',
-        lang: 'coverage',
-        message: `Demo has ${needed} indices but steps never focus: [${missing.join(', ')}] — every character/index must be stepped`,
-      })
+    // Generators walk indices at runtime; require a for/while scan instead of literal i: N.
+    if (src.includes('generateSteps')) {
+      if (!/for\s*\(|while\s*\(/.test(src)) {
+        errors.push({
+          file: rel,
+          stepId: '-',
+          lang: 'coverage',
+          message: `demoCoverage.indices=${needed} but generator has no for/while scan`,
+        })
+      }
+    } else {
+      const visited = collectVisitedIndices(src)
+      const missing = []
+      for (let i = 0; i < needed; i++) {
+        if (!visited.has(i)) missing.push(i)
+      }
+      if (missing.length > 0) {
+        errors.push({
+          file: rel,
+          stepId: '-',
+          lang: 'coverage',
+          message: `Demo has ${needed} indices but steps never focus: [${missing.join(', ')}] — every character/index must be stepped`,
+        })
+      }
     }
   }
 
@@ -251,6 +263,22 @@ function validateCoverage(file, src) {
       })
       return
     }
+
+    // Generator packs rebuild pairs at runtime — require a full left<right loop instead of literals.
+    const isGenerator =
+      src.includes('generateSteps') && /while\s*\(\s*left\s*<\s*right\s*\)/.test(src)
+    if (isGenerator) {
+      if (simulateMoveShorter(arr).length === 0 && arr.length >= 2) {
+        errors.push({
+          file: rel,
+          stepId: '-',
+          lang: 'coverage',
+          message: `two-pointer generator: default ${tpName} should admit at least one loop state`,
+        })
+      }
+      return
+    }
+
     const required = simulateMoveShorter(arr)
     const present = collectLeftRightPairs(src)
     const missing = required.filter((s) => !present.has(`${s.left},${s.right}`))

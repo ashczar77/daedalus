@@ -5,31 +5,38 @@ import { CallStackPanel } from '../components/CallStackPanel'
 import { CodePanel } from '../components/CodePanel'
 import { CodeRuntime } from '../components/CodeRuntime'
 import { HeapInspector } from '../components/HeapInspector'
+import { InputPanel } from '../components/InputPanel'
 import { PlayerControls } from '../components/PlayerControls'
 import { StructureStage } from '../components/StructureStage'
 import { WalkthroughPanel } from '../components/WalkthroughPanel'
 import { normalizeStep } from '../engine/normalizeStep'
-import type { Language } from '../engine/types'
+import type { Language, Step } from '../engine/types'
 import { usePlayback } from '../engine/usePlayback'
 import { getProblem } from '../problems/registry'
 import './ProblemPage.css'
 
 /**
- * Problem player: header → controls → main body (code | viz | rail) → walkthrough.
- * Layout mirrors Codedive: visualization is the centerpiece.
+ * Problem player: header → input → controls → main body (code | viz | rail) → walkthrough.
+ * Custom inputs are pack-agnostic via ProblemInputSpec.
  */
 export function ProblemPage() {
   const { problemId = '' } = useParams()
   const problem = getProblem(problemId)
   const [language, setLanguage] = useState<Language>('java')
   const [runEpoch, setRunEpoch] = useState(0)
+  const [activeSteps, setActiveSteps] = useState<Step[] | null>(null)
+  const [activeLabel, setActiveLabel] = useState<string | null>(null)
 
-  const steps = useMemo(() => problem?.steps ?? [], [problem])
-  const playback = usePlayback({ steps })
-
+  // Restore curated demo whenever the route pack changes.
   useEffect(() => {
+    setActiveSteps(null)
+    setActiveLabel(null)
     setRunEpoch((value) => value + 1)
   }, [problem?.id])
+
+  const steps = activeSteps ?? problem?.steps ?? []
+  const inputLabel = activeLabel ?? problem?.inputLabel ?? ''
+  const playback = usePlayback({ steps })
 
   const normalized = useMemo(
     () => (playback.step ? normalizeStep(playback.step) : null),
@@ -70,6 +77,18 @@ export function ProblemPage() {
         </div>
         <h1>{problem.title}</h1>
       </header>
+
+      {problem.input ? (
+        <InputPanel
+          key={problem.id}
+          spec={problem.input}
+          onApply={({ steps: nextSteps, label }) => {
+            setActiveSteps(nextSteps)
+            setActiveLabel(label)
+            setRunEpoch((value) => value + 1)
+          }}
+        />
+      ) : null}
 
       <PlayerControls
         index={playback.index}
@@ -124,7 +143,7 @@ export function ProblemPage() {
       <div className="problem__below">
         <WalkthroughPanel
           statement={walkthrough.statement}
-          inputLabel={problem.inputLabel}
+          inputLabel={inputLabel}
           pattern={problem.pattern}
           keyIdea={walkthrough.keyIdea}
           approach={walkthrough.approach}

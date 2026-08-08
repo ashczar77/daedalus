@@ -1,15 +1,20 @@
 /**
  * LeetCode #11 — Container With Most Water.
- * Full two-pointer walk of height = [1,8,6,2,5,4,8,3,7] → 49.
- * Every while-iteration (left < right) is a step — no early exit.
+ * Steps are generated from validated height input (Phase 4).
  * Visualization: vertical bars + live water rectangle (display: 'bars').
  */
 import javaSrc from '../../algorithms/0011-container-with-most-water/Solution.java?raw'
 import kotlinSrc from '../../algorithms/0011-container-with-most-water/Solution.kt?raw'
 import pythonSrc from '../../algorithms/0011-container-with-most-water/solution.py?raw'
+import {
+  defineInput,
+  formatIntList,
+  parseIntList,
+} from '../engine/input'
 import type { ArrayHighlight, HeapObject, ProblemPack, Step } from '../engine/types'
 import { placeholderBenchmark } from './benchmarkPlaceholders'
 
+/** Default demo — name `height` kept for validate:traces array extraction. */
 const height = [1, 8, 6, 2, 5, 4, 8, 3, 7]
 
 const L = {
@@ -20,6 +25,7 @@ const L = {
 
 /** Histogram heap snapshot for the teaching surface. */
 function heightBars(
+  height: number[],
   left: number,
   right: number,
   highlights: ArrayHighlight[],
@@ -38,258 +44,122 @@ function heightBars(
   }
 }
 
-const steps: Step[] = [
-  {
-    id: 1,
-    narrative: 'Start widest: left=0, right=8. area=min(1,7)×8=8 → best=8. Left is shorter → left++.',
-    why: 'Keeping the short wall while shrinking width cannot beat this area.',
-    codeFocus: L.moveLeft,
-    callStack: [
+/**
+ * Full two-pointer walk — every while-iteration is a step.
+ * Handles empty / single-element inputs with a short return beat.
+ */
+function generateContainerSteps(height: number[]): Step[] {
+  if (height.length < 2) {
+    return [
       {
-        name: 'maxArea',
-        active: true,
-        locals: {
-          height: { ref: 'height' },
-          left: 0,
-          right: 8,
-          area: 8,
-          best: 8,
-          move: 'left++',
-        },
-      },
-    ],
-    heap: [
-      heightBars(
-        0,
-        8,
-        [
-          { index: 0, role: 'compare' },
-          { index: 8, role: 'compare' },
+        id: 1,
+        narrative:
+          height.length === 0
+            ? 'height is empty. No pair of lines exists → return 0.'
+            : 'Only one line. Need two indices to form a container → return 0.',
+        why: 'Area needs two sides; the algorithm’s while (left < right) never enters.',
+        codeFocus: L.ret,
+        callStack: [
+          {
+            name: 'maxArea',
+            active: true,
+            locals: {
+              height: { ref: 'height' },
+              left: 0,
+              right: Math.max(0, height.length - 1),
+              best: 0,
+              result: 0,
+            },
+          },
         ],
-        { area: 8, best: 8 },
-      ),
-    ],
-  },
-  {
-    id: 2,
-    narrative: 'left=1, right=8. area=min(8,7)×7=49 → best=49. Right is shorter → right--.',
-    why: 'New maximum; still move the shorter side (7 < 8).',
-    codeFocus: L.moveRight,
-    callStack: [
-      {
-        name: 'maxArea',
-        active: true,
-        locals: {
-          height: { ref: 'height' },
-          left: 1,
-          right: 8,
-          area: 49,
-          best: 49,
-          move: 'right--',
-        },
-      },
-    ],
-    heap: [
-      heightBars(
-        1,
-        8,
-        [
-          { index: 1, role: 'found' },
-          { index: 8, role: 'found' },
+        heap: [
+          {
+            id: 'height',
+            kind: 'array',
+            label: 'int[] height',
+            values: height,
+            display: 'bars',
+            metrics: { best: 0 },
+            focused: true,
+          },
         ],
-        { area: 49, best: 49 },
-      ),
-    ],
-  },
-  {
-    id: 3,
-    narrative: 'left=1, right=7. area=min(8,3)×6=18 < best. Right shorter → right--.',
-    why: 'Loop continues while left < right — we do not stop at the first good area.',
-    codeFocus: L.moveRight,
-    callStack: [
-      {
-        name: 'maxArea',
-        active: true,
-        locals: {
-          height: { ref: 'height' },
-          left: 1,
-          right: 7,
-          area: 18,
-          best: 49,
-          move: 'right--',
-        },
       },
-    ],
-    heap: [
-      heightBars(
-        1,
-        7,
-        [
-          { index: 1, role: 'compare' },
-          { index: 7, role: 'compare' },
-        ],
-        { area: 18, best: 49 },
-      ),
-    ],
-  },
-  {
-    id: 4,
-    narrative: 'left=1, right=6. area=min(8,8)×5=40 < best. Heights equal → move left (≤ branch).',
-    why: 'When equal, either side can move; this code advances left.',
-    codeFocus: L.moveLeft,
-    callStack: [
-      {
-        name: 'maxArea',
-        active: true,
-        locals: {
-          height: { ref: 'height' },
-          left: 1,
-          right: 6,
-          area: 40,
-          best: 49,
-          move: 'left++',
+    ]
+  }
+
+  const steps: Step[] = []
+  let left = 0
+  let right = height.length - 1
+  let best = 0
+  let bestLeft = 0
+  let bestRight = right
+  let id = 1
+
+  while (left < right) {
+    const hL = height[left]!
+    const hR = height[right]!
+    const area = Math.min(hL, hR) * (right - left)
+    const improved = area > best
+    if (improved) {
+      best = area
+      bestLeft = left
+      bestRight = right
+    }
+
+    const moveLeft = hL <= hR
+    const move = moveLeft ? 'left++' : 'right--'
+
+    steps.push({
+      id,
+      narrative: `left=${left}, right=${right}. area=min(${hL},${hR})×${right - left}=${area} ${
+        improved ? `→ best=${best}` : `< best=${best}`
+      }. ${moveLeft ? 'Left' : 'Right'} is shorter (or equal) → ${move}.`,
+      why: improved
+        ? 'New maximum; still move the shorter side so a taller wall might appear.'
+        : 'Loop continues while left < right — keep shrinking from the shorter side.',
+      codeFocus: moveLeft ? L.moveLeft : L.moveRight,
+      callStack: [
+        {
+          name: 'maxArea',
+          active: true,
+          locals: {
+            height: { ref: 'height' },
+            left,
+            right,
+            area,
+            best,
+            move,
+          },
         },
-      },
-    ],
-    heap: [
-      heightBars(
-        1,
-        6,
-        [
-          { index: 1, role: 'compare' },
-          { index: 6, role: 'compare' },
-        ],
-        { area: 40, best: 49 },
-      ),
-    ],
-  },
-  {
-    id: 5,
-    narrative: 'left=2, right=6. area=min(6,8)×4=24 < best. Left shorter → left++.',
-    why: 'Still searching the remaining range for a better pair.',
-    codeFocus: L.moveLeft,
-    callStack: [
-      {
-        name: 'maxArea',
-        active: true,
-        locals: {
-          height: { ref: 'height' },
-          left: 2,
-          right: 6,
-          area: 24,
-          best: 49,
-          move: 'left++',
-        },
-      },
-    ],
-    heap: [
-      heightBars(
-        2,
-        6,
-        [
-          { index: 2, role: 'compare' },
-          { index: 6, role: 'compare' },
-        ],
-        { area: 24, best: 49 },
-      ),
-    ],
-  },
-  {
-    id: 6,
-    narrative: 'left=3, right=6. area=min(2,8)×3=6 < best. Left shorter → left++.',
-    why: 'Narrower and shorter min-height cannot beat 49.',
-    codeFocus: L.moveLeft,
-    callStack: [
-      {
-        name: 'maxArea',
-        active: true,
-        locals: {
-          height: { ref: 'height' },
-          left: 3,
-          right: 6,
-          area: 6,
-          best: 49,
-          move: 'left++',
-        },
-      },
-    ],
-    heap: [
-      heightBars(
-        3,
-        6,
-        [
-          { index: 3, role: 'compare' },
-          { index: 6, role: 'compare' },
-        ],
-        { area: 6, best: 49 },
-      ),
-    ],
-  },
-  {
-    id: 7,
-    narrative: 'left=4, right=6. area=min(5,8)×2=10 < best. Left shorter → left++.',
-    why: 'Keep walking until the pointers meet.',
-    codeFocus: L.moveLeft,
-    callStack: [
-      {
-        name: 'maxArea',
-        active: true,
-        locals: {
-          height: { ref: 'height' },
-          left: 4,
-          right: 6,
-          area: 10,
-          best: 49,
-          move: 'left++',
-        },
-      },
-    ],
-    heap: [
-      heightBars(
-        4,
-        6,
-        [
-          { index: 4, role: 'compare' },
-          { index: 6, role: 'compare' },
-        ],
-        { area: 10, best: 49 },
-      ),
-    ],
-  },
-  {
-    id: 8,
-    narrative: 'left=5, right=6. area=min(4,8)×1=4 < best. Left shorter → left++ → left=6.',
-    why: 'Last iteration: after this move left == right and the while ends.',
-    codeFocus: L.moveLeft,
-    callStack: [
-      {
-        name: 'maxArea',
-        active: true,
-        locals: {
-          height: { ref: 'height' },
-          left: 5,
-          right: 6,
-          area: 4,
-          best: 49,
-          move: 'left++',
-        },
-      },
-    ],
-    heap: [
-      heightBars(
-        5,
-        6,
-        [
-          { index: 5, role: 'compare' },
-          { index: 6, role: 'compare' },
-        ],
-        { area: 4, best: 49 },
-      ),
-    ],
-  },
-  {
-    id: 9,
-    narrative: 'left=6 is not < right=6. Loop ends. Return best=49.',
+      ],
+      heap: [
+        heightBars(
+          height,
+          left,
+          right,
+          [
+            {
+              index: left,
+              role: improved && left === bestLeft ? 'found' : 'compare',
+            },
+            {
+              index: right,
+              role: improved && right === bestRight ? 'found' : 'compare',
+            },
+          ],
+          { area, best },
+        ),
+      ],
+    })
+
+    if (moveLeft) left += 1
+    else right -= 1
+    id += 1
+  }
+
+  steps.push({
+    id,
+    narrative: `left=${left} is not < right=${right}. Loop ends. Return best=${best}.`,
     why: 'Answer is the max area seen across every candidate pair the pointers considered.',
     codeFocus: L.ret,
     callStack: [
@@ -298,26 +168,63 @@ const steps: Step[] = [
         active: true,
         locals: {
           height: { ref: 'height' },
-          left: 6,
-          right: 6,
-          best: 49,
-          result: 49,
+          left,
+          right,
+          best,
+          result: best,
         },
       },
     ],
     heap: [
       heightBars(
-        6,
-        6,
+        height,
+        left,
+        right,
         [
-          { index: 1, role: 'found' },
-          { index: 8, role: 'found' },
+          { index: bestLeft, role: 'found' },
+          { index: bestRight, role: 'found' },
         ],
-        { best: 49 },
+        { best },
       ),
     ],
-  },
-]
+  })
+
+  return steps
+}
+
+const input = defineInput<number[]>({
+  kind: 'intArray',
+  fields: [
+    {
+      key: 'height',
+      label: 'height',
+      widget: 'text',
+      placeholder: '1, 8, 6, 2, 5, 4, 8, 3, 7',
+      hint: 'Up to 16 integers from 0–99',
+    },
+  ],
+  defaultRaw: { height: formatIntList(height) },
+  parse: (raw) =>
+    parseIntList(raw.height ?? '', {
+      name: 'height',
+      minLen: 0,
+      maxLen: 16,
+      minVal: 0,
+      maxVal: 99,
+    }),
+  formatLabel: (height) => `height = [${height.join(', ')}]`,
+  generateSteps: generateContainerSteps,
+  fixtures: [
+    { name: 'empty', raw: { height: '' } },
+    { name: 'single', raw: { height: '5' } },
+    { name: 'two', raw: { height: '1, 2' } },
+  ],
+})
+
+const defaultParsed = input.parse(input.defaultRaw)
+if (!defaultParsed.ok) {
+  throw new Error(`Container default input invalid: ${defaultParsed.errors.join('; ')}`)
+}
 
 export const containerWithMostWater: ProblemPack = {
   id: '0011-container-with-most-water',
@@ -330,10 +237,11 @@ export const containerWithMostWater: ProblemPack = {
   invariant:
     'best tracks the max area seen; the active pair is always (left, right) on the remaining range.',
   complexity: { time: 'O(n)', space: 'O(1)' },
-  inputLabel: 'height = [1,8,6,2,5,4,8,3,7]',
+  inputLabel: input.formatLabel(defaultParsed.value),
   languages: { java: javaSrc, kotlin: kotlinSrc, python: pythonSrc },
-  steps,
-  /** Validator simulates move-shorter two-pointers on `height` and requires every loop state. */
+  steps: input.generateSteps(defaultParsed.value),
+  input,
+  /** Validator: generator packs check for a full left<right loop instead of literal pairs. */
   demoCoverage: { twoPointers: { array: 'height' } },
   benchmark: placeholderBenchmark(
     'One pass beats the O(n²) brute-force double loop by a huge constant-factor margin.',

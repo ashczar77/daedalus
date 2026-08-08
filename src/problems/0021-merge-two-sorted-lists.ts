@@ -1,13 +1,22 @@
 /**
  * LeetCode #21 — Merge Two Sorted Lists (dummy head splice).
- * Demo: list1=[1,3], list2=[2,4] → [1,2,3,4].
- * Each branch of the if/else is a separate step with matching codeFocus.
+ * Steps generated from validated list1/list2 (Phase 4).
  */
 import javaSrc from '../../algorithms/0021-merge-two-sorted-lists/Solution.java?raw'
 import kotlinSrc from '../../algorithms/0021-merge-two-sorted-lists/Solution.kt?raw'
 import pythonSrc from '../../algorithms/0021-merge-two-sorted-lists/solution.py?raw'
+import {
+  defineInput,
+  formatIntList,
+  parseIntList,
+} from '../engine/input'
 import type { ProblemPack, Step } from '../engine/types'
 import { placeholderBenchmark } from './benchmarkPlaceholders'
+
+type Input = { list1: number[]; list2: number[] }
+
+const defaultList1 = [1, 3]
+const defaultList2 = [2, 4]
 
 /** Line maps kept next to the sources so if/else focus cannot drift silently. */
 const L = {
@@ -22,9 +31,98 @@ const L = {
   ret: { java: 26, kotlin: 23, python: 22 },
 } as const
 
-const steps: Step[] = [
-  {
-    id: 1,
+type ListNodeSnap = { id: string; value: number; next: string | null }
+
+function listNodesPrefixed(values: number[], prefix: string): ListNodeSnap[] {
+  return values.map((value, index) => ({
+    id: `${prefix}${index + 1}`,
+    value,
+    next:
+      index + 1 < values.length ? `${prefix}${index + 2}` : null,
+  }))
+}
+
+function chainFrom(
+  start: string | null,
+  store: Map<string, ListNodeSnap>,
+): ListNodeSnap[] {
+  const out: ListNodeSnap[] = []
+  let cur = start
+  while (cur) {
+    const n = store.get(cur)
+    if (!n) break
+    out.push({ ...n })
+    cur = n.next
+  }
+  return out
+}
+
+function buildMergedNodes(
+  mergedNext: Map<string, string | null>,
+  valueStore: Map<string, ListNodeSnap>,
+  start = 'dummy',
+): ListNodeSnap[] {
+  const out: ListNodeSnap[] = []
+  let cur: string | null = start
+  while (cur) {
+    const base = valueStore.get(cur)
+    if (!base) break
+    out.push({
+      id: cur,
+      value: base.value,
+      next: mergedNext.get(cur) ?? null,
+    })
+    cur = mergedNext.get(cur) ?? null
+  }
+  return out
+}
+
+function generateSteps({ list1: v1, list2: v2 }: Input): Step[] {
+  const valueStore = new Map<string, ListNodeSnap>()
+  for (const n of listNodesPrefixed(v1, 'a')) valueStore.set(n.id, { ...n })
+  for (const n of listNodesPrefixed(v2, 'b')) valueStore.set(n.id, { ...n })
+  valueStore.set('dummy', { id: 'dummy', value: 0, next: null })
+
+  const mergedNext = new Map<string, string | null>([['dummy', null]])
+
+  let list1: string | null = v1.length ? 'a1' : null
+  let list2: string | null = v2.length ? 'b1' : null
+  let runner = 'dummy'
+
+  const steps: Step[] = []
+  let id = 1
+
+  if (!list1 && !list2) {
+    return [
+      {
+        id: 1,
+        narrative: 'Both lists empty — dummy.next is null. Return null.',
+        why: 'Nothing to merge.',
+        codeFocus: L.ret,
+        callStack: [
+          {
+            name: 'mergeTwoLists',
+            active: true,
+            locals: { list1: null, list2: null, dummy: 'dummy', result: null },
+          },
+        ],
+        heap: [
+          {
+            id: 'merged',
+            kind: 'linkedList',
+            label: 'dummy / merged',
+            nodes: [{ id: 'dummy', value: 0, next: null }],
+            pointers: { runner: 'dummy' },
+            focused: true,
+            caption: 'empty merge → null',
+          },
+        ],
+      },
+    ]
+  }
+
+  steps.push({
+    id: id++,
     narrative: 'Create dummy and set runner = dummy. Both input lists still intact.',
     why: 'Dummy avoids a special case for the first splice.',
     codeFocus: L.dummy,
@@ -33,282 +131,195 @@ const steps: Step[] = [
         name: 'mergeTwoLists',
         active: true,
         locals: {
-          list1: 'a1',
-          list2: 'b1',
+          list1,
+          list2,
           dummy: 'dummy',
-          runner: 'dummy',
+          runner,
         },
       },
     ],
     heap: [
-      {
-        id: 'list1',
-        kind: 'linkedList',
-        label: 'list1',
-        nodes: [
-          { id: 'a1', value: 1, next: 'a2' },
-          { id: 'a2', value: 3, next: null },
-        ],
-        pointers: { list1: 'a1' },
-        focused: true,
-      },
-      {
-        id: 'list2',
-        kind: 'linkedList',
-        label: 'list2',
-        nodes: [
-          { id: 'b1', value: 2, next: 'b2' },
-          { id: 'b2', value: 4, next: null },
-        ],
-        pointers: { list2: 'b1' },
-        focused: true,
-      },
+      ...(list1
+        ? [
+            {
+              id: 'list1',
+              kind: 'linkedList' as const,
+              label: 'list1',
+              nodes: chainFrom(list1, valueStore),
+              pointers: { list1 },
+              focused: true,
+            },
+          ]
+        : []),
+      ...(list2
+        ? [
+            {
+              id: 'list2',
+              kind: 'linkedList' as const,
+              label: 'list2',
+              nodes: chainFrom(list2, valueStore),
+              pointers: { list2 },
+              focused: true,
+            },
+          ]
+        : []),
       {
         id: 'merged',
         kind: 'linkedList',
         label: 'dummy / merged',
-        nodes: [{ id: 'dummy', value: 0, next: null }],
-        pointers: { runner: 'dummy' },
+        nodes: buildMergedNodes(mergedNext, valueStore),
+        pointers: { runner },
         caption: 'dummy · runner here',
       },
     ],
-  },
-  {
-    id: 2,
-    narrative: 'Both lists nonempty. Compare heads: 1 ≤ 2 → take list1 (if branch).',
-    why: 'The if branch runs when list1’s head is smaller or equal.',
-    codeFocus: L.take1,
-    callStack: [
-      {
-        name: 'mergeTwoLists',
-        active: true,
-        locals: { list1: 'a1', list2: 'b1', runner: 'dummy', cmp: '1 <= 2' },
-      },
-    ],
-    heap: [
-      {
-        id: 'merged',
-        kind: 'linkedList',
-        label: 'dummy / merged',
-        nodes: [
-          { id: 'dummy', value: 0, next: 'a1' },
-          { id: 'a1', value: 1, next: 'a2' },
-        ],
-        pointers: { runner: 'dummy' },
-        focusIds: ['a1'],
-        focused: true,
-        caption: 'if: runner.next = list1 (1)',
-      },
-      {
-        id: 'list1',
-        kind: 'linkedList',
-        label: 'list1',
-        nodes: [
-          { id: 'a1', value: 1, next: 'a2' },
-          { id: 'a2', value: 3, next: null },
-        ],
-        pointers: { list1: 'a1' },
-      },
-      {
-        id: 'list2',
-        kind: 'linkedList',
-        label: 'list2',
-        nodes: [
-          { id: 'b1', value: 2, next: 'b2' },
-          { id: 'b2', value: 4, next: null },
-        ],
-        pointers: { list2: 'b1' },
-      },
-    ],
-  },
-  {
-    id: 3,
-    narrative: 'Advance list1 to 3 and runner to the spliced node 1.',
-    why: 'runner always sits at the tail of the merged prefix.',
-    codeFocus: L.advanceRunner,
-    callStack: [
-      {
-        name: 'mergeTwoLists',
-        active: true,
-        locals: { list1: 'a2', list2: 'b1', runner: 'a1' },
-      },
-    ],
-    heap: [
-      {
-        id: 'merged',
-        kind: 'linkedList',
-        label: 'dummy / merged',
-        nodes: [
-          { id: 'dummy', value: 0, next: 'a1' },
-          { id: 'a1', value: 1, next: null },
-        ],
-        pointers: { runner: 'a1' },
-        focusIds: ['a1'],
-        focused: true,
-        caption: 'runner = runner.next',
-      },
-      {
-        id: 'list1',
-        kind: 'linkedList',
-        label: 'list1 remaining',
-        nodes: [{ id: 'a2', value: 3, next: null }],
-        pointers: { list1: 'a2' },
-      },
-      {
-        id: 'list2',
-        kind: 'linkedList',
-        label: 'list2',
-        nodes: [
-          { id: 'b1', value: 2, next: 'b2' },
-          { id: 'b2', value: 4, next: null },
-        ],
-        pointers: { list2: 'b1' },
-      },
-    ],
-  },
-  {
-    id: 4,
-    narrative: 'Compare again: 3 ≤ 2 is false → else branch takes list2’s 2.',
-    why: 'When list2’s head is smaller, the else block runs — not the if.',
-    codeFocus: L.take2,
-    callStack: [
-      {
-        name: 'mergeTwoLists',
-        active: true,
-        locals: { list1: 'a2', list2: 'b1', runner: 'a1', cmp: '3 > 2' },
-      },
-    ],
-    heap: [
-      {
-        id: 'merged',
-        kind: 'linkedList',
-        label: 'dummy / merged',
-        nodes: [
-          { id: 'dummy', value: 0, next: 'a1' },
-          { id: 'a1', value: 1, next: 'b1' },
-          { id: 'b1', value: 2, next: 'b2' },
-        ],
-        pointers: { runner: 'a1' },
-        focusIds: ['b1'],
-        focused: true,
-        caption: 'else: runner.next = list2 (2)',
-      },
-      {
-        id: 'list1',
-        kind: 'linkedList',
-        label: 'list1 remaining',
-        nodes: [{ id: 'a2', value: 3, next: null }],
-        pointers: { list1: 'a2' },
-      },
-      {
-        id: 'list2',
-        kind: 'linkedList',
-        label: 'list2',
-        nodes: [
-          { id: 'b1', value: 2, next: 'b2' },
-          { id: 'b2', value: 4, next: null },
-        ],
-        pointers: { list2: 'b1' },
-      },
-    ],
-  },
-  {
-    id: 5,
-    narrative: 'Advance list2 to 4 and runner onto node 2.',
-    why: 'Same runner advance after either branch.',
-    codeFocus: L.advanceRunner,
-    callStack: [
-      {
-        name: 'mergeTwoLists',
-        active: true,
-        locals: { list1: 'a2', list2: 'b2', runner: 'b1' },
-      },
-    ],
-    heap: [
-      {
-        id: 'merged',
-        kind: 'linkedList',
-        label: 'dummy / merged',
-        nodes: [
-          { id: 'dummy', value: 0, next: 'a1' },
-          { id: 'a1', value: 1, next: 'b1' },
-          { id: 'b1', value: 2, next: null },
-        ],
-        pointers: { runner: 'b1' },
-        focusIds: ['b1'],
-        focused: true,
-        caption: 'runner = runner.next',
-      },
-      {
-        id: 'list1',
-        kind: 'linkedList',
-        label: 'list1 remaining',
-        nodes: [{ id: 'a2', value: 3, next: null }],
-        pointers: { list1: 'a2' },
-      },
-      {
-        id: 'list2',
-        kind: 'linkedList',
-        label: 'list2 remaining',
-        nodes: [{ id: 'b2', value: 4, next: null }],
-        pointers: { list2: 'b2' },
-      },
-    ],
-  },
-  {
-    id: 6,
-    narrative: 'Compare 3 ≤ 4 → if branch takes list1’s 3.',
-    why: 'Back on the if path when list1 is smaller again.',
-    codeFocus: L.take1,
-    callStack: [
-      {
-        name: 'mergeTwoLists',
-        active: true,
-        locals: { list1: 'a2', list2: 'b2', runner: 'b1', cmp: '3 <= 4' },
-      },
-    ],
-    heap: [
-      {
-        id: 'merged',
-        kind: 'linkedList',
-        label: 'dummy / merged',
-        nodes: [
-          { id: 'dummy', value: 0, next: 'a1' },
-          { id: 'a1', value: 1, next: 'b1' },
-          { id: 'b1', value: 2, next: 'a2' },
-          { id: 'a2', value: 3, next: null },
-        ],
-        pointers: { runner: 'b1' },
-        focusIds: ['a2'],
-        focused: true,
-        caption: 'if: runner.next = list1 (3)',
-      },
-      {
-        id: 'list1',
-        kind: 'linkedList',
-        label: 'list1 remaining',
-        nodes: [{ id: 'a2', value: 3, next: null }],
-        pointers: { list1: 'a2' },
-      },
-      {
-        id: 'list2',
-        kind: 'linkedList',
-        label: 'list2 remaining',
-        nodes: [{ id: 'b2', value: 4, next: null }],
-        pointers: { list2: 'b2' },
-      },
-    ],
-  },
-  {
-    id: 7,
-    narrative: 'list1 is now null. Attach leftover list2 (4) and return dummy.next.',
+  })
+
+  while (list1 && list2) {
+    const vLeft = valueStore.get(list1)!.value
+    const vRight = valueStore.get(list2)!.value
+    const takeFrom1 = vLeft <= vRight
+    const taken = takeFrom1 ? list1 : list2
+
+    mergedNext.set(runner, taken)
+    steps.push({
+      id: id++,
+      narrative: takeFrom1
+        ? `Both lists nonempty. Compare heads: ${vLeft} ≤ ${vRight} → take list1 (if branch).`
+        : `Compare heads: ${vLeft} > ${vRight} → else branch takes list2’s ${vRight}.`,
+      why: takeFrom1
+        ? 'The if branch runs when list1’s head is smaller or equal.'
+        : 'When list2’s head is smaller, the else block runs — not the if.',
+      codeFocus: takeFrom1 ? L.take1 : L.take2,
+      callStack: [
+        {
+          name: 'mergeTwoLists',
+          active: true,
+          locals: {
+            list1,
+            list2,
+            runner,
+            cmp: takeFrom1 ? `${vLeft} <= ${vRight}` : `${vLeft} > ${vRight}`,
+          },
+        },
+      ],
+      heap: [
+        {
+          id: 'merged',
+          kind: 'linkedList',
+          label: 'dummy / merged',
+          nodes: buildMergedNodes(mergedNext, valueStore),
+          pointers: { runner },
+          focusIds: [taken],
+          focused: true,
+          caption: takeFrom1
+            ? `if: runner.next = list1 (${vLeft})`
+            : `else: runner.next = list2 (${vRight})`,
+        },
+        ...(list1
+          ? [
+              {
+                id: 'list1',
+                kind: 'linkedList' as const,
+                label: takeFrom1 ? 'list1' : 'list1 remaining',
+                nodes: chainFrom(list1, valueStore),
+                pointers: { list1 },
+              },
+            ]
+          : []),
+        ...(list2
+          ? [
+              {
+                id: 'list2',
+                kind: 'linkedList' as const,
+                label: takeFrom1 ? 'list2' : 'list2 remaining',
+                nodes: chainFrom(list2, valueStore),
+                pointers: { list2 },
+              },
+            ]
+          : []),
+      ],
+    })
+
+    if (takeFrom1) list1 = valueStore.get(list1)!.next
+    else list2 = valueStore.get(list2)!.next
+
+    runner = taken
+    mergedNext.set(runner, null)
+
+    steps.push({
+      id: id++,
+      narrative: takeFrom1
+        ? `Advance list1 and runner onto the spliced node (${valueStore.get(runner)!.value}).`
+        : `Advance list2 and runner onto the spliced node (${valueStore.get(runner)!.value}).`,
+      why: 'runner always sits at the tail of the merged prefix.',
+      codeFocus: L.advanceRunner,
+      callStack: [
+        {
+          name: 'mergeTwoLists',
+          active: true,
+          locals: { list1, list2, runner },
+        },
+      ],
+      heap: [
+        {
+          id: 'merged',
+          kind: 'linkedList',
+          label: 'dummy / merged',
+          nodes: buildMergedNodes(mergedNext, valueStore),
+          pointers: { runner },
+          focusIds: [runner],
+          focused: true,
+          caption: 'runner = runner.next',
+        },
+        ...(list1
+          ? [
+              {
+                id: 'list1',
+                kind: 'linkedList' as const,
+                label: 'list1 remaining',
+                nodes: chainFrom(list1, valueStore),
+                pointers: { list1 },
+              },
+            ]
+          : []),
+        ...(list2
+          ? [
+              {
+                id: 'list2',
+                kind: 'linkedList' as const,
+                label: 'list2 remaining',
+                nodes: chainFrom(list2, valueStore),
+                pointers: { list2 },
+              },
+            ]
+          : []),
+      ],
+    })
+  }
+
+  const tail = list1 ?? list2
+  if (tail) mergedNext.set(runner, tail)
+
+  const head = mergedNext.get('dummy') ?? null
+  steps.push({
+    id: id++,
+    narrative: list1
+      ? 'list2 is now null. Attach leftover list1 and return dummy.next.'
+      : list2
+        ? 'list1 is now null. Attach leftover list2 and return dummy.next.'
+        : 'Both exhausted — return dummy.next.',
     why: 'When one list empties, the other is already sorted — one pointer assign finishes.',
     codeFocus: L.attachTail,
     callStack: [
       {
         name: 'mergeTwoLists',
         active: true,
-        locals: { list1: null, list2: 'b2', runner: 'a2', result: 'a1' },
+        locals: {
+          list1,
+          list2,
+          runner,
+          result: head,
+        },
       },
     ],
     heap: [
@@ -316,20 +327,83 @@ const steps: Step[] = [
         id: 'merged',
         kind: 'linkedList',
         label: 'merged result',
-        nodes: [
-          { id: 'a1', value: 1, next: 'b1' },
-          { id: 'b1', value: 2, next: 'a2' },
-          { id: 'a2', value: 3, next: 'b2' },
-          { id: 'b2', value: 4, next: null },
-        ],
-        pointers: { head: 'a1' },
-        focusIds: ['a1', 'b1', 'a2', 'b2'],
+        nodes: buildMergedNodes(mergedNext, valueStore).filter(
+          (n) => n.id !== 'dummy',
+        ),
+        pointers: head ? { head } : {},
+        focusIds: head
+          ? buildMergedNodes(mergedNext, valueStore)
+              .filter((n) => n.id !== 'dummy')
+              .map((n) => n.id)
+          : [],
         focused: true,
         caption: 'attach tail · return dummy.next',
       },
     ],
+  })
+
+  return steps
+}
+
+const input = defineInput<Input>({
+  kind: 'mergeTwoSortedLists',
+  fields: [
+    {
+      key: 'list1',
+      label: 'list1',
+      widget: 'text',
+      placeholder: '1, 3',
+      hint: 'Sorted non-decreasing, up to 8 values',
+      sortable: true,
+    },
+    {
+      key: 'list2',
+      label: 'list2',
+      widget: 'text',
+      placeholder: '2, 4',
+      hint: 'Sorted non-decreasing, up to 8 values',
+      sortable: true,
+    },
+  ],
+  defaultRaw: {
+    list1: formatIntList(defaultList1),
+    list2: formatIntList(defaultList2),
   },
-]
+  parse: (raw) => {
+    const list1Result = parseIntList(raw.list1 ?? '', {
+      name: 'list1',
+      minLen: 0,
+      maxLen: 8,
+      minVal: -99,
+      maxVal: 99,
+      requireSorted: true,
+    })
+    if (!list1Result.ok) return list1Result
+    const list2Result = parseIntList(raw.list2 ?? '', {
+      name: 'list2',
+      minLen: 0,
+      maxLen: 8,
+      minVal: -99,
+      maxVal: 99,
+      requireSorted: true,
+    })
+    if (!list2Result.ok) return list2Result
+    return {
+      ok: true,
+      value: { list1: list1Result.value, list2: list2Result.value },
+    }
+  },
+  formatLabel: (value) =>
+    `list1 = [${value.list1.join(', ')}], list2 = [${value.list2.join(', ')}]`,
+  generateSteps,
+  fixtures: [
+    { name: 'both-empty', raw: { list1: '', list2: '' } },
+    { name: 'one-empty', raw: { list1: '1, 2', list2: '' } },
+  ],
+})
+
+const defaultParsed = input.parse(input.defaultRaw)
+if (!defaultParsed.ok) throw new Error(defaultParsed.errors.join('; '))
 
 export const mergeTwoSortedLists: ProblemPack = {
   id: '0021-merge-two-sorted-lists',
@@ -337,16 +411,19 @@ export const mergeTwoSortedLists: ProblemPack = {
   title: 'Merge Two Sorted Lists',
   pattern: 'Linked List',
   difficulty: 'Easy',
-  insight: 'Dummy head + splice existing nodes — avoid new ListNode(val) for each value.',
-  invariant: 'Merged portion behind runner is sorted; list1/list2 point at remaining sorted tails.',
+  insight:
+    'Dummy head + splice existing nodes — avoid new ListNode(val) for each value.',
+  invariant:
+    'Merged portion behind runner is sorted; list1/list2 point at remaining sorted tails.',
   complexity: {
     time: 'O(n + m)',
     space: 'O(1)',
     notes: 'Creating new nodes works but wastes O(n+m) heap allocations.',
   },
-  inputLabel: 'list1 = [1,3], list2 = [2,4]',
+  inputLabel: input.formatLabel(defaultParsed.value),
   languages: { java: javaSrc, kotlin: kotlinSrc, python: pythonSrc },
-  steps,
+  steps: input.generateSteps(defaultParsed.value),
+  input,
   benchmark: placeholderBenchmark(
     'Pointer splicing dominates — language gaps are small at interview sizes.',
   ),
