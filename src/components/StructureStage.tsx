@@ -51,6 +51,8 @@ function StructureView({ object }: { object: HeapObject }) {
           highlights: object.highlights,
           pointers: object.pointers,
           label: object.label,
+          display: object.display,
+          metrics: object.metrics,
         }}
       />
     )

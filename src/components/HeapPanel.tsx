@@ -51,6 +51,8 @@ function HeapObjectView({ object }: { object: HeapObject }) {
           values: object.values,
           highlights: object.highlights,
           pointers: object.pointers,
+          display: object.display,
+          metrics: object.metrics,
         }}
       />
     )

@@ -153,6 +153,120 @@ function storyImpliesIfTake1(text) {
   )
 }
 
+/** Indices the demo must visit — only when pack opts in via demoCoverage.indices. */
+function requiredDemoLength(src) {
+  const explicit = src.match(/demoCoverage:\s*\{[^}]*indices:\s*(\d+)/)
+  if (explicit) return Number(explicit[1])
+  return null
+}
+
+function twoPointersArrayName(src) {
+  return src.match(/demoCoverage:\s*\{[^}]*twoPointers:\s*\{\s*array:\s*'([^']+)'/)?.[1] ?? null
+}
+
+function extractNumericArray(src, name) {
+  const re = new RegExp(`const\\s+${name}\\s*=\\s*\\[([^\\]]+)\\]`)
+  const m = src.match(re)
+  if (!m) return null
+  return m[1].split(',').map((part) => Number(part.trim())).filter((n) => !Number.isNaN(n))
+}
+
+/** Classic opposite-end two-pointer for container / similar move-shorter patterns. */
+function simulateMoveShorter(arr) {
+  const states = []
+  let left = 0
+  let right = arr.length - 1
+  while (left < right) {
+    states.push({ left, right })
+    if (arr[left] <= arr[right]) left += 1
+    else right -= 1
+  }
+  return states
+}
+
+function collectLeftRightPairs(src) {
+  const pairs = new Set()
+  const re = /pointers:\s*\{[^}]*left:\s*(\d+)[^}]*right:\s*(\d+)/g
+  let m
+  while ((m = re.exec(src))) {
+    pairs.add(`${m[1]},${m[2]}`)
+  }
+  // also right before left order
+  const re2 = /pointers:\s*\{[^}]*right:\s*(\d+)[^}]*left:\s*(\d+)/g
+  while ((m = re2.exec(src))) {
+    pairs.add(`${m[2]},${m[1]}`)
+  }
+  // Helper form used by bar-mode packs: heightBars(left, right, …)
+  const helper = /heightBars\(\s*(\d+)\s*,\s*(\d+)/g
+  while ((m = helper.exec(src))) {
+    pairs.add(`${m[1]},${m[2]}`)
+  }
+  return pairs
+}
+
+/** Collect indices marked current via pointers.i or role:'current' highlights. */
+function collectVisitedIndices(src) {
+  const visited = new Set()
+  const pointerI = /pointers:\s*\{[^}]*\bi:\s*(\d+)/g
+  let m
+  while ((m = pointerI.exec(src))) visited.add(Number(m[1]))
+
+  const currentHighlight =
+    /index:\s*(\d+)\s*,\s*role:\s*'current'|role:\s*'current'\s*,\s*index:\s*(\d+)/g
+  while ((m = currentHighlight.exec(src))) {
+    visited.add(Number(m[1] ?? m[2]))
+  }
+  return visited
+}
+
+function validateCoverage(file, src) {
+  const rel = path.relative(root, file)
+
+  const needed = requiredDemoLength(src)
+  if (needed != null && needed > 0) {
+    const visited = collectVisitedIndices(src)
+    const missing = []
+    for (let i = 0; i < needed; i++) {
+      if (!visited.has(i)) missing.push(i)
+    }
+    if (missing.length > 0) {
+      errors.push({
+        file: rel,
+        stepId: '-',
+        lang: 'coverage',
+        message: `Demo has ${needed} indices but steps never focus: [${missing.join(', ')}] — every character/index must be stepped`,
+      })
+    }
+  }
+
+  const tpName = twoPointersArrayName(src)
+  if (tpName) {
+    const arr = extractNumericArray(src, tpName)
+    if (!arr || arr.length === 0) {
+      errors.push({
+        file: rel,
+        stepId: '-',
+        lang: 'coverage',
+        message: `demoCoverage.twoPointers.array='${tpName}' but const ${tpName} = [...] not found`,
+      })
+      return
+    }
+    const required = simulateMoveShorter(arr)
+    const present = collectLeftRightPairs(src)
+    const missing = required.filter((s) => !present.has(`${s.left},${s.right}`))
+    if (missing.length > 0) {
+      errors.push({
+        file: rel,
+        stepId: '-',
+        lang: 'coverage',
+        message: `two-pointer trace incomplete — missing loop states: ${missing
+          .map((s) => `(left=${s.left},right=${s.right})`)
+          .join(', ')}`,
+      })
+    }
+  }
+}
+
 function validatePack(file) {
   const src = fs.readFileSync(file, 'utf8')
   if (!src.includes('codeFocus')) return
@@ -162,7 +276,6 @@ function validatePack(file) {
   const focusMaps = extractFocusMaps(src)
   const steps = extractSteps(src, focusMaps)
 
-  // Attach file name onto any unresolved-focus errors emitted during extract.
   for (const err of errors) {
     if (err.file === '(pending)') err.file = rel
   }
@@ -184,6 +297,8 @@ function validatePack(file) {
       message: 'No steps with codeFocus extracted',
     })
   }
+
+  validateCoverage(file, src)
 
   for (const step of steps) {
     for (const lang of LANGS) {

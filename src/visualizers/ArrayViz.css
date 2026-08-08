@@ -19,6 +19,8 @@
   flex-wrap: wrap;
   gap: 0.45rem;
   min-width: 0;
+  /* Room for pointer badges above cells */
+  padding-top: 1.55rem;
 }
 
 .array-viz__cell {
@@ -33,7 +35,9 @@
   transition:
     background 180ms ease,
     border-color 180ms ease,
-    box-shadow 180ms ease;
+    box-shadow 180ms ease,
+    opacity 180ms ease,
+    transform 180ms ease;
 }
 
 .array-viz__cell.is-current {
@@ -63,6 +67,92 @@
 
 .array-viz__cell.is-discard {
   opacity: 0.45;
+}
+
+/* Pointer-bearing cells stay vivid — discard must not hide left/right. */
+.array-viz__cell.has-ptr.is-discard {
+  opacity: 1;
+}
+
+.array-viz__cell.has-ptr--left {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, white);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.array-viz__cell.has-ptr--right {
+  border-color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 18%, white);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-2) 22%, transparent);
+}
+
+.array-viz__cell.has-ptr--mid {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 16%, white);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--warn) 20%, transparent);
+}
+
+.array-viz__cell.has-ptr--i,
+.array-viz__cell.has-ptr--j,
+.array-viz__cell.has-ptr--k,
+.array-viz__cell.has-ptr--default {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, white);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+/* When left & right share a cell, keep both tones readable via badges. */
+.array-viz__cell.has-ptr--left.has-ptr--right {
+  border-color: var(--ink-soft);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 20%, white),
+    color-mix(in srgb, var(--accent-2) 20%, white)
+  );
+}
+
+.array-viz__ptr-stack {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.2rem);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  z-index: 1;
+}
+
+.array-viz__ptr-badge {
+  display: inline-block;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  color: white;
+  white-space: nowrap;
+}
+
+.array-viz__ptr-badge.is-left {
+  background: var(--accent);
+}
+
+.array-viz__ptr-badge.is-right {
+  background: var(--accent-2);
+}
+
+.array-viz__ptr-badge.is-mid {
+  background: var(--warn);
+}
+
+.array-viz__ptr-badge.is-i,
+.array-viz__ptr-badge.is-j,
+.array-viz__ptr-badge.is-k,
+.array-viz__ptr-badge.is-default {
+  background: var(--ink-soft);
 }
 
 .array-viz__value {
@@ -96,6 +186,24 @@
 }
 
 .array-viz__pointer strong {
+  font-weight: 700;
+}
+
+.array-viz__pointer.is-left strong {
   color: var(--accent);
-  font-weight: 600;
+}
+
+.array-viz__pointer.is-right strong {
+  color: var(--accent-2);
+}
+
+.array-viz__pointer.is-mid strong {
+  color: var(--warn);
+}
+
+.array-viz__pointer.is-i strong,
+.array-viz__pointer.is-j strong,
+.array-viz__pointer.is-k strong,
+.array-viz__pointer.is-default strong {
+  color: var(--ink-soft);
 }

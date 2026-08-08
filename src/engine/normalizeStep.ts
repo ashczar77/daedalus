@@ -83,6 +83,8 @@ function sceneNodeToHeap(scene: Scene, id: string): HeapObject[] {
         values: scene.values,
         highlights: scene.highlights,
         pointers: scene.pointers,
+        display: scene.display,
+        metrics: scene.metrics,
         focused: Boolean(scene.highlights?.length || scene.pointers),
       },
     ]

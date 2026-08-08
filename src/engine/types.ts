@@ -34,6 +34,16 @@ export type ArrayScene = {
   /** Named pointers such as left/right/mid → index */
   pointers?: Record<string, number>
   label?: string
+  /**
+   * `bars` = histogram (e.g. Container With Most Water).
+   * Default / omitted = equal-size cells.
+   */
+  display?: 'cells' | 'bars'
+  /** Area / best labels for bar-mode water overlays */
+  metrics?: {
+    area?: number
+    best?: number
+  }
 }
 
 /**
@@ -158,6 +168,11 @@ export type HeapObject =
       values: Array<number | string>
       highlights?: ArrayHighlight[]
       pointers?: Record<string, number>
+      display?: 'cells' | 'bars'
+      metrics?: {
+        area?: number
+        best?: number
+      }
     })
   | (HeapObjectBase & {
       kind: 'hashmap'
@@ -284,6 +299,15 @@ export type ProblemPack = {
   benchmark: BenchmarkData
   /** Prefer for Codedive-style description / walkthrough below the player */
   walkthrough?: ProblemWalkthrough
+  /**
+   * Trace completeness checks used by validate:traces.
+   * - indices: every 0..n-1 must appear as pointers.i / current highlight
+   * - twoPointers: simulate array and require every loop (left,right) state
+   */
+  demoCoverage?: {
+    indices?: number
+    twoPointers?: { array: string }
+  }
 }
 
 export function isHeapRef(value: unknown): value is HeapRef {
