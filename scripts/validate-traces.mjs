@@ -395,7 +395,7 @@ function validatePack(file) {
 
 const files = fs
   .readdirSync(problemsDir)
-  .filter((name) => /^\d.+\.ts$/.test(name))
+  .filter((name) => /^(\d.+|sort-.+)\.ts$/.test(name))
   .map((name) => path.join(problemsDir, name))
 
 for (const file of files) validatePack(file)

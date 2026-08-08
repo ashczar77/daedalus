@@ -71,7 +71,7 @@ export function ProblemPage() {
           ← Daedalus
         </Link>
         <div className="problem__meta">
-          <span>#{problem.lcNumber}</span>
+          <span>{problem.lcNumber > 0 ? `#${problem.lcNumber}` : 'Lab'}</span>
           <span>{problem.pattern}</span>
           <span>{problem.difficulty}</span>
         </div>

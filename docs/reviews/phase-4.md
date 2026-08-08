@@ -5,9 +5,10 @@
 
 ### Shipped so far
 - Input engine (`src/engine/input/*`) + schema-driven `InputPanel`
-- **All 17 catalog packs** expose `ProblemInputSpec` + `generateSteps`
+- **All original catalog packs** expose `ProblemInputSpec` + `generateSteps`
 - Constraints + edge fixtures on each kind (empty, not-found, no-cycle, etc.)
 - Sorted inputs offer **Sort for me** where required
+- **Sorting labs** (Bubble, Insertion, Selection, Merge, Quick, Heap) with dense bar viz, up to 48 bars, Randomize
 
 ## Goal
 

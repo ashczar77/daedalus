@@ -18,6 +18,8 @@ export type InputField =
       hint?: string
       /** Show a “Sort for me” control that sorts comma-separated ints in-place. */
       sortable?: boolean
+      /** Show “Randomize” to fill a fresh int list for sorting demos. */
+      randomize?: boolean
     }
   | {
       key: string

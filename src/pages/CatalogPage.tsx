@@ -10,8 +10,9 @@ export function CatalogPage() {
         <p className="catalog__eyebrow">Step-through algorithm lab</p>
         <h1 className="catalog__brand">Daedalus</h1>
         <p className="catalog__lede">
-          Watch interview patterns execute line by line — arrays, maps, and
-          pointers animated in sync with Java, Kotlin, and Python.
+          Watch interview patterns and sorting labs execute line by line —
+          arrays, maps, pointers, and bar charts animated in sync with Java,
+          Kotlin, and Python.
         </p>
       </header>
 
@@ -25,7 +26,9 @@ export function CatalogPage() {
             <li key={problem.id}>
               <Link to={`/problems/${problem.id}`} className="catalog__card">
                 <div className="catalog__card-top">
-                  <span className="catalog__lc">#{problem.lcNumber}</span>
+                  <span className="catalog__lc">
+                    {problem.lcNumber > 0 ? `#${problem.lcNumber}` : 'Lab'}
+                  </span>
                   <span
                     className={`catalog__diff is-${problem.difficulty.toLowerCase()}`}
                   >

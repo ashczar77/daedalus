@@ -84,27 +84,32 @@ export function ArrayBarsViz({ scene }: Props) {
     })
   }
 
+  const dense = n >= 16
+  const showAxisValues = n <= 28
+
   return (
-    <div className="array-bars">
+    <div className={`array-bars${dense ? ' is-dense' : ''}`}>
       {scene.label ? <p className="array-bars__label">{scene.label}</p> : null}
 
-      <div className="array-bars__ptr-row" aria-hidden="true">
-        {heights.map((_, index) => {
-          const ptrs = pointersByIndex.get(index) ?? []
-          return (
-            <div key={index} className="array-bars__ptr-cell" style={{ width: `${100 / n}%` }}>
-              {ptrs.map((name) => (
-                <span
-                  key={name}
-                  className={`array-bars__ptr-badge is-${pointerTone(name)}`}
-                >
-                  {name}
-                </span>
-              ))}
-            </div>
-          )
-        })}
-      </div>
+      {!dense ? (
+        <div className="array-bars__ptr-row" aria-hidden="true">
+          {heights.map((_, index) => {
+            const ptrs = pointersByIndex.get(index) ?? []
+            return (
+              <div key={index} className="array-bars__ptr-cell" style={{ width: `${100 / n}%` }}>
+                {ptrs.map((name) => (
+                  <span
+                    key={name}
+                    className={`array-bars__ptr-badge is-${pointerTone(name)}`}
+                  >
+                    {name}
+                  </span>
+                ))}
+              </div>
+            )
+          })}
+        </div>
+      ) : null}
 
       <div className="array-bars__chart" role="list" aria-label="height bars">
         {waters.map((water) => {
@@ -161,14 +166,18 @@ export function ArrayBarsViz({ scene }: Props) {
         })}
       </div>
 
-      <div className="array-bars__axis">
-        {heights.map((height, index) => (
-          <div key={index} className="array-bars__axis-cell" style={{ width: `${100 / n}%` }}>
-            <span className="array-bars__value">{height}</span>
-            <span className="array-bars__index">{index}</span>
-          </div>
-        ))}
-      </div>
+      {showAxisValues ? (
+        <div className="array-bars__axis">
+          {heights.map((height, index) => (
+            <div key={index} className="array-bars__axis-cell" style={{ width: `${100 / n}%` }}>
+              <span className="array-bars__value">{height}</span>
+              {!dense ? <span className="array-bars__index">{index}</span> : null}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="array-bars__dense-note">{n} bars — colors mark compares, swaps, and sorted regions</p>
+      )}
 
       <div className="array-bars__footer">
         {pointerEntries.length > 0 ? (

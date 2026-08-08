@@ -23,6 +23,8 @@ export type HighlightRole =
   | 'visited'
   | 'window'
   | 'discard'
+  /** Finalized region (e.g. sorted prefix/suffix in sorting demos) */
+  | 'sorted'
 
 /** One highlighted index inside an array scene. */
 export type ArrayHighlight = {

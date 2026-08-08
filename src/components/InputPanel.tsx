@@ -70,6 +70,23 @@ export function InputPanel({ spec, onApply }: Props) {
                     Sort for me
                   </button>
                 ) : null}
+                {field.randomize ? (
+                  <button
+                    type="button"
+                    className="input-panel__btn"
+                    onClick={() => {
+                      const count = 28
+                      const values = Array.from({ length: count }, (_, i) => i + 1)
+                      for (let i = values.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1))
+                        ;[values[i], values[j]] = [values[j]!, values[i]!]
+                      }
+                      setField(field.key, values.join(', '))
+                    }}
+                  >
+                    Randomize
+                  </button>
+                ) : null}
               </div>
             ) : (
               <select

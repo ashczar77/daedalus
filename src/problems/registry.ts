@@ -16,6 +16,12 @@ import { invertBinaryTree } from './0226-invert-binary-tree'
 import { validAnagram } from './0242-valid-anagram'
 import { diameterOfBinaryTree } from './0543-diameter-of-binary-tree'
 import { binarySearch } from './0704-binary-search'
+import { bubbleSort } from './sort-bubble-sort'
+import { heapSort } from './sort-heap-sort'
+import { insertionSort } from './sort-insertion-sort'
+import { mergeSort } from './sort-merge-sort'
+import { quickSort } from './sort-quick-sort'
+import { selectionSort } from './sort-selection-sort'
 
 /**
  * Catalog of shipped problem packs.
@@ -39,6 +45,12 @@ export const problems: ProblemPack[] = [
   sameTree,
   diameterOfBinaryTree,
   binarySearch,
+  bubbleSort,
+  insertionSort,
+  selectionSort,
+  mergeSort,
+  quickSort,
+  heapSort,
 ]
 
 /** Fast lookup by route param (`/problems/:problemId`). */

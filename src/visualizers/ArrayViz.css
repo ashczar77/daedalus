@@ -69,6 +69,11 @@
   opacity: 0.45;
 }
 
+.array-viz__cell.is-sorted {
+  border-color: var(--good);
+  background: color-mix(in srgb, var(--good) 16%, white);
+}
+
 /* Pointer-bearing cells stay vivid — discard must not hide left/right. */
 .array-viz__cell.has-ptr.is-discard {
   opacity: 1;
