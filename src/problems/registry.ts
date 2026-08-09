@@ -1,4 +1,5 @@
 import type { ProblemPack } from '../engine/types'
+import { longestSubstringWithoutRepeating } from './0003-longest-substring-without-repeating-characters'
 import { containerWithMostWater } from './0011-container-with-most-water'
 import { sameTree } from './0100-same-tree'
 import { maximumDepthOfBinaryTree } from './0104-maximum-depth-of-binary-tree'
@@ -35,6 +36,7 @@ export const problems: ProblemPack[] = [
   containsDuplicate,
   validAnagram,
   validPalindrome,
+  longestSubstringWithoutRepeating,
   twoSumII,
   containerWithMostWater,
   bestTimeToBuyAndSellStock,
