@@ -148,15 +148,66 @@
   font-weight: 700;
 }
 
+.academy-lesson__btn.is-danger {
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--line));
+  color: var(--danger);
+}
+
+.academy-lesson__btn.is-danger:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 10%, var(--surface-2));
+}
+
+.academy-lesson__xp-live {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.academy-lesson__xp-live strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.academy-lesson__hints-block h2,
+.academy-lesson__solution h2 {
+  margin: 0 0 0.35rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 .academy-lesson__hints {
   margin: 0;
   padding-left: 1.1rem;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
 }
 
-.academy-lesson__hints code {
+.academy-lesson__solution {
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, var(--line));
+  border-radius: 0.25rem;
+  padding: 0.65rem 0.75rem;
+  background: color-mix(in srgb, var(--danger) 6%, var(--surface));
+}
+
+.academy-lesson__solution-note {
+  margin: 0 0 0.45rem !important;
+  font-size: 0.78rem;
+  color: var(--danger);
+}
+
+.academy-lesson__solution ol {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.academy-lesson__solution code {
   font-family: var(--font-mono);
-  color: var(--accent-2);
+  font-size: 0.82rem;
+  color: var(--ink);
 }
 
 .academy-lesson__help {

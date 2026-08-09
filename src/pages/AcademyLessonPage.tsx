@@ -7,7 +7,13 @@ import {
   loadProgress,
   markComplete,
 } from '../academy/progress'
-import { rankForScore, xpForLesson } from '../academy/scoring'
+import {
+  baseXp,
+  hintXpCost,
+  rankForScore,
+  revealXpKept,
+  xpForLesson,
+} from '../academy/scoring'
 import { createShellState, type ShellState } from '../academy/shell/state'
 import type { CheckResult, LessonPack, LessonProgress } from '../academy/types'
 import { ModeSwitch } from '../components/ModeSwitch'
@@ -16,6 +22,7 @@ import './AcademyLessonPage.css'
 
 /**
  * Single lesson player: teaching copy + simulated shell + Check / Reset.
+ * Hints are nudges; Reveal answer shows the full solution at a steep XP cost.
  */
 export function AcademyLessonPage() {
   const { lessonId = '' } = useParams()
@@ -23,6 +30,7 @@ export function AcademyLessonPage() {
   const [progress, setProgress] = useState<LessonProgress>(() => loadProgress(lessons))
   const [showHelp, setShowHelp] = useState(false)
   const [hintIndex, setHintIndex] = useState(0)
+  const [revealedSolution, setRevealedSolution] = useState(false)
   const [checkResult, setCheckResult] = useState<CheckResult | null>(null)
   const [shell, setShell] = useState<ShellState | null>(null)
 
@@ -33,6 +41,7 @@ export function AcademyLessonPage() {
     setShell(bootState(lesson))
     setCheckResult(null)
     setHintIndex(0)
+    setRevealedSolution(false)
   }, [lesson])
 
   if (!lesson) {
@@ -53,16 +62,34 @@ export function AcademyLessonPage() {
   const done = progress.completed.includes(lesson.id)
   const nextId = lesson.unlocks[0]
   const hints = lesson.hints ?? []
+  const solution = lesson.solution ?? []
   const rank = rankForScore(progress.score)
+  const projectedXp = xpForLesson(lesson, {
+    hintsUsed: hintIndex,
+    revealedSolution,
+  })
+  const nextHintCost = hintXpCost(lesson, hintIndex)
+  const revealKept = revealXpKept(lesson)
+  const hintsRemaining = hintIndex < hints.length
 
   const handleCheck = () => {
     const result = runChecks(shell, lesson)
     if (result.ok) {
-      const cleared = markComplete(progress, lesson, hintIndex)
+      const cleared = markComplete(progress, lesson, {
+        hintsUsed: hintIndex,
+        revealedSolution,
+      })
       setProgress(cleared.progress)
-      const xpNote = cleared.alreadyComplete
-        ? ' Already cleared - no new XP.'
-        : ` +${cleared.xpGained} XP → ${cleared.progress.score} total.`
+      let xpNote: string
+      if (cleared.alreadyComplete) {
+        xpNote = ' Already cleared - no new XP.'
+      } else if (revealedSolution) {
+        xpNote = ` +${cleared.xpGained} XP (answer revealed) → ${cleared.progress.score} total.`
+      } else if (hintIndex > 0) {
+        xpNote = ` +${cleared.xpGained} XP (${hintIndex} hint${hintIndex === 1 ? '' : 's'}) → ${cleared.progress.score} total.`
+      } else {
+        xpNote = ` +${cleared.xpGained} XP → ${cleared.progress.score} total.`
+      }
       setCheckResult({
         ...result,
         message: `${result.message}${xpNote}`,
@@ -96,7 +123,7 @@ export function AcademyLessonPage() {
         <p className="academy-lesson__meta">
           <span>{lesson.track}</span>
           <span>{lesson.level}</span>
-          <span>{xpForLesson(lesson, 0)} XP</span>
+          <span>up to {baseXp(lesson)} XP</span>
           <span>
             {progress.score} XP · {rank.title}
           </span>
@@ -121,6 +148,11 @@ export function AcademyLessonPage() {
             </ul>
           </div>
 
+          <p className="academy-lesson__xp-live" aria-live="polite">
+            Clearing now would earn <strong>{projectedXp} XP</strong>
+            {hintIndex > 0 || revealedSolution ? ' (reduced)' : ''}.
+          </p>
+
           <div className="academy-lesson__actions">
             <button type="button" className="academy-lesson__btn is-primary" onClick={handleCheck}>
               Check
@@ -128,13 +160,29 @@ export function AcademyLessonPage() {
             <button type="button" className="academy-lesson__btn" onClick={handleReset}>
               Reset filesystem
             </button>
-            {hints.length > 0 ? (
+            {hintsRemaining ? (
               <button
                 type="button"
                 className="academy-lesson__btn"
                 onClick={() => setHintIndex((i) => Math.min(hints.length, i + 1))}
               >
-                Hint
+                Hint (−{nextHintCost} XP)
+              </button>
+            ) : null}
+            {solution.length > 0 && !revealedSolution ? (
+              <button
+                type="button"
+                className="academy-lesson__btn is-danger"
+                onClick={() => {
+                  const ok = window.confirm(
+                    `Reveal the full answer? You would keep only ${revealKept} XP of ${baseXp(lesson)} if you clear after this.`,
+                  )
+                  if (!ok) return
+                  setRevealedSolution(true)
+                  setHintIndex(hints.length)
+                }}
+              >
+                Reveal answer (keep {revealKept} XP)
               </button>
             ) : null}
             <button
@@ -147,13 +195,30 @@ export function AcademyLessonPage() {
           </div>
 
           {hintIndex > 0 ? (
-            <ul className="academy-lesson__hints">
-              {hints.slice(0, hintIndex).map((hint) => (
-                <li key={hint}>
-                  <code>{hint}</code>
-                </li>
-              ))}
-            </ul>
+            <div className="academy-lesson__hints-block">
+              <h2>Hints</h2>
+              <ul className="academy-lesson__hints">
+                {hints.slice(0, hintIndex).map((hint) => (
+                  <li key={hint}>{hint}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {revealedSolution && solution.length > 0 ? (
+            <div className="academy-lesson__solution">
+              <h2>Official answer</h2>
+              <p className="academy-lesson__solution-note">
+                XP heavily reduced. Try to clear with the least help next time.
+              </p>
+              <ol>
+                {solution.map((cmd) => (
+                  <li key={cmd}>
+                    <code>{cmd}</code>
+                  </li>
+                ))}
+              </ol>
+            </div>
           ) : null}
 
           {showHelp ? (
@@ -165,6 +230,10 @@ export function AcademyLessonPage() {
               <p>
                 Supported: pipes <code>|</code>, redirects <code>&gt; &gt;&gt; &lt;</code>,
                 globs, <code>$VAR</code>, find/cut/tee, and <code>jq</code>.
+              </p>
+              <p>
+                Hints are nudges and cost XP. Reveal answer shows the full commands and
+                keeps only a small consolation payout.
               </p>
             </div>
           ) : null}

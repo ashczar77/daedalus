@@ -1,4 +1,4 @@
-import { xpForLesson } from './scoring'
+import { xpForLesson, type AssistUsage } from './scoring'
 import type { LessonPack, LessonProgress } from './types'
 
 const STORAGE_KEY = 'daedalus.academy.progress.v2'
@@ -10,6 +10,7 @@ function emptyProgress(lessons: LessonPack[]): LessonProgress {
     unlocked: lessons.filter((l) => l.startUnlocked).map((l) => l.id),
     score: 0,
     hintUses: {},
+    revealed: [],
   }
 }
 
@@ -18,8 +19,6 @@ function sanitize(progress: LessonProgress, lessons: LessonPack[]): LessonProgre
   const ids = new Set(byId.keys())
   const starter = lessons.filter((l) => l.startUnlocked).map((l) => l.id)
   const completed = progress.completed.filter((id) => ids.has(id))
-  // Re-derive unlocks from starters + each completed lesson's unlock list
-  // so curriculum changes (new tracks) appear for returning learners.
   const unlocked = new Set([
     ...starter,
     ...progress.unlocked.filter((id) => ids.has(id)),
@@ -33,12 +32,12 @@ function sanitize(progress: LessonProgress, lessons: LessonPack[]): LessonProgre
   for (const [id, n] of Object.entries(progress.hintUses ?? {})) {
     if (ids.has(id)) hintUses[id] = n
   }
-  // Backfill score from completed lessons if migrating from v1 (score 0).
+  const revealed = (progress.revealed ?? []).filter((id) => ids.has(id))
   let score = Math.max(0, Number(progress.score) || 0)
   if (score === 0 && completed.length > 0 && !(progress.score > 0)) {
     score = completed.reduce((sum, id) => {
       const lesson = byId.get(id)
-      return lesson ? sum + xpForLesson(lesson, 0) : sum
+      return lesson ? sum + xpForLesson(lesson, {}) : sum
     }, 0)
   }
   return {
@@ -46,6 +45,7 @@ function sanitize(progress: LessonProgress, lessons: LessonPack[]): LessonProgre
     unlocked: [...unlocked],
     score,
     hintUses,
+    revealed,
   }
 }
 
@@ -54,7 +54,7 @@ export function loadProgress(lessons: LessonPack[]): LessonProgress {
   try {
     const raw = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_KEY)
     if (!raw) return fallback
-    const parsed = JSON.parse(raw) as Partial<LessonProgress> & { badges?: string[] }
+    const parsed = JSON.parse(raw) as Partial<LessonProgress>
     if (!Array.isArray(parsed.completed) || !Array.isArray(parsed.unlocked)) {
       return fallback
     }
@@ -64,6 +64,7 @@ export function loadProgress(lessons: LessonPack[]): LessonProgress {
         unlocked: parsed.unlocked,
         score: parsed.score ?? 0,
         hintUses: parsed.hintUses ?? {},
+        revealed: parsed.revealed ?? [],
       },
       lessons,
     )
@@ -85,7 +86,7 @@ export type CompleteResult = {
 export function markComplete(
   progress: LessonProgress,
   lesson: LessonPack,
-  hintsUsed = 0,
+  assist: AssistUsage = {},
 ): CompleteResult {
   const alreadyComplete = progress.completed.includes(lesson.id)
   if (alreadyComplete) {
@@ -95,15 +96,22 @@ export function markComplete(
     return { progress: next, xpGained: 0, alreadyComplete: true }
   }
 
-  const xpGained = xpForLesson(lesson, hintsUsed)
+  const xpGained = xpForLesson(lesson, assist)
   const completed = [...progress.completed, lesson.id]
   const unlocked = new Set([...progress.unlocked, ...lesson.unlocks, lesson.id])
-  const hintUses = { ...progress.hintUses, [lesson.id]: hintsUsed }
+  const hintUses = {
+    ...progress.hintUses,
+    [lesson.id]: assist.hintsUsed ?? 0,
+  }
+  const revealed = assist.revealedSolution
+    ? [...new Set([...progress.revealed, lesson.id])]
+    : progress.revealed
   const next: LessonProgress = {
     completed,
     unlocked: [...unlocked],
     score: progress.score + xpGained,
     hintUses,
+    revealed,
   }
   saveProgress(next)
   return { progress: next, xpGained, alreadyComplete: false }

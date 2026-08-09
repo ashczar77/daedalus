@@ -45,10 +45,12 @@ export const jqLessons: LessonPack[] = [
     prose: [
       'jq is a command-line JSON processor. It reads JSON from stdin (often via a pipe from cat) and applies a filter expression.',
       'The simplest filter is . (dot) - the identity filter. It prints the whole document, pretty-formatted in this academy.',
-      'Reuse the pipe skill from Unix: cat data/message.json | jq .',
+      'Reuse the pipe skill from Unix: feed data/message.json into jq and apply the identity filter.',
     ],
     goals: [{ id: 'g1', label: 'Pipe message.json through jq .' }],
-    hints: ['cat data/message.json | jq .'],
+    hints: [
+      'Pipe the message JSON into jq with the identity filter (a single dot).',
+    ],
     unlocks: ['jq-field'],
     setup: { cwd: '/home/cadet', files: dataTree },
     checks: [
@@ -69,7 +71,9 @@ export const jqLessons: LessonPack[] = [
       'From data/message.json, print only the text field as phosphor.',
     ],
     goals: [{ id: 'g1', label: 'Output phosphor' }],
-    hints: ['cat data/message.json | jq -r .text'],
+    hints: [
+      'Select the text field; use raw output so there are no JSON quotes.',
+    ],
     unlocks: ['jq-index'],
     setup: { cwd: '/home/cadet', files: dataTree },
     checks: [
@@ -92,7 +96,9 @@ export const jqLessons: LessonPack[] = [
       'From users.json, print the first user\'s name as a raw string.',
     ],
     goals: [{ id: 'g1', label: 'Print ada' }],
-    hints: ['cat data/users.json | jq -r .users[0].name'],
+    hints: [
+      'From users.json, take users index 0, then its name, raw.',
+    ],
     unlocks: ['jq-map'],
     setup: { cwd: '/home/cadet', files: dataTree },
     checks: [{ type: 'stdoutEquals', text: 'ada\n' }],
@@ -109,7 +115,9 @@ export const jqLessons: LessonPack[] = [
       'List every user name from users.json.',
     ],
     goals: [{ id: 'g1', label: 'map(.name) on .users' }],
-    hints: ['cat data/users.json | jq -c .users | jq -c \'map(.name)\'', 'Or: cat data/users.json | jq -c \'.users | map(.name)\''],
+    hints: [
+      'Map over .users and project each .name (compact output is fine).',
+    ],
     unlocks: ['jq-select'],
     setup: { cwd: '/home/cadet', files: dataTree },
     checks: [
@@ -131,7 +139,7 @@ export const jqLessons: LessonPack[] = [
     ],
     goals: [{ id: 'g1', label: 'Names of users with score > 90' }],
     hints: [
-      'cat data/users.json | jq -r \'.users[] | select(.score > 90) | .name\'',
+      'Stream .users[], keep score > 90, print each .name raw - ada then grace.',
     ],
     unlocks: ['jq-keys'],
     setup: { cwd: '/home/cadet', files: dataTree },
@@ -157,7 +165,7 @@ export const jqLessons: LessonPack[] = [
       'Show the keys of users.json\'s root object.',
     ],
     goals: [{ id: 'g1', label: 'jq keys on users.json' }],
-    hints: ['cat data/users.json | jq keys', 'Or: cat data/users.json | jq -c keys'],
+    hints: ['Ask jq for the keys of the root object in users.json.'],
     unlocks: ['jq-reshape'],
     setup: { cwd: '/home/cadet', files: dataTree },
     checks: [
@@ -176,9 +184,7 @@ export const jqLessons: LessonPack[] = [
       'From items.json, map each item to only sku and price (compact output is fine).',
     ],
     goals: [{ id: 'g1', label: 'map({sku: .sku, price: .price})' }],
-    hints: [
-      'cat data/items.json | jq -c \'map({sku: .sku, price: .price})\'',
-    ],
+    hints: ['Map each item to an object with only sku and price.'],
     unlocks: ['jq-capstone'],
     setup: { cwd: '/home/cadet', files: dataTree },
     checks: [
@@ -201,8 +207,8 @@ export const jqLessons: LessonPack[] = [
     ],
     goals: [{ id: 'g1', label: 'skus with sale tag: b2 and c3' }],
     hints: [
-      'cat data/items.json | jq -r \'.[] | select(.price >= 25) | .sku\' gets b2 only',
-      'Better: cat data/items.json | jq -r \'.[] | select(.tags[] == "sale") | .sku\'',
+      'Stream items, keep those whose tags include sale, print sku raw.',
+      'Expect b2 then c3 - filter on tags, not only price.',
     ],
     unlocks: [],
     setup: { cwd: '/home/cadet', files: dataTree },

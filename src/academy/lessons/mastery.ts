@@ -38,7 +38,9 @@ export const masteryLessons: LessonPack[] = [
       'List only the .log files in ~/logs using a glob (not by typing each name).',
     ],
     goals: [{ id: 'g1', label: 'ls ~/logs/*.log (or cd logs then ls *.log)' }],
-    hints: ['cd logs', 'ls *.log'],
+    hints: [
+      'Ask ls to expand a *.log pattern under logs/ - let the shell expand the star.',
+    ],
     unlocks: ['mast-cp-rm'],
     setup: {
       cwd: '/home/cadet',
@@ -73,7 +75,10 @@ export const masteryLessons: LessonPack[] = [
       { id: 'g1', label: 'cp readme.txt backup.txt' },
       { id: 'g2', label: 'rm temp.bak' },
     ],
-    hints: ['cp readme.txt backup.txt', 'rm temp.bak'],
+    hints: [
+      'Duplicate readme.txt to a new name backup.txt.',
+      'Then delete temp.bak.',
+    ],
     unlocks: ['mast-grep-flags'],
     setup: {
       cwd: '/home/cadet',
@@ -98,7 +103,9 @@ export const masteryLessons: LessonPack[] = [
       'From app.log, show every line that is not an ERROR line.',
     ],
     goals: [{ id: 'g1', label: 'grep -v ERROR logs/app.log' }],
-    hints: ['grep -v ERROR logs/app.log'],
+    hints: [
+      'Invert the match: keep lines that are not ERROR in logs/app.log.',
+    ],
     unlocks: ['mast-grep-i'],
     setup: {
       cwd: '/home/cadet',
@@ -130,7 +137,9 @@ export const masteryLessons: LessonPack[] = [
       'Print every line in logs/mixed.log that matches error ignoring case.',
     ],
     goals: [{ id: 'g1', label: 'grep -i error logs/mixed.log' }],
-    hints: ['grep -i error logs/mixed.log'],
+    hints: [
+      'Ignore case when searching for error in logs/mixed.log.',
+    ],
     unlocks: ['mast-head-contrast'],
     setup: {
       cwd: '/home/cadet',
@@ -159,7 +168,9 @@ export const masteryLessons: LessonPack[] = [
       'Print the first line of logs/access.log with head.',
     ],
     goals: [{ id: 'g1', label: 'head -n 1 logs/access.log' }],
-    hints: ['head -n 1 logs/access.log'],
+    hints: [
+      'Show only the first line of logs/access.log.',
+    ],
     unlocks: ['mast-find'],
     setup: {
       cwd: '/home/cadet',
@@ -187,7 +198,10 @@ export const masteryLessons: LessonPack[] = [
       'From home, find every *.txt file under . (including nested notes/).',
     ],
     goals: [{ id: 'g1', label: "find . -name '*.txt'" }],
-    hints: ["find . -name '*.txt'"],
+    hints: [
+      'Walk from . and keep paths whose basename matches *.txt.',
+      'Quote the pattern so the shell does not expand it first.',
+    ],
     unlocks: ['mast-find-pipe'],
     setup: {
       cwd: '/home/cadet',
@@ -224,7 +238,9 @@ export const masteryLessons: LessonPack[] = [
       'List paths under logs/, then keep only lines containing app.',
     ],
     goals: [{ id: 'g1', label: 'find logs | grep app' }],
-    hints: ['find logs | grep app'],
+    hints: [
+      'Pipe find on logs into grep looking for the substring app.',
+    ],
     unlocks: ['mast-cut'],
     setup: {
       cwd: '/home/cadet',
@@ -252,7 +268,9 @@ export const masteryLessons: LessonPack[] = [
       'From data/users.csv, print only the names (field 1).',
     ],
     goals: [{ id: 'g1', label: "cut -d',' -f1 data/users.csv" }],
-    hints: ["cut -d',' -f1 data/users.csv"],
+    hints: [
+      'Split on commas and keep field 1 from data/users.csv.',
+    ],
     unlocks: ['mast-tee'],
     setup: {
       cwd: '/home/cadet',
@@ -281,7 +299,9 @@ export const masteryLessons: LessonPack[] = [
       'Filter ERROR lines from logs/app.log into errors.txt using a pipe and tee.',
     ],
     goals: [{ id: 'g1', label: 'cat logs/app.log | grep ERROR | tee errors.txt' }],
-    hints: ['cat logs/app.log | grep ERROR | tee errors.txt'],
+    hints: [
+      'Filter ERROR lines, and tee them into errors.txt so they are saved and still printed.',
+    ],
     unlocks: ['mast-env'],
     xp: 45,
     setup: {
@@ -319,7 +339,9 @@ export const masteryLessons: LessonPack[] = [
       'Print your home path with echo $HOME.',
     ],
     goals: [{ id: 'g1', label: 'echo $HOME' }],
-    hints: ['echo $HOME'],
+    hints: [
+      'Print the HOME variable with echo and a $ expansion.',
+    ],
     unlocks: ['mast-quoting'],
     setup: {
       cwd: '/home/cadet',
@@ -350,7 +372,10 @@ export const masteryLessons: LessonPack[] = [
       { id: 'g1', label: 'Create my notes.txt with content ok' },
       { id: 'g2', label: 'cat the file (quoted path)' },
     ],
-    hints: ['echo ok > "my notes.txt"', 'cat "my notes.txt"'],
+    hints: [
+      'Create a file whose name contains a space - quote that name.',
+      'Then read it back with cat, still quoting the name.',
+    ],
     unlocks: ['mast-paths'],
     setup: {
       cwd: '/home/cadet',
@@ -378,7 +403,9 @@ export const masteryLessons: LessonPack[] = [
       'When Check runs, cwd must be /home/cadet and your last command should be cd ..',
     ],
     goals: [{ id: 'g1', label: 'From ~/notes, cd .. so cwd is /home/cadet' }],
-    hints: ['You start in notes/', 'cd ..'],
+    hints: [
+      'You start in notes/. Climb one level with a relative parent path (not ~).',
+    ],
     unlocks: ['mast-review-nav'],
     setup: {
       cwd: '/home/cadet/notes',
@@ -416,7 +443,9 @@ export const masteryLessons: LessonPack[] = [
       { id: 'g1', label: 'Return to /home/cadet' },
       { id: 'g2', label: 'Finish with pwd there' },
     ],
-    hints: ['cd ..', 'ls', 'pwd'],
+    hints: [
+      'Leave logs/ and return home, then finish by printing the working directory.',
+    ],
     unlocks: ['mast-review-text'],
     setup: {
       cwd: '/home/cadet/logs',
@@ -451,7 +480,9 @@ export const masteryLessons: LessonPack[] = [
       'Count how many ERROR lines are in logs/app.log using a pipe ending in wc -l. Expect 2.',
     ],
     goals: [{ id: 'g1', label: 'cat logs/app.log | grep ERROR | wc -l' }],
-    hints: ['cat logs/app.log | grep ERROR | wc -l'],
+    hints: [
+      'Pipe the log through grep for ERROR, then count those lines with wc -l.',
+    ],
     unlocks: ['mast-compose'],
     setup: {
       cwd: '/home/cadet',
@@ -499,7 +530,9 @@ export const masteryLessons: LessonPack[] = [
       { id: 'g2', label: 'echo ready > out/status.txt' },
       { id: 'g3', label: 'ls out shows status.txt' },
     ],
-    hints: ['mkdir out', 'echo ready > out/status.txt', 'ls out'],
+    hints: [
+      'Create out/, write a one-line status file into it, then list out/.',
+    ],
     unlocks: ['mast-capstone'],
     setup: {
       cwd: '/home/cadet',
@@ -533,9 +566,8 @@ export const masteryLessons: LessonPack[] = [
       { id: 'g3', label: 'wc -l reports/errors.txt shows 2' },
     ],
     hints: [
-      'mkdir reports',
-      'grep ERROR logs/app.log > reports/errors.txt',
-      'wc -l reports/errors.txt',
+      'Create reports/, redirect ERROR lines into reports/errors.txt, then count them.',
+      'Finish with wc -l so Check sees the count 2.',
     ],
     unlocks: ['jq-identity'],
     setup: {

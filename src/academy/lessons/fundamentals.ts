@@ -37,7 +37,9 @@ export const fundamentalLessons: LessonPack[] = [
       'Run pwd once so you can see where this lesson starts.',
     ],
     goals: [{ id: 'g1', label: 'Run pwd and show your location' }],
-    hints: ['Type: pwd'],
+    hints: [
+      'The command name is three letters and means print working directory.',
+    ],
     unlocks: ['fund-ls'],
     setup: {
       cwd: '/home/cadet',
@@ -70,7 +72,9 @@ export const fundamentalLessons: LessonPack[] = [
       'Run ls in your home directory so readme.txt appears in the output.',
     ],
     goals: [{ id: 'g1', label: 'List home with ls' }],
-    hints: ['Type: ls'],
+    hints: [
+      'List the names in the current directory - short command, no path needed.',
+    ],
     unlocks: ['fund-cd'],
     setup: { cwd: '/home/cadet', files: { home } },
     checks: [
@@ -100,7 +104,10 @@ export const fundamentalLessons: LessonPack[] = [
       'Navigate into the notes directory. The Check only cares that you end in /home/cadet/notes.',
     ],
     goals: [{ id: 'g1', label: 'cd into ~/notes' }],
-    hints: ['cd notes', 'Then Check - cwd must be /home/cadet/notes'],
+    hints: [
+      'Change into the notes folder with a relative path from home.',
+      'When you are done, Check looks at your working directory - not stdout.',
+    ],
     unlocks: ['fund-cat'],
     setup: { cwd: '/home/cadet', files: { home } },
     checks: [{ type: 'cwdIs', path: '/home/cadet/notes' }],
@@ -118,7 +125,10 @@ export const fundamentalLessons: LessonPack[] = [
       'Read notes/todo.txt so its text shows up in stdout.',
     ],
     goals: [{ id: 'g1', label: 'cat notes/todo.txt (from home or inside notes)' }],
-    hints: ['From home: cat notes/todo.txt'],
+    hints: [
+      'Print the contents of the todo file under notes/.',
+      'You can do this from home with a relative path notes/...',
+    ],
     unlocks: ['fund-hidden'],
     setup: { cwd: '/home/cadet', files: { home } },
     checks: [
@@ -148,7 +158,9 @@ export const fundamentalLessons: LessonPack[] = [
       'There is a .secret file in your home. Reveal it with ls -a.',
     ],
     goals: [{ id: 'g1', label: 'ls -a and show .secret' }],
-    hints: ['ls -a'],
+    hints: [
+      'Plain ls hides dotfiles. Add the flag that means "all".',
+    ],
     unlocks: ['fund-mkdir-mv'],
     setup: { cwd: '/home/cadet', files: { home } },
     checks: [
@@ -181,7 +193,10 @@ export const fundamentalLessons: LessonPack[] = [
       { id: 'g1', label: 'Create ~/archive' },
       { id: 'g2', label: 'Move readme.txt into archive/' },
     ],
-    hints: ['mkdir archive', 'mv readme.txt archive/'],
+    hints: [
+      'First create a directory named archive.',
+      'Then relocate readme.txt into that directory (move, do not copy).',
+    ],
     unlocks: ['fund-echo-redir'],
     setup: { cwd: '/home/cadet', files: { home } },
     checks: [
@@ -207,7 +222,10 @@ export const fundamentalLessons: LessonPack[] = [
       'Create hello.txt containing exactly: hello daedalus',
     ],
     goals: [{ id: 'g1', label: 'Write hello.txt via redirect' }],
-    hints: ['echo hello daedalus > hello.txt'],
+    hints: [
+      'echo prints text; > sends that text into a new file.',
+      'The file should contain exactly: hello daedalus',
+    ],
     unlocks: ['fund-append'],
     setup: { cwd: '/home/cadet', files: { home } },
     checks: [
@@ -231,7 +249,10 @@ export const fundamentalLessons: LessonPack[] = [
       'hello.txt already says hello. Append the line: more text',
     ],
     goals: [{ id: 'g1', label: 'Append to hello.txt' }],
-    hints: ['echo more text >> hello.txt'],
+    hints: [
+      'Use the append redirect (two greater-than signs), not a single >.',
+      'Append the words: more text',
+    ],
     unlocks: ['fund-grep'],
     setup: {
       cwd: '/home/cadet',
@@ -264,7 +285,9 @@ export const fundamentalLessons: LessonPack[] = [
       'From home, show only the ERROR line in logs/app.log.',
     ],
     goals: [{ id: 'g1', label: 'grep ERROR logs/app.log' }],
-    hints: ['grep ERROR logs/app.log'],
+    hints: [
+      'grep PATTERN file keeps matching lines. Pattern is ERROR; file is under logs/.',
+    ],
     unlocks: ['fund-pipe-grep'],
     setup: { cwd: '/home/cadet', files: { home } },
     checks: [
@@ -293,7 +316,10 @@ export const fundamentalLessons: LessonPack[] = [
       'Filter ERROR lines from logs/app.log using a pipe (or grep on the file again). Stdout should be only the ERROR line.',
     ],
     goals: [{ id: 'g1', label: 'Show ERROR lines from app.log via pipe or grep' }],
-    hints: ['cat logs/app.log | grep ERROR', 'Or: grep ERROR logs/app.log'],
+    hints: [
+      'Connect cat into grep with a pipe, or call grep on the file directly.',
+      'Stdout should be only the ERROR line.',
+    ],
     unlocks: ['fund-wc'],
     setup: { cwd: '/home/cadet', files: { home } },
     checks: [
@@ -318,7 +344,9 @@ export const fundamentalLessons: LessonPack[] = [
       'How many lines are in logs/access.log? Print the count with wc -l.',
     ],
     goals: [{ id: 'g1', label: 'wc -l logs/access.log' }],
-    hints: ['wc -l logs/access.log'],
+    hints: [
+      'Count lines with wc and the line flag on logs/access.log.',
+    ],
     unlocks: ['fund-sort-uniq'],
     setup: { cwd: '/home/cadet', files: { home } },
     checks: [
@@ -342,7 +370,10 @@ export const fundamentalLessons: LessonPack[] = [
       'Produce the unique sorted names from data/names.txt.',
     ],
     goals: [{ id: 'g1', label: 'sort data/names.txt | uniq' }],
-    hints: ['sort data/names.txt | uniq'],
+    hints: [
+      'Sort first so duplicates sit next to each other, then collapse them.',
+      'Pipe sort into uniq on data/names.txt.',
+    ],
     unlocks: ['fund-head-tail'],
     setup: { cwd: '/home/cadet', files: { home } },
     checks: [
@@ -365,7 +396,9 @@ export const fundamentalLessons: LessonPack[] = [
       'Print the last 2 lines of logs/app.log.',
     ],
     goals: [{ id: 'g1', label: 'tail -n 2 logs/app.log' }],
-    hints: ['tail -n 2 logs/app.log'],
+    hints: [
+      'You want the end of the file, last 2 lines, on logs/app.log.',
+    ],
     unlocks: ['fund-chmod'],
     setup: { cwd: '/home/cadet', files: { home } },
     checks: [
@@ -388,7 +421,9 @@ export const fundamentalLessons: LessonPack[] = [
       'tool.sh is in your home. Make it mode 755, then Check.',
     ],
     goals: [{ id: 'g1', label: 'chmod 755 tool.sh' }],
-    hints: ['chmod 755 tool.sh', 'ls -l tool.sh'],
+    hints: [
+      'Set mode 755 on tool.sh with chmod.',
+    ],
     unlocks: ['fund-ps-kill'],
     setup: {
       cwd: '/home/cadet',
@@ -415,7 +450,9 @@ export const fundamentalLessons: LessonPack[] = [
       'Use ps if you want to inspect, then stop the rogue worker with pid 4242. That unlocks the Shell mastery track.',
     ],
     goals: [{ id: 'g1', label: 'Stop pid 4242' }],
-    hints: ['ps', 'kill 4242'],
+    hints: [
+      'List processes if you want, then stop pid 4242.',
+    ],
     unlocks: ['mast-globs'],
     setup: {
       cwd: '/home/cadet',

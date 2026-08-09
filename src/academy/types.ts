@@ -22,7 +22,13 @@ export type LessonPack = {
   summary: string
   prose: string[]
   goals: LessonGoal[]
+  /**
+   * Progressive nudges only - never the full command sequence.
+   * Full answers live in `solution` and cost most of the XP to reveal.
+   */
   hints?: string[]
+  /** Exact commands that clear the check; shown only via Reveal answer. */
+  solution?: string[]
   /** Override default XP for this lesson (else derived from level). */
   xp?: number
   /** Paths unlocked after this lesson is completed (ids). */
@@ -47,8 +53,10 @@ export type LessonProgress = {
   unlocked: string[]
   /** Lifetime XP from first-time lesson clears. */
   score: number
-  /** Hints used on the attempt that first completed each lesson. */
+  /** Nudge hints used on the attempt that first completed each lesson. */
   hintUses: Record<string, number>
+  /** Lessons where the learner revealed the full official solution. */
+  revealed: string[]
 }
 
 export type RankInfo = {

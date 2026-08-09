@@ -1,0 +1,55 @@
+/**
+ * Canonical command sequences that clear each lesson.
+ * Shown only via "Reveal answer" (heavy XP penalty) - never as free hints.
+ */
+export const OFFICIAL_SOLUTIONS: Record<string, string[]> = {
+  'fund-pwd': ['pwd'],
+  'fund-ls': ['ls'],
+  'fund-cd': ['cd notes'],
+  'fund-cat': ['cat notes/todo.txt'],
+  'fund-hidden': ['ls -a'],
+  'fund-mkdir-mv': ['mkdir archive', 'mv readme.txt archive/'],
+  'fund-echo-redir': ['echo hello daedalus > hello.txt'],
+  'fund-append': ['echo more text >> hello.txt'],
+  'fund-grep': ['grep ERROR logs/app.log'],
+  'fund-pipe-grep': ['cat logs/app.log | grep ERROR'],
+  'fund-wc': ['wc -l logs/access.log'],
+  'fund-sort-uniq': ['sort data/names.txt | uniq'],
+  'fund-head-tail': ['tail -n 2 logs/app.log'],
+  'fund-chmod': ['chmod 755 tool.sh'],
+  'fund-ps-kill': ['kill 4242'],
+  'mast-globs': ['ls logs/*.log'],
+  'mast-cp-rm': ['cp readme.txt backup.txt', 'rm temp.bak'],
+  'mast-grep-flags': ['grep -v ERROR logs/app.log'],
+  'mast-grep-i': ['grep -i error logs/mixed.log'],
+  'mast-head-contrast': ['head -n 1 logs/access.log'],
+  'mast-find': ["find . -name '*.txt'"],
+  'mast-find-pipe': ['find logs | grep app'],
+  'mast-cut': ["cut -d',' -f1 data/users.csv"],
+  'mast-tee': ['cat logs/app.log | grep ERROR | tee errors.txt'],
+  'mast-env': ['echo $HOME'],
+  'mast-quoting': ['echo ok > "my notes.txt"', 'cat "my notes.txt"'],
+  'mast-paths': ['cd ..'],
+  'mast-review-nav': ['cd ..', 'pwd'],
+  'mast-review-text': ['cat logs/app.log | grep ERROR | wc -l'],
+  'mast-compose': ['mkdir out', 'echo ready > out/status.txt', 'ls out'],
+  'mast-capstone': [
+    'mkdir reports',
+    'grep ERROR logs/app.log > reports/errors.txt',
+    'wc -l reports/errors.txt',
+  ],
+  'jq-identity': ['cat data/message.json | jq .'],
+  'jq-field': ['cat data/message.json | jq -r .text'],
+  'jq-index': ['cat data/users.json | jq -r .users[0].name'],
+  'jq-map': ['cat data/users.json | jq -c ".users | map(.name)"'],
+  'jq-select': [
+    'cat data/users.json | jq -r ".users[] | select(.score > 90) | .name"',
+  ],
+  'jq-keys': ['cat data/users.json | jq keys'],
+  'jq-reshape': [
+    'cat data/items.json | jq -c "map({sku: .sku, price: .price})"',
+  ],
+  'jq-capstone': [
+    `cat data/items.json | jq -r '.[] | select(.tags[] == "sale") | .sku'`,
+  ],
+}

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Step } from './types'
 
 /** Allowed autoplay multipliers; cycling the speed button walks this list. */
-const SPEEDS = [0.5, 1, 1.5, 2] as const
+export const SPEEDS = [0.25, 0.5, 1, 1.5, 2, 3, 4, 8] as const
 export type PlaybackSpeed = (typeof SPEEDS)[number]
 
 type Options = {
