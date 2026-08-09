@@ -2,6 +2,7 @@ import type { HeapObject } from '../engine/types'
 import { ArrayViz } from '../visualizers/ArrayViz'
 import { HashMapViz } from '../visualizers/HashMapViz'
 import { LinkedListViz } from '../visualizers/LinkedListViz'
+import { HeapViz } from '../visualizers/HeapViz'
 import { QueueViz } from '../visualizers/QueueViz'
 import { StackViz } from '../visualizers/StackViz'
 import { TreeViz } from '../visualizers/TreeViz'
@@ -90,6 +91,23 @@ function HeapObjectView({ object }: { object: HeapObject }) {
           type: 'queue',
           items: object.items,
           frontAction: object.frontAction,
+        }}
+      />
+    )
+  }
+
+  if (object.kind === 'heap') {
+    return (
+      <HeapViz
+        scene={{
+          type: 'heap',
+          items: object.items,
+          order: object.order,
+          rootAction: object.rootAction,
+          focusIndex: object.focusIndex,
+          capacity: object.capacity,
+          caption: object.caption,
+          label: object.label,
         }}
       />
     )

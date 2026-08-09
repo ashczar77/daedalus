@@ -114,8 +114,8 @@ function expandObject(
     {
       key: object.id,
       id: object.id,
-      kind: 'stack',
-      detail: `${object.label ?? 'stack'} [${object.items.map(String).join(', ')}]`,
+      kind: object.kind,
+      detail: `${object.label ?? object.kind} [${object.items.map(String).join(', ')}]`,
     },
   ]
 }
@@ -138,7 +138,8 @@ function buildAliases(objects: HeapObject[]): Map<string, string> {
       object.kind === 'array' ||
       object.kind === 'hashmap' ||
       object.kind === 'stack' ||
-      object.kind === 'queue'
+      object.kind === 'queue' ||
+      object.kind === 'heap'
     ) {
       aliases.set(object.id, object.id)
     }

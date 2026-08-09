@@ -87,6 +87,24 @@ export type QueueScene = {
 }
 
 /**
+ * Snapshot of a binary heap (array order = level-order complete tree).
+ * Root is peek(); used for PriorityQueue / top-k demos.
+ */
+export type HeapScene = {
+  type: 'heap'
+  items: unknown[]
+  /** min-heap (default) or max-heap */
+  order?: 'min' | 'max'
+  rootAction?: 'offer' | 'poll' | 'peek'
+  /** Highlight a specific array index (e.g. just-offered leaf). */
+  focusIndex?: number
+  /** Soft capacity badge (e.g. keep size ≤ k). */
+  capacity?: number
+  label?: string
+  caption?: string
+}
+
+/**
  * Snapshot of a linked list on the heap.
  * `pointers` map names (prev/cur/fast) → node id; `cycleTo` draws a back-edge.
  */
@@ -155,6 +173,7 @@ export type Scene =
   | HashMapScene
   | StackScene
   | QueueScene
+  | HeapScene
   | LinkedListScene
   | TreeScene
   | { type: 'group'; children: Scene[] }
@@ -212,6 +231,15 @@ export type HeapObject =
       kind: 'queue'
       items: unknown[]
       frontAction?: 'offer' | 'poll' | 'peek'
+    })
+  | (HeapObjectBase & {
+      kind: 'heap'
+      items: unknown[]
+      order?: 'min' | 'max'
+      rootAction?: 'offer' | 'poll' | 'peek'
+      focusIndex?: number
+      capacity?: number
+      caption?: string
     })
   | (HeapObjectBase & {
       kind: 'linkedList'

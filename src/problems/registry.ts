@@ -15,6 +15,7 @@ import { twoSumII } from './0167-two-sum-ii'
 import { bestTimeToBuyAndSellStock } from './0121-best-time-to-buy-and-sell-stock'
 import { validPalindrome } from './0125-valid-palindrome'
 import { reverseLinkedList } from './0206-reverse-linked-list'
+import { kthLargestElementInAnArray } from './0215-kth-largest-element-in-an-array'
 import { containsDuplicate } from './0217-contains-duplicate'
 import { invertBinaryTree } from './0226-invert-binary-tree'
 import { validAnagram } from './0242-valid-anagram'
@@ -47,6 +48,7 @@ export const problems: ProblemPack[] = [
   dailyTemperatures,
   reverseLinkedList,
   removeNthNodeFromEndOfList,
+  kthLargestElementInAnArray,
   mergeTwoSortedLists,
   linkedListCycle,
   invertBinaryTree,
