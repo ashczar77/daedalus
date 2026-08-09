@@ -1,5 +1,5 @@
 /**
- * Bubble Sort lab — adjacent swaps with bar visualization.
+ * Bubble Sort lab - adjacent swaps with bar visualization.
  */
 import javaSrc from '../../algorithms/sort-bubble-sort/Solution.java?raw'
 import kotlinSrc from '../../algorithms/sort-bubble-sort/Solution.kt?raw'
@@ -45,7 +45,7 @@ function generateSteps(input: number[]): Step[] {
         swapped = true
         steps.push({
           id: id++,
-          narrative: `a[${i}]=${left} > a[${i + 1}]=${right} — swap.`,
+          narrative: `a[${i}]=${left} > a[${i + 1}]=${right} - swap.`,
           why: 'Out of order neighbors: swap so the larger value moves right.',
           codeFocus: L.swap,
           callStack: [
@@ -72,8 +72,8 @@ function generateSteps(input: number[]): Step[] {
     steps.push({
       id: id++,
       narrative: swapped
-        ? `Pass complete — a[${end}]=${a[end]} is in final place.`
-        : `No swaps this pass — array already sorted. Stop early.`,
+        ? `Pass complete - a[${end}]=${a[end]} is in final place.`
+        : `No swaps this pass - array already sorted. Stop early.`,
       why: swapped
         ? 'Everything after end is sorted; next pass ignores that suffix.'
         : 'Early exit when a pass makes no swaps.',
@@ -92,7 +92,7 @@ function generateSteps(input: number[]): Step[] {
 
   steps.push({
     id: id++,
-    narrative: 'Done — every bar is in non-decreasing order.',
+    narrative: 'Done - every bar is in non-decreasing order.',
     why: 'Bubble Sort finishes when the sorted suffix covers the whole array.',
     codeFocus: L.done,
     callStack: [{ name: 'bubbleSort', active: true, locals: { a: { ref: 'a' }, result: 'sorted' } }],

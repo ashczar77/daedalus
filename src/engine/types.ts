@@ -212,7 +212,7 @@ export type HeapObject =
     })
 
 /**
- * One frame of the algorithm walkthrough — a storytelling beat.
+ * One frame of the algorithm walkthrough - a storytelling beat.
  * Language-agnostic so a future playground can emit the same shape.
  */
 export type Step = {
@@ -230,9 +230,9 @@ export type Step = {
   callStack?: CallFrame[]
   /** Abstract heap objects referenced by locals */
   heap?: HeapObject[]
-  /** @deprecated Prefer callStack locals — kept for older packs */
+  /** @deprecated Prefer callStack locals - kept for older packs */
   variables?: Record<string, unknown>
-  /** @deprecated Prefer heap — kept for older packs */
+  /** @deprecated Prefer heap - kept for older packs */
   scene?: Scene
 }
 

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { lessons, TRACK_META } from '../academy/lessons/registry'
 import { isUnlocked, loadProgress, resetAllProgress } from '../academy/progress'
+import { nextRank, rankForScore } from '../academy/scoring'
 import type { AcademyTrack, LessonProgress } from '../academy/types'
 import { ModeSwitch } from '../components/ModeSwitch'
 import type { Difficulty } from '../engine/types'
@@ -42,14 +43,13 @@ export function CatalogPage() {
         <p className="catalog__lede">
           {mode === 'terminal' ? (
             <>
-              Learn the shell by doing — gated lessons, a simulated filesystem,
-              and checks that unlock the next challenge. Includes a full jq
-              track.
+              Learn the shell by doing - fundamentals, mastery drills, and jq.
+              Earn XP and climb ranks as you clear gated checks.
               <span className="is-blink catalog__caret">█</span>
             </>
           ) : (
             <>
-              Watch interview patterns and sorting labs execute line by line —
+              Watch interview patterns and sorting labs execute line by line -
               arrays, maps, pointers, and bar charts animated in sync with Java,
               Kotlin, and Python.
               <span className="is-blink catalog__caret">█</span>
@@ -179,8 +179,50 @@ function TerminalCatalog() {
     return lessons.filter((lesson) => track === 'all' || lesson.track === track)
   }, [track])
 
+  const rank = rankForScore(progress.score)
+  const upcoming = nextRank(progress.score)
+  const rankProgress = upcoming
+    ? Math.min(
+        100,
+        Math.round(
+          ((progress.score - rank.minScore) /
+            Math.max(1, upcoming.minScore - rank.minScore)) *
+            100,
+        ),
+      )
+    : 100
+
   return (
     <section className="catalog__list" aria-label="Lessons">
+      <div className="catalog__scoreboard" aria-label="Academy score">
+        <div className="catalog__score-main">
+          <p className="catalog__score-label">Score</p>
+          <p className="catalog__score-value">{progress.score} XP</p>
+          <p className="catalog__score-rank">{rank.title}</p>
+        </div>
+        <div className="catalog__score-meter">
+          <div className="catalog__score-meter-head">
+            <span>
+              {progress.completed.length}/{lessons.length} lessons
+            </span>
+            <span>
+              {upcoming
+                ? `${upcoming.minScore - progress.score} XP to ${upcoming.title}`
+                : 'Max rank'}
+            </span>
+          </div>
+          <div
+            className="catalog__score-bar"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={rankProgress}
+          >
+            <span style={{ width: `${rankProgress}%` }} />
+          </div>
+        </div>
+      </div>
+
       <div className="catalog__list-head">
         <h2>
           <span className="catalog__prompt">&gt;</span> Lesson catalog

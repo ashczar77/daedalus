@@ -42,7 +42,7 @@ export function StructureStage({ objects }: Props) {
               setScale((value) => Math.max(SCALE_MIN, roundScale(value - SCALE_STEP)))
             }
           >
-            −
+            -
           </button>
           <button
             type="button"
@@ -62,7 +62,9 @@ export function StructureStage({ objects }: Props) {
         <p className="structure-stage__empty">No structures on this step</p>
       ) : (
         <div className="structure-stage__viewport">
-          <div className="structure-stage__canvas">
+          <div
+            className={`structure-stage__canvas${objects.length > 1 ? ' is-multi' : ''}`}
+          >
             {objects.map((object) => (
               <div
                 key={structureObjectKey(object)}

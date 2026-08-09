@@ -1,6 +1,6 @@
-# Phase 6 Review — Unix fundamentals track
+# Phase 6 Review - Unix fundamentals track
 
-**Status:** Complete — awaiting approval before Phase 7 polish is considered locked  
+**Status:** Complete - awaiting approval before Phase 7 polish is considered locked  
 **Date:** 2026-08-09
 
 ## Goal

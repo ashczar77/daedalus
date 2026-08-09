@@ -1,4 +1,4 @@
-# Contains Duplicate — set membership; return True on first repeat.
+# Contains Duplicate - set membership; return True on first repeat.
 # Time O(n), Space O(n).
 
 class Solution:

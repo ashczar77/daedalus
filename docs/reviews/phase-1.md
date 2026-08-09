@@ -1,6 +1,6 @@
-# Phase 1 Review — Foundation + first array problems
+# Phase 1 Review - Foundation + first array problems
 
-**Status:** Complete — awaiting approval before Phase 2  
+**Status:** Complete - awaiting approval before Phase 2  
 **Date:** 2026-08-07  
 **Follow-up (same phase):** renamed `perf*` → `benchmark*`; added explanatory comments across Phase 1 code
 
@@ -56,7 +56,7 @@ Sample benchmark JSON: [`public/benchmarks/0001-two-sum.json`](../../public/benc
 - **`group` scenes** let Two Sum / Contains Duplicate show array + map together without a one-off visualizer.
 - **Source files live under `algorithms/`** and are imported with Vite `?raw`, so the Code panel shows real Java/Kotlin/Python you can later feed to runners/benchmarks.
 - **`benchmark` naming** (not `perf`) makes the cross-language runtime comparison intent obvious.
-- **Benchmark numbers are precomputed placeholders** for Phase 1 — enough to teach the UI and language-constant story; later phases replace them with measured offline results.
+- **Benchmark numbers are precomputed placeholders** for Phase 1 - enough to teach the UI and language-constant story; later phases replace them with measured offline results.
 - **Default language Java** matches your learning repo; switching language remaps line focus without resetting the step.
 
 ## How it works
@@ -75,20 +75,20 @@ npm run dev
 
 Then:
 
-1. Open the home page — brand **Daedalus** and 4 problem cards.
-2. Open **Two Sum** — step through; confirm map fills and lines highlight per language tab.
+1. Open the home page - brand **Daedalus** and 4 problem cards.
+2. Open **Two Sum** - step through; confirm map fills and lines highlight per language tab.
 3. Switch Java → Kotlin → Python mid-playback; step index should stay put, highlight line should change.
-4. Open **Binary Search** — confirm window / discard / found roles and pointer labels.
-5. Open **Two Sum II** — opposite-end pointers move correctly.
-6. Open **Contains Duplicate** — set chips grow until duplicate found.
+4. Open **Binary Search** - confirm window / discard / found roles and pointer labels.
+5. Open **Two Sum II** - opposite-end pointers move correctly.
+6. Open **Contains Duplicate** - set chips grow until duplicate found.
 7. Confirm Play / Pause / scrubber / speed cycle work.
 8. `npm run build` succeeds (verified during this phase).
 
 ## Open questions / follow-ups
 
-- Benchmark numbers are illustrative, not measured — replace in the offline benchmark pipeline.
-- No custom input yet (Phase 4 — all problem types).
-- Stack / linked list / tree visualizers deferred to Phases 2–3.
+- Benchmark numbers are illustrative, not measured - replace in the offline benchmark pipeline.
+- No custom input yet (Phase 4 - all problem types).
+- Stack / linked list / tree visualizers deferred to Phases 2-3.
 - Remaining 13 problems from `PROGRESS.md` not yet authored.
 - UI identity pass deferred to Phase 5.
 

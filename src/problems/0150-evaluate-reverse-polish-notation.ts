@@ -1,5 +1,5 @@
 /**
- * LeetCode #150 — Evaluate Reverse Polish Notation (operand stack).
+ * LeetCode #150 - Evaluate Reverse Polish Notation (operand stack).
  * Steps generated from validated tokens (Phase 4).
  */
 import javaSrc from '../../algorithms/0150-evaluate-reverse-polish-notation/Solution.java?raw'
@@ -124,7 +124,7 @@ function generateEvaluateRpnSteps(tokens: string[]): Step[] {
       steps.push({
         id: id++,
         narrative: `Token "${token}" is an operand → push ${value} onto the stack.`,
-        why: 'Numbers are deferred work — they stay until combined by a later operator.',
+        why: 'Numbers are deferred work - they stay until combined by a later operator.',
         codeFocus: L.push,
         callStack: [
           {
@@ -168,7 +168,7 @@ function generateEvaluateRpnSteps(tokens: string[]): Step[] {
       token === '+'
         ? `${b} + ${a} = ${result}`
         : token === '-'
-          ? `${b} − ${a} = ${result}`
+          ? `${b} - ${a} = ${result}`
           : token === '*'
             ? `${b} × ${a} = ${result}`
             : `${b} / ${a} = ${result} (truncate toward zero)`
@@ -176,7 +176,7 @@ function generateEvaluateRpnSteps(tokens: string[]): Step[] {
     steps.push({
       id: id++,
       narrative: `Operator "${token}": pop a = ${a}, pop b = ${b}, push ${opDesc}.`,
-      why: 'Pop order matters — first pop is the right operand a, second is left operand b.',
+      why: 'Pop order matters - first pop is the right operand a, second is left operand b.',
       codeFocus: L.op,
       callStack: [
         {
@@ -266,7 +266,7 @@ const input = defineInput<RpnInput>({
       label: 'tokens',
       widget: 'text',
       placeholder: '2, 1, +, 3, *',
-      hint: 'Comma/space separated integers and + − * / (max 16 tokens)',
+      hint: 'Comma/space separated integers and + - * / (max 16 tokens)',
     },
   ],
   defaultRaw: { tokens: defaultTokens.join(', ') },

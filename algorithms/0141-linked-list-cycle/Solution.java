@@ -1,4 +1,4 @@
-// Linked List Cycle — Floyd fast/slow pointers.
+// Linked List Cycle - Floyd fast/slow pointers.
 // Time O(n), Space O(1).
 
 class ListNode {

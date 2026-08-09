@@ -1,4 +1,4 @@
-// Invert Binary Tree — DFS swap children, then recurse.
+// Invert Binary Tree - DFS swap children, then recurse.
 // Time O(n), Space O(h).
 
 class TreeNode(var `val`: Int, var left: TreeNode? = null, var right: TreeNode? = null)

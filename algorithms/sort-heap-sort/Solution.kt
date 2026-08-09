@@ -1,4 +1,4 @@
-// Heap Sort — build a max-heap, then repeatedly extract the maximum to the end.
+// Heap Sort - build a max-heap, then repeatedly extract the maximum to the end.
 // Time O(n log n), Space O(1).
 
 class Solution {

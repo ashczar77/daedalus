@@ -176,7 +176,7 @@ export function ArrayBarsViz({ scene }: Props) {
           ))}
         </div>
       ) : (
-        <p className="array-bars__dense-note">{n} bars — colors mark compares, swaps, and sorted regions</p>
+        <p className="array-bars__dense-note">{n} bars - colors mark compares, swaps, and sorted regions</p>
       )}
 
       <div className="array-bars__footer">

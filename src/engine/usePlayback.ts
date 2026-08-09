@@ -13,7 +13,7 @@ type Options = {
 
 /**
  * Owns the current step index and autoplay timer for a problem.
- * Visualizers stay pure — they only render `steps[index]`.
+ * Visualizers stay pure - they only render `steps[index]`.
  */
 export function usePlayback({ steps, baseDelayMs = 900 }: Options) {
   const [index, setIndex] = useState(0)

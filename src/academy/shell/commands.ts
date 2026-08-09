@@ -1,4 +1,5 @@
 import type { ShellState } from './state'
+import { pathMatchesName, walkPaths } from './expand'
 import {
   basename,
   DEFAULT_DIR_MODE,
@@ -52,10 +53,11 @@ export const commands: Record<string, CommandFn> = {
     }
     return ok(
       [
-        'Daedalus Terminal Academy — simulated shell',
-        'Commands: pwd cd ls cat echo mkdir touch cp mv rm chmod',
-        '          grep wc head tail sort uniq ps kill jq clear help',
-        'Pipes | and redirects > >> < are supported.',
+        'Daedalus Terminal Academy - simulated shell',
+        'Commands: pwd cd ls cat echo mkdir touch cp mv rm chmod env',
+        '          grep wc head tail sort uniq cut tee find',
+        '          ps kill jq clear help',
+        'Pipes |, redirects > >> <, globs *, and $VAR are supported.',
         'Type: help <command>',
       ].join('\n'),
     )
@@ -78,25 +80,39 @@ export const commands: Record<string, CommandFn> = {
   ls: (state, argv) => {
     const flags = new Set(argv.filter((a) => a.startsWith('-')).join('').replaceAll('-', '').split(''))
     const paths = argv.filter((a) => !a.startsWith('-')).slice(1)
-    const target = paths[0] ?? '.'
-    const path = resolve(state, target)
-    const node = getNode(state.root, path)
-    if (!node) return fail(`ls: cannot access '${target}': No such file or directory`)
-    if (node.kind === 'file') {
-      return flags.has('l')
-        ? ok(`${modeString(node)} 1 cadet cadet ${node.content.length} ${basename(path)}\n`)
-        : ok(basename(path) + '\n')
+    const targets = paths.length > 0 ? paths : ['.']
+
+    const renderOne = (target: string, showHeader: boolean): CommandResult => {
+      const path = resolve(state, target)
+      const node = getNode(state.root, path)
+      if (!node) return fail(`ls: cannot access '${target}': No such file or directory`)
+      if (node.kind === 'file') {
+        return flags.has('l')
+          ? ok(`${modeString(node)} 1 cadet cadet ${node.content.length} ${basename(path)}\n`)
+          : ok(basename(path) + '\n')
+      }
+      const names = listNames(node, flags.has('a'))
+      const header = showHeader ? `${target}:\n` : ''
+      if (flags.has('l')) {
+        const lines = names.map((name) => {
+          const child = node.children[name]!
+          const size = child.kind === 'file' ? child.content.length : 0
+          return `${modeString(child)} 1 cadet cadet ${String(size).padStart(4)} ${name}`
+        })
+        return ok(header + (lines.length ? lines.join('\n') + '\n' : ''))
+      }
+      return ok(header + (names.length ? names.join('  ') + '\n' : ''))
     }
-    const names = listNames(node, flags.has('a'))
-    if (flags.has('l')) {
-      const lines = names.map((name) => {
-        const child = node.children[name]!
-        const size = child.kind === 'file' ? child.content.length : 0
-        return `${modeString(child)} 1 cadet cadet ${String(size).padStart(4)} ${name}`
-      })
-      return ok((lines.length ? lines.join('\n') + '\n' : ''))
+
+    if (targets.length === 1) return renderOne(targets[0]!, false)
+
+    let out = ''
+    for (const target of targets) {
+      const one = renderOne(target, false)
+      if (one.exit !== 0) return one
+      out += one.stdout.endsWith('\n') || one.stdout === '' ? one.stdout : one.stdout + '\n'
     }
-    return ok(names.length ? names.join('  ') + '\n' : '')
+    return ok(out)
   },
 
   cat: (state, argv, stdin) => {
@@ -252,24 +268,94 @@ export const commands: Record<string, CommandFn> = {
   },
 
   grep: (_state, argv, stdin) => {
+    // Prefer grepWithFiles from execute; this path is stdin-only fallback.
+    return grepWithFiles(_state, argv, stdin)
+  },
+
+  env: (state) => {
+    const lines = Object.keys(state.env)
+      .sort((a, b) => a.localeCompare(b))
+      .map((key) => `${key}=${state.env[key]}`)
+    return ok(lines.join('\n') + (lines.length ? '\n' : ''))
+  },
+
+  find: (state, argv) => {
     const args = argv.slice(1)
-    const ignoreCase = args.includes('-i')
-    const pattern = args.find((a) => !a.startsWith('-'))
-    if (!pattern) return fail('grep: missing pattern')
-    const fileArgs = args.filter((a) => !a.startsWith('-') && a !== pattern)
-    let text = stdin
-    if (fileArgs.length > 0) {
-      // Files handled by caller via cat-like path — here we only support stdin or one path through execute
-      return fail('grep: pass file content via stdin or use: grep PAT file (see shell)')
+    let start = '.'
+    let nameGlob: string | null = null
+    for (let i = 0; i < args.length; i++) {
+      const a = args[i]!
+      if (a === '-name') {
+        nameGlob = args[i + 1] ?? null
+        i += 1
+        continue
+      }
+      if (a.startsWith('-')) {
+        return fail(`find: unsupported option '${a}' (try -name)`)
+      }
+      start = a
     }
-    const re = new RegExp(pattern, ignoreCase ? 'i' : undefined)
-    const lines = text.split('\n')
-    // Drop trailing empty from final newline for matching, keep structure
-    const matched = lines.filter((line, idx) => {
-      if (idx === lines.length - 1 && line === '') return false
-      return re.test(line)
+    const paths = walkPaths(state, start)
+    if (paths.length === 0) {
+      return fail(`find: '${start}': No such file or directory`)
+    }
+    const filtered = nameGlob
+      ? paths.filter((p) => pathMatchesName(p, nameGlob))
+      : paths
+    // Present paths relative to cwd when under cwd (friendlier teaching output).
+    const cwd = state.cwd
+    const rendered = filtered.map((p) => {
+      if (p === cwd) return '.'
+      if (p.startsWith(cwd + '/')) return './' + p.slice(cwd.length + 1)
+      return p
     })
-    return matched.length ? ok(matched.join('\n') + '\n') : ok('', 1)
+    return ok(rendered.length ? rendered.join('\n') + '\n' : '')
+  },
+
+  cut: (_state, argv, stdin) => {
+    let delim = '\t'
+    let fields: number[] | null = null
+    const args = argv.slice(1)
+    for (let i = 0; i < args.length; i++) {
+      const a = args[i]!
+      if (a === '-d') {
+        delim = args[i + 1] ?? delim
+        i += 1
+        continue
+      }
+      if (a.startsWith('-d') && a.length > 2) {
+        delim = a.slice(2)
+        continue
+      }
+      if (a === '-f') {
+        fields = parseFieldList(args[i + 1] ?? '')
+        i += 1
+        continue
+      }
+      if (a.startsWith('-f') && a.length > 2) {
+        fields = parseFieldList(a.slice(2))
+        continue
+      }
+    }
+    if (!fields || fields.length === 0) return fail('cut: you must specify a list of fields with -f')
+    const lines = stdin.split('\n')
+    if (stdin.endsWith('\n')) lines.pop()
+    const out = lines.map((line) => {
+      const parts = line.split(delim)
+      return fields!.map((n) => parts[n - 1] ?? '').join(delim)
+    })
+    return ok(out.length ? out.join('\n') + '\n' : '')
+  },
+
+  tee: (state, argv, stdin) => {
+    const append = argv.includes('-a')
+    const files = argv.slice(1).filter((a) => a !== '-a')
+    if (files.length === 0) return fail('tee: missing file operand')
+    for (const file of files) {
+      const written = writeRedirect(state, file, stdin, append)
+      if (written.exit !== 0) return written
+    }
+    return ok(stdin)
   },
 
   wc: (_state, argv, stdin) => {
@@ -349,27 +435,31 @@ export const commands: Record<string, CommandFn> = {
 
 function helpText(cmd: string): string {
   const map: Record<string, string> = {
-    pwd: 'pwd — print working directory',
-    cd: 'cd [dir] — change directory (~ is home)',
-    ls: 'ls [-la] [path] — list directory contents',
-    cat: 'cat <file> — print file contents',
-    echo: 'echo [-n] args... — print arguments',
-    mkdir: 'mkdir <dir> — create directory',
-    touch: 'touch <file> — create empty file',
-    cp: 'cp <src> <dest> — copy file',
-    mv: 'mv <src> <dest> — move/rename',
-    rm: 'rm [-r] <path> — remove file (or directory with -r)',
-    chmod: 'chmod MODE file — set mode (e.g. 755)',
-    grep: 'grep [-i] PATTERN — filter stdin lines',
-    wc: 'wc [-lwc] — count lines/words/bytes from stdin',
-    head: 'head [-n N] — first lines of stdin',
-    tail: 'tail [-n N] — last lines of stdin',
-    sort: 'sort [-u] — sort stdin lines',
-    uniq: 'uniq — collapse adjacent duplicates',
-    ps: 'ps — list simulated processes',
-    kill: 'kill <pid> — stop a simulated process',
-    jq: 'jq [flags] FILTER — filter JSON from stdin',
-    clear: 'clear — clear the terminal screen',
+    pwd: 'pwd - print working directory',
+    cd: 'cd [dir] - change directory (~ is home)',
+    ls: 'ls [-la] [path] - list directory contents',
+    cat: 'cat <file> - print file contents',
+    echo: 'echo [-n] args... - print arguments',
+    mkdir: 'mkdir <dir> - create directory',
+    touch: 'touch <file> - create empty file',
+    cp: 'cp <src> <dest> - copy file',
+    mv: 'mv <src> <dest> - move/rename',
+    rm: 'rm [-r] <path> - remove file (or directory with -r)',
+    chmod: 'chmod MODE file - set mode (e.g. 755)',
+    env: 'env - print environment variables',
+    grep: 'grep [-iv] PATTERN [file] - filter lines',
+    wc: 'wc [-lwc] - count lines/words/bytes from stdin',
+    head: 'head [-n N] - first lines of stdin',
+    tail: 'tail [-n N] - last lines of stdin',
+    sort: 'sort [-u] - sort stdin lines',
+    uniq: 'uniq - collapse adjacent duplicates',
+    cut: 'cut -d DELIM -f N - pick fields from each line',
+    tee: 'tee [-a] FILE - copy stdin to FILE and stdout',
+    find: 'find [path] -name GLOB - walk a directory tree',
+    ps: 'ps - list simulated processes',
+    kill: 'kill <pid> - stop a simulated process',
+    jq: 'jq [flags] FILTER - filter JSON from stdin',
+    clear: 'clear - clear the terminal screen',
   }
   return (map[cmd] ?? `No help for '${cmd}'`) + '\n'
 }
@@ -382,17 +472,23 @@ export function grepWithFiles(
 ): CommandResult {
   const args = argv.slice(1)
   const ignoreCase = args.includes('-i')
+  const invert = args.includes('-v')
   const nonFlags = args.filter((a) => !a.startsWith('-'))
   const pattern = nonFlags[0]
   if (!pattern) return fail('grep: missing pattern')
   const files = nonFlags.slice(1)
   const re = new RegExp(pattern, ignoreCase ? 'i' : undefined)
 
+  const matchLine = (line: string) => {
+    const hit = re.test(line)
+    return invert ? !hit : hit
+  }
+
   if (files.length === 0) {
     const lines = stdin.split('\n')
     const matched = lines.filter((line, idx) => {
       if (idx === lines.length - 1 && line === '') return false
-      return re.test(line)
+      return matchLine(line)
     })
     return matched.length ? ok(matched.join('\n') + '\n') : ok('', 1)
   }
@@ -408,13 +504,22 @@ export function grepWithFiles(
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]!
       if (i === lines.length - 1 && line === '' && node.content.endsWith('\n')) continue
-      if (re.test(line)) {
+      if (matchLine(line)) {
         out += (files.length > 1 ? `${file}:` : '') + line + '\n'
         any = true
       }
     }
   }
   return any ? ok(out) : ok('', 1)
+}
+
+function parseFieldList(spec: string): number[] {
+  const fields: number[] = []
+  for (const part of spec.split(',')) {
+    const n = Number(part)
+    if (Number.isFinite(n) && n >= 1) fields.push(n)
+  }
+  return fields
 }
 
 export function readFileToStdout(state: ShellState, pathArg: string): CommandResult {

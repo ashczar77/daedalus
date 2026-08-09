@@ -8,7 +8,7 @@ type Props = {
 }
 
 /**
- * Quiet home-mode control — text link, not a chunky tab bar.
+ * Quiet home-mode control - text link, not a chunky tab bar.
  * Keeps Daedalus hero stable while / and /terminal swap catalog body.
  */
 export function ModeSwitch({ mode }: Props) {

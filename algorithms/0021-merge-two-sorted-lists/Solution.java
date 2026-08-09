@@ -1,4 +1,4 @@
-// Merge Two Sorted Lists — dummy head + splice nodes from list1/list2.
+// Merge Two Sorted Lists - dummy head + splice nodes from list1/list2.
 // Time O(n+m), Space O(1) extra (reuse nodes).
 
 class ListNode {

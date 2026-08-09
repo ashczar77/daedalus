@@ -1,6 +1,6 @@
-# Phase 4 Review — Custom inputs (pack-agnostic generators)
+# Phase 4 Review - Custom inputs (pack-agnostic generators)
 
-**Status:** In progress — all 17 packs on generators  
+**Status:** In progress - all 17 packs on generators  
 **Date:** 2026-08-08
 
 ### Shipped so far

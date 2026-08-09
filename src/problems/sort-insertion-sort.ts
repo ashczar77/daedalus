@@ -1,5 +1,5 @@
 /**
- * Insertion Sort lab — grow a sorted prefix with bar visualization.
+ * Insertion Sort lab - grow a sorted prefix with bar visualization.
  */
 import javaSrc from '../../algorithms/sort-insertion-sort/Solution.java?raw'
 import kotlinSrc from '../../algorithms/sort-insertion-sort/Solution.kt?raw'
@@ -108,7 +108,7 @@ function generateSteps(input: number[]): Step[] {
 
   steps.push({
     id: id++,
-    narrative: 'Done — sorted prefix covers the whole array.',
+    narrative: 'Done - sorted prefix covers the whole array.',
     why: 'Every element has been inserted into place.',
     codeFocus: L.place,
     callStack: [{ name: 'insertionSort', active: true, locals: { a: { ref: 'a' }, result: 'sorted' } }],
@@ -131,7 +131,7 @@ export const insertionSort: ProblemPack = {
   complexity: {
     time: 'O(n²)',
     space: 'O(1)',
-    notes: 'Nearly-sorted inputs are nearly linear — few shifts.',
+    notes: 'Nearly-sorted inputs are nearly linear - few shifts.',
   },
   inputLabel: packLabel(input),
   languages: { java: javaSrc, kotlin: kotlinSrc, python: pythonSrc },

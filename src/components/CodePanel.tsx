@@ -69,7 +69,7 @@ export function CodePanel({
               disabled={fontPx <= FONT_MIN}
               onClick={() => setFontPx((size) => Math.max(FONT_MIN, size - FONT_STEP))}
             >
-              A−
+              A-
             </button>
             <button
               type="button"

@@ -3,7 +3,7 @@
  * Validates curated step traces against algorithm sources.
  *
  * Catches bugs where a step's story takes the else branch (or similar)
- * but codeFocus still points at the if line — and out-of-range focuses.
+ * but codeFocus still points at the if line - and out-of-range focuses.
  *
  * Usage: npm run validate:traces
  */
@@ -153,7 +153,7 @@ function storyImpliesIfTake1(text) {
   )
 }
 
-/** Indices the demo must visit — only when pack opts in via demoCoverage.indices. */
+/** Indices the demo must visit - only when pack opts in via demoCoverage.indices. */
 function requiredDemoLength(src) {
   const explicit = src.match(/demoCoverage:\s*\{[^}]*indices:\s*(\d+)/)
   if (explicit) return Number(explicit[1])
@@ -245,7 +245,7 @@ function validateCoverage(file, src) {
           file: rel,
           stepId: '-',
           lang: 'coverage',
-          message: `Demo has ${needed} indices but steps never focus: [${missing.join(', ')}] — every character/index must be stepped`,
+          message: `Demo has ${needed} indices but steps never focus: [${missing.join(', ')}] - every character/index must be stepped`,
         })
       }
     }
@@ -264,7 +264,7 @@ function validateCoverage(file, src) {
       return
     }
 
-    // Generator packs rebuild pairs at runtime — require a full left<right loop instead of literals.
+    // Generator packs rebuild pairs at runtime - require a full left<right loop instead of literals.
     const isGenerator =
       src.includes('generateSteps') && /while\s*\(\s*left\s*<\s*right\s*\)/.test(src)
     if (isGenerator) {
@@ -287,7 +287,7 @@ function validateCoverage(file, src) {
         file: rel,
         stepId: '-',
         lang: 'coverage',
-        message: `two-pointer trace incomplete — missing loop states: ${missing
+        message: `two-pointer trace incomplete - missing loop states: ${missing
           .map((s) => `(left=${s.left},right=${s.right})`)
           .join(', ')}`,
       })
@@ -357,7 +357,7 @@ function validatePack(file) {
           file: rel,
           stepId: step.id,
           lang,
-          message: `codeFocus ${lineNo} out of range (1–${hit.total}) via ${step.focusRef}`,
+          message: `codeFocus ${lineNo} out of range (1-${hit.total}) via ${step.focusRef}`,
         })
         continue
       }
@@ -413,10 +413,10 @@ print('WARNINGS', warnings)
 
 if (errors.length === 0) {
   console.log(
-    `\nvalidate-traces: ok — ${files.length} packs, ${warnings.length} warning(s)`,
+    `\nvalidate-traces: ok - ${files.length} packs, ${warnings.length} warning(s)`,
   )
   process.exit(0)
 }
 
-console.error(`\nvalidate-traces: failed — ${errors.length} error(s)`)
+console.error(`\nvalidate-traces: failed - ${errors.length} error(s)`)
 process.exit(1)

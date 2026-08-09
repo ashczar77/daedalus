@@ -1,6 +1,6 @@
-# Phase 7 Review — jq track + Academy polish
+# Phase 7 Review - jq track + Academy polish
 
-**Status:** Complete — awaiting approval  
+**Status:** Complete - awaiting approval  
 **Date:** 2026-08-09
 
 ## Goal

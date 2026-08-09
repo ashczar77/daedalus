@@ -1,5 +1,5 @@
 /**
- * LeetCode #11 — Container With Most Water.
+ * LeetCode #11 - Container With Most Water.
  * Steps are generated from validated height input (Phase 4).
  * Visualization: vertical bars + live water rectangle (display: 'bars').
  */
@@ -14,7 +14,7 @@ import {
 import type { ArrayHighlight, HeapObject, ProblemPack, Step } from '../engine/types'
 import { placeholderBenchmark } from './benchmarkPlaceholders'
 
-/** Default demo — name `height` kept for validate:traces array extraction. */
+/** Default demo - name `height` kept for validate:traces array extraction. */
 const height = [1, 8, 6, 2, 5, 4, 8, 3, 7]
 
 const L = {
@@ -45,7 +45,7 @@ function heightBars(
 }
 
 /**
- * Full two-pointer walk — every while-iteration is a step.
+ * Full two-pointer walk - every while-iteration is a step.
  * Handles empty / single-element inputs with a short return beat.
  */
 function generateContainerSteps(height: number[]): Step[] {
@@ -116,7 +116,7 @@ function generateContainerSteps(height: number[]): Step[] {
       }. ${moveLeft ? 'Left' : 'Right'} is shorter (or equal) → ${move}.`,
       why: improved
         ? 'New maximum; still move the shorter side so a taller wall might appear.'
-        : 'Loop continues while left < right — keep shrinking from the shorter side.',
+        : 'Loop continues while left < right - keep shrinking from the shorter side.',
       codeFocus: moveLeft ? L.moveLeft : L.moveRight,
       callStack: [
         {
@@ -200,7 +200,7 @@ const input = defineInput<number[]>({
       label: 'height',
       widget: 'text',
       placeholder: '1, 8, 6, 2, 5, 4, 8, 3, 7',
-      hint: 'Up to 16 integers from 0–99',
+      hint: 'Up to 16 integers from 0-99',
     },
   ],
   defaultRaw: { height: formatIntList(height) },

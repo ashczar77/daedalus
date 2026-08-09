@@ -1,4 +1,4 @@
-# Two Sum — single-pass dict of value → index; look up target - num.
+# Two Sum - single-pass dict of value → index; look up target - num.
 # Time O(n), Space O(n).
 
 class Solution:

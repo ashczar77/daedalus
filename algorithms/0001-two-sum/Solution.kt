@@ -1,4 +1,4 @@
-// Two Sum — single-pass hash map of value → index; look up target - nums[i].
+// Two Sum - single-pass hash map of value → index; look up target - nums[i].
 // Time O(n), Space O(n).
 
 class Solution {

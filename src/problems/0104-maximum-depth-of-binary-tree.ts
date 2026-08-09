@@ -1,5 +1,5 @@
 /**
- * LeetCode #104 — Maximum Depth of Binary Tree.
+ * LeetCode #104 - Maximum Depth of Binary Tree.
  * Phase 4: level-order input + DFS generator with depth/null/formula overlays.
  */
 import javaSrc from '../../algorithms/0104-maximum-depth-of-binary-tree/Solution.java?raw'
@@ -139,7 +139,7 @@ function generateMaxDepthStepsVerbose(input: TreeInput): Step[] {
     push({
       narrative:
         stack.length === 1
-          ? `Enter maxDepth at root node ${node.value}. Root is not null — we will measure both subtrees.`
+          ? `Enter maxDepth at root node ${node.value}. Root is not null - we will measure both subtrees.`
           : `At node ${node.value}: not null. Recurse into children.`,
       why: 'Depth is defined only after children return.',
       codeFocus: stack.length === 1 ? L.enter : L.left,
@@ -300,7 +300,7 @@ const input = defineInput<TreeInput>({
       label: 'root (level-order)',
       widget: 'text',
       placeholder: '1, 2, 3, 4',
-      hint: 'Up to 12 nodes, values -99–99; use null for missing children',
+      hint: 'Up to 12 nodes, values -99-99; use null for missing children',
     },
   ],
   defaultRaw: { root: formatLevelOrder(defaultValues) },
@@ -339,7 +339,7 @@ export const maximumDepthOfBinaryTree: ProblemPack = {
   ),
   walkthrough: {
     statement:
-      'Given the root of a binary tree, return its maximum depth — the number of nodes along the longest path from the root down to the farthest leaf.',
+      'Given the root of a binary tree, return its maximum depth - the number of nodes along the longest path from the root down to the farthest leaf.',
     keyIdea:
       'Depth of a node is 1 plus the larger of its left and right subtree depths. Null nodes have depth 0.',
     approach: [

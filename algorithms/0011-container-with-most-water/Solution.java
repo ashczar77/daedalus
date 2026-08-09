@@ -1,4 +1,4 @@
-// Container With Most Water — opposite-end pointers; move the shorter side inward.
+// Container With Most Water - opposite-end pointers; move the shorter side inward.
 // Time O(n), Space O(1).
 
 class Solution {

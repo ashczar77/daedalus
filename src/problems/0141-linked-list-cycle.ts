@@ -1,5 +1,5 @@
 /**
- * LeetCode #141 — Linked List Cycle (Floyd fast/slow).
+ * LeetCode #141 - Linked List Cycle (Floyd fast/slow).
  * Steps generated from list values + cycle index (Phase 4).
  */
 import javaSrc from '../../algorithms/0141-linked-list-cycle/Solution.java?raw'
@@ -103,7 +103,7 @@ function generateSteps({ values, cycleIndex }: Input): Step[] {
     return [
       {
         id: 1,
-        narrative: 'Empty list — no nodes to walk. Return false.',
+        narrative: 'Empty list - no nodes to walk. Return false.',
         why: 'head is null; fast never enters the loop.',
         codeFocus: L.retFalse,
         callStack: [
@@ -167,8 +167,8 @@ function generateSteps({ values, cycleIndex }: Input): Step[] {
       narrative: `Advance slow→${slow ?? 'null'}, fast→${fast ?? 'null'}.`,
       why:
         slow === fast
-          ? 'Pointers meet inside the loop — cycle detected.'
-          : 'Still not meeting — keep walking while fast and fast.next exist.',
+          ? 'Pointers meet inside the loop - cycle detected.'
+          : 'Still not meeting - keep walking while fast and fast.next exist.',
       codeFocus: slow === fast ? L.meet : L.advance,
       callStack: [
         {
@@ -201,7 +201,7 @@ function generateSteps({ values, cycleIndex }: Input): Step[] {
 
   steps.push({
     id: id++,
-    narrative: 'fast or fast.next is null — no cycle. Return false.',
+    narrative: 'fast or fast.next is null - no cycle. Return false.',
     why: 'Fast escaped the list end; a cycle would keep fast inside forever.',
     codeFocus: L.retFalse,
     callStack: [
@@ -237,7 +237,7 @@ const input = defineInput<Input>({
       label: 'values',
       widget: 'text',
       placeholder: '1, 2, 3, 4',
-      hint: 'Up to 10 integers from -99–99',
+      hint: 'Up to 10 integers from -99-99',
     },
     {
       key: 'cycle',

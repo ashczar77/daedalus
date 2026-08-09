@@ -1,4 +1,4 @@
-// Maximum Depth of Binary Tree — DFS 1 + max(left, right).
+// Maximum Depth of Binary Tree - DFS 1 + max(left, right).
 // Time O(n), Space O(h).
 
 class TreeNode {

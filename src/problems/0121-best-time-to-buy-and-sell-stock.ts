@@ -1,5 +1,5 @@
 /**
- * LeetCode #121 — Best Time to Buy and Sell Stock.
+ * LeetCode #121 - Best Time to Buy and Sell Stock.
  * Steps generated from validated prices input (Phase 4).
  */
 import javaSrc from '../../algorithms/0121-best-time-to-buy-and-sell-stock/Solution.java?raw'
@@ -202,7 +202,7 @@ const input = defineInput<number[]>({
       label: 'prices',
       widget: 'text',
       placeholder: '7, 1, 5, 3, 6, 4',
-      hint: 'Up to 16 integers from 0–99',
+      hint: 'Up to 16 integers from 0-99',
     },
   ],
   defaultRaw: { prices: formatIntList(prices) },
@@ -234,7 +234,7 @@ export const bestTimeToBuyAndSellStock: ProblemPack = {
   pattern: 'Arrays',
   difficulty: 'Easy',
   insight:
-    'Track the lowest price seen so far; at each day the best sell is price − that minimum.',
+    'Track the lowest price seen so far; at each day the best sell is price - that minimum.',
   invariant: 'minPrice is the cheapest buy on or before the current day; best is max profit so far.',
   complexity: { time: 'O(n)', space: 'O(1)' },
   inputLabel: input.formatLabel(defaultParsed.value),

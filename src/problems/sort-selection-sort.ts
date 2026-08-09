@@ -1,5 +1,5 @@
 /**
- * Selection Sort lab — select min of unsorted suffix each pass.
+ * Selection Sort lab - select min of unsorted suffix each pass.
  */
 import javaSrc from '../../algorithms/sort-selection-sort/Solution.java?raw'
 import kotlinSrc from '../../algorithms/sort-selection-sort/Solution.kt?raw'
@@ -86,7 +86,7 @@ function generateSteps(input: number[]): Step[] {
     } else {
       steps.push({
         id: id++,
-        narrative: `a[${i}]=${a[i]} was already the minimum — no swap.`,
+        narrative: `a[${i}]=${a[i]} was already the minimum - no swap.`,
         why: 'Still extend the sorted prefix.',
         codeFocus: L.swap,
         callStack: [
@@ -103,7 +103,7 @@ function generateSteps(input: number[]): Step[] {
 
   steps.push({
     id: id++,
-    narrative: 'Done — every position has been selected into place.',
+    narrative: 'Done - every position has been selected into place.',
     why: 'Selection Sort always does ~n passes over shrinking suffixes.',
     codeFocus: L.swap,
     callStack: [{ name: 'selectionSort', active: true, locals: { a: { ref: 'a' }, result: 'sorted' } }],
@@ -123,13 +123,13 @@ export const selectionSort: ProblemPack = {
   difficulty: 'Easy',
   insight: 'Repeatedly select the minimum of the unsorted suffix and swap it into the next slot.',
   invariant: 'After pass i, a[0..i] holds the i+1 smallest elements in order.',
-  complexity: { time: 'O(n²)', space: 'O(1)', notes: 'Swap count is at most n−1.' },
+  complexity: { time: 'O(n²)', space: 'O(1)', notes: 'Swap count is at most n-1.' },
   inputLabel: packLabel(input),
   languages: { java: javaSrc, kotlin: kotlinSrc, python: pythonSrc },
   steps: packSteps(input),
   input,
   benchmark: placeholderBenchmark(
-    'Always Θ(n²) compares — no early exit like Bubble Sort’s swapped flag.',
+    'Always Θ(n²) compares - no early exit like Bubble Sort’s swapped flag.',
   ),
   walkthrough: {
     statement: 'Sort an integer array in non-decreasing order using Selection Sort.',

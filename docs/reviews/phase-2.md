@@ -1,11 +1,11 @@
-# Phase 2 Review — Array / window / stack packs + StackViz
+# Phase 2 Review - Array / window / stack packs + StackViz
 
-**Status:** Complete — awaiting approval before Phase 3  
+**Status:** Complete - awaiting approval before Phase 3  
 **Date:** 2026-08-07
 
 ## Goal
 
-Add a Stack visualizer and ship the remaining Phase 2 problems from the progress list: Valid Palindrome, Container With Most Water, Best Time to Buy and Sell Stock, Valid Anagram, Valid Parentheses, and Evaluate Reverse Polish Notation — each with Java / Kotlin / Python sources, curated steps, comments, and benchmark placeholders.
+Add a Stack visualizer and ship the remaining Phase 2 problems from the progress list: Valid Palindrome, Container With Most Water, Best Time to Buy and Sell Stock, Valid Anagram, Valid Parentheses, and Evaluate Reverse Polish Notation - each with Java / Kotlin / Python sources, curated steps, comments, and benchmark placeholders.
 
 ## What changed
 
@@ -50,11 +50,11 @@ npm run dev
 ```
 
 1. Catalog shows 10 problems.
-2. **Valid Parentheses** / **Evaluate RPN** — stack grows/shrinks with push/pop cues.
-3. **Valid Palindrome** — pointers skip spaces and fail on `e` vs `a`.
-4. **Container With Most Water** — best area becomes 49 at indices 1 and 8.
-5. **Best Time to Buy and Sell Stock** — buy at 1, sell at 6, profit 5.
-6. **Valid Anagram** — counts settle to empty nonzero map → true.
+2. **Valid Parentheses** / **Evaluate RPN** - stack grows/shrinks with push/pop cues.
+3. **Valid Palindrome** - pointers skip spaces and fail on `e` vs `a`.
+4. **Container With Most Water** - best area becomes 49 at indices 1 and 8.
+5. **Best Time to Buy and Sell Stock** - buy at 1, sell at 6, profit 5.
+6. **Valid Anagram** - counts settle to empty nonzero map → true.
 7. Language tabs still remaps highlights without resetting the step.
 8. `npm run build` succeeds (verified).
 

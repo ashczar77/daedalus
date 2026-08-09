@@ -7,6 +7,7 @@ import {
   loadProgress,
   markComplete,
 } from '../academy/progress'
+import { rankForScore, xpForLesson } from '../academy/scoring'
 import { createShellState, type ShellState } from '../academy/shell/state'
 import type { CheckResult, LessonPack, LessonProgress } from '../academy/types'
 import { ModeSwitch } from '../components/ModeSwitch'
@@ -52,12 +53,29 @@ export function AcademyLessonPage() {
   const done = progress.completed.includes(lesson.id)
   const nextId = lesson.unlocks[0]
   const hints = lesson.hints ?? []
+  const rank = rankForScore(progress.score)
 
   const handleCheck = () => {
     const result = runChecks(shell, lesson)
-    setCheckResult(result)
     if (result.ok) {
-      setProgress(markComplete(progress, lesson))
+      const cleared = markComplete(progress, lesson, hintIndex)
+      setProgress(cleared.progress)
+      const xpNote = cleared.alreadyComplete
+        ? ' Already cleared - no new XP.'
+        : ` +${cleared.xpGained} XP → ${cleared.progress.score} total.`
+      setCheckResult({
+        ...result,
+        message: `${result.message}${xpNote}`,
+        reward: cleared.alreadyComplete
+          ? undefined
+          : {
+              xp: cleared.xpGained,
+              score: cleared.progress.score,
+              rank: rankForScore(cleared.progress.score).title,
+            },
+      })
+    } else {
+      setCheckResult(result)
     }
   }
 
@@ -78,6 +96,10 @@ export function AcademyLessonPage() {
         <p className="academy-lesson__meta">
           <span>{lesson.track}</span>
           <span>{lesson.level}</span>
+          <span>{xpForLesson(lesson, 0)} XP</span>
+          <span>
+            {progress.score} XP · {rank.title}
+          </span>
           {done ? <span className="is-done">completed</span> : null}
         </p>
         <h1 className="academy-lesson__title">{lesson.title}</h1>
@@ -140,7 +162,10 @@ export function AcademyLessonPage() {
                 <strong>Enter</strong> run · <strong>↑/↓</strong> history ·{' '}
                 <strong>Tab</strong> complete
               </p>
-              <p>Supported: pipes <code>|</code>, redirects <code>&gt; &gt;&gt; &lt;</code>, and <code>jq</code>.</p>
+              <p>
+                Supported: pipes <code>|</code>, redirects <code>&gt; &gt;&gt; &lt;</code>,
+                globs, <code>$VAR</code>, find/cut/tee, and <code>jq</code>.
+              </p>
             </div>
           ) : null}
 
@@ -183,7 +208,7 @@ function bootState(lesson: LessonPack): ShellState {
   const state = createShellState(lesson.setup)
   state.transcript.push({
     kind: 'sys',
-    text: `# ${lesson.title} — type help if you get stuck`,
+    text: `# ${lesson.title} - type help if you get stuck`,
   })
   return state
 }

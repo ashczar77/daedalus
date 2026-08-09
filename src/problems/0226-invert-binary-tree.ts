@@ -1,5 +1,5 @@
 /**
- * LeetCode #226 — Invert Binary Tree (recursive DFS swap).
+ * LeetCode #226 - Invert Binary Tree (recursive DFS swap).
  * Phase 4: level-order input + generator matching Solution.java post-order swap.
  */
 import javaSrc from '../../algorithms/0226-invert-binary-tree/Solution.java?raw'
@@ -141,7 +141,7 @@ function generateInvertSteps(input: TreeInput): Step[] {
     push({
       narrative:
         stack.length === 1
-          ? `Enter invertTree at root ${node.value}. Node is not null — swap its children on the heap.`
+          ? `Enter invertTree at root ${node.value}. Node is not null - swap its children on the heap.`
           : `Enter invertTree at node ${node.value}.`,
       why: 'Recursion depth mirrors tree height (O(h) stack space).',
       codeFocus: L.enter,
@@ -157,7 +157,7 @@ function generateInvertSteps(input: TreeInput): Step[] {
 
     push({
       narrative: `Swap on the heap: left↔right at node ${node.value}.`,
-      why: 'Must mutate node fields — swapping local copies does nothing.',
+      why: 'Must mutate node fields - swapping local copies does nothing.',
       codeFocus: L.swap,
       callStack: callStack(stack, stack.length - 1),
       heap: heap(nodes, rootId, [nodeId, node.left, node.right].filter(Boolean) as string[], {
@@ -197,7 +197,7 @@ function generateInvertSteps(input: TreeInput): Step[] {
     push({
       narrative:
         stack.length === 1
-          ? 'Both subtrees inverted. Return root — tree is fully inverted.'
+          ? 'Both subtrees inverted. Return root - tree is fully inverted.'
           : `Node ${node.value} done; return this subtree root.`,
       why: 'Post-order: fix node, then ensure both subtrees are done.',
       codeFocus: L.ret,
@@ -215,7 +215,7 @@ function generateInvertSteps(input: TreeInput): Step[] {
   return steps
 }
 
-/** Classic LC example — values clearly rearrange when inverted. */
+/** Classic LC example - values clearly rearrange when inverted. */
 const defaultValues: Array<number | null> = [4, 2, 7, 1, 3, 6, 9]
 
 const input = defineInput<TreeInput>({
@@ -226,7 +226,7 @@ const input = defineInput<TreeInput>({
       label: 'root (level-order)',
       widget: 'text',
       placeholder: '4, 2, 7, 1, 3, 6, 9',
-      hint: 'Up to 12 nodes, values -99–99; use null for missing children',
+      hint: 'Up to 12 nodes, values -99-99; use null for missing children',
     },
   ],
   defaultRaw: { root: formatLevelOrder(defaultValues) },
@@ -253,7 +253,7 @@ export const invertBinaryTree: ProblemPack = {
   title: 'Invert Binary Tree',
   pattern: 'Tree DFS',
   difficulty: 'Easy',
-  insight: 'Swap children on the node object, then recurse — never swap copied references.',
+  insight: 'Swap children on the node object, then recurse - never swap copied references.',
   invariant: 'After processing a node, both subtrees are swapped and fully inverted.',
   complexity: { time: 'O(n)', space: 'O(h)' },
   inputLabel: input.formatLabel(defaultParsed.value),

@@ -1,4 +1,4 @@
-// Same Tree — simultaneous DFS on both trees.
+// Same Tree - simultaneous DFS on both trees.
 // Time O(n), Space O(h).
 
 class TreeNode {

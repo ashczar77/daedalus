@@ -1,6 +1,6 @@
-# Phase 2b Review — Visualization storytelling pivot
+# Phase 2b Review - Visualization storytelling pivot
 
-**Status:** Complete — awaiting approval before Phase 3  
+**Status:** Complete - awaiting approval before Phase 3  
 **Date:** 2026-08-07
 
 ## Goal
@@ -31,7 +31,7 @@ Pivot Daedalus from “highlight numbers” to **execution storytelling**: narra
 | #20 Valid Parentheses | [`src/problems/0020-valid-parentheses.ts`](../../src/problems/0020-valid-parentheses.ts) |
 | #704 Binary Search | [`src/problems/0704-binary-search.ts`](../../src/problems/0704-binary-search.ts) |
 
-Other Phase 1–2 packs still play through `normalizeStep` (legacy scene → heap).
+Other Phase 1-2 packs still play through `normalizeStep` (legacy scene → heap).
 
 ## Why
 
@@ -53,12 +53,12 @@ Other Phase 1–2 packs still play through `normalizeStep` (legacy scene → hea
 npm run dev
 ```
 
-1. Open **Two Sum** — see call-stack locals, heap `nums` + `seen`, narrative/why, code line badge.
-2. Step until the map hit — heap map and array both focus; result array appears.
-3. Open **Valid Parentheses** — watch heap stack push/pop while code line tracks.
-4. Open **Binary Search** — locals `left`/`right`/`mid` update as the heap window shrinks.
-5. Open a non-retrofit pack (e.g. Contains Duplicate) — still plays via compat (scene → heap).
-6. Switch languages mid-run — line highlight remaps; step index stays.
+1. Open **Two Sum** - see call-stack locals, heap `nums` + `seen`, narrative/why, code line badge.
+2. Step until the map hit - heap map and array both focus; result array appears.
+3. Open **Valid Parentheses** - watch heap stack push/pop while code line tracks.
+4. Open **Binary Search** - locals `left`/`right`/`mid` update as the heap window shrinks.
+5. Open a non-retrofit pack (e.g. Contains Duplicate) - still plays via compat (scene → heap).
+6. Switch languages mid-run - line highlight remaps; step index stays.
 7. Confirm structure motion still animates (highlight transitions, stack topAction).
 8. `npm run build` succeeds (verified).
 

@@ -1,4 +1,4 @@
-// Insertion Sort — grow a sorted prefix; insert a[i] by shifting larger neighbors right.
+// Insertion Sort - grow a sorted prefix; insert a[i] by shifting larger neighbors right.
 // Time O(n²), Space O(1).
 
 class Solution {

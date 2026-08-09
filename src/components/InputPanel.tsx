@@ -10,7 +10,7 @@ type Props = {
 
 /**
  * Schema-driven custom input strip.
- * Renders only `spec.fields` — never branches on problem id.
+ * Renders only `spec.fields` - never branches on problem id.
  */
 export function InputPanel({ spec, onApply }: Props) {
   const [raw, setRaw] = useState<Record<string, string>>(() => ({ ...spec.defaultRaw }))
@@ -127,7 +127,7 @@ export function InputPanel({ spec, onApply }: Props) {
           ))}
         </ul>
       ) : (
-        <p className="input-panel__ok">Ready — Apply to rebuild the walkthrough.</p>
+        <p className="input-panel__ok">Ready - Apply to rebuild the walkthrough.</p>
       )}
     </section>
   )

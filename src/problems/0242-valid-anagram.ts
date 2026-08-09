@@ -1,5 +1,5 @@
 /**
- * LeetCode #242 — Valid Anagram (frequency counting).
+ * LeetCode #242 - Valid Anagram (frequency counting).
  * Steps generated from validated s + t (Phase 4).
  */
 import javaSrc from '../../algorithms/0242-valid-anagram/Solution.java?raw'
@@ -90,7 +90,7 @@ function generateValidAnagramSteps({ s, t }: ValidAnagramInput): Step[] {
   steps.push({
     id: id++,
     narrative:
-      'Enter isAnagram. Lengths match — allocate counting storage and bind it to local `counts` (nonzero letter deltas).',
+      'Enter isAnagram. Lengths match - allocate counting storage and bind it to local `counts` (nonzero letter deltas).',
     why: 'Increment letters from s and decrement letters from t; anagrams cancel every delta to zero.',
     codeFocus: L.counts,
     callStack: [
@@ -203,7 +203,7 @@ function generateValidAnagramSteps({ s, t }: ValidAnagramInput): Step[] {
   if (counts.size === 0) {
     steps.push({
       id: id++,
-      narrative: 'Verify pass: every stored count is 0 — frequencies match.',
+      narrative: 'Verify pass: every stored count is 0 - frequencies match.',
       why: 'The second loop in Java scans all 26 slots; here the map is already empty.',
       codeFocus: L.verify,
       callStack: [
@@ -243,8 +243,8 @@ function generateValidAnagramSteps({ s, t }: ValidAnagramInput): Step[] {
     })
     steps.push({
       id: id++,
-      narrative: 'return true — t is an anagram of s.',
-      why: 'O(n) time with O(1) alphabet space for lowercase a–z.',
+      narrative: 'return true - t is an anagram of s.',
+      why: 'O(n) time with O(1) alphabet space for lowercase a-z.',
       codeFocus: L.retTrue,
       callStack: [
         {
@@ -347,14 +347,14 @@ const input = defineInput<ValidAnagramInput>({
       label: 's',
       widget: 'text',
       placeholder: 'anagram',
-      hint: 'Lowercase a–z, up to 16 characters',
+      hint: 'Lowercase a-z, up to 16 characters',
     },
     {
       key: 't',
       label: 't',
       widget: 'text',
       placeholder: 'nagaram',
-      hint: 'Lowercase a–z, up to 16 characters',
+      hint: 'Lowercase a-z, up to 16 characters',
     },
   ],
   defaultRaw: { s: defaultS, t: defaultT },
@@ -384,7 +384,7 @@ export const validAnagram: ProblemPack = {
   title: 'Valid Anagram',
   pattern: 'Hash Map',
   difficulty: 'Easy',
-  insight: 'For lowercase a–z, int[26] beats a HashMap — fixed alphabet, O(1) space.',
+  insight: 'For lowercase a-z, int[26] beats a HashMap - fixed alphabet, O(1) space.',
   invariant: 'After processing both strings, every letter count must be zero for an anagram.',
   complexity: { time: 'O(n)', space: 'O(1)' },
   inputLabel: input.formatLabel(defaultParsed.value),

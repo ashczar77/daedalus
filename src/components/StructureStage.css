@@ -85,11 +85,28 @@
   zoom: var(--viz-scale, 1);
 }
 
+/* Stacked intrinsic sizing so dual trees share one node scale under zoom. */
+.structure-stage__canvas.is-multi {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 1.25rem;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  max-width: 100%;
+}
+
 .structure-stage__item {
   width: 100%;
   min-width: 0;
   display: grid;
   justify-items: center;
+}
+
+.structure-stage__canvas.is-multi .structure-stage__item {
+  width: max-content;
+  max-width: 100%;
 }
 
 .structure-stage__item.is-focused {

@@ -1,4 +1,4 @@
-// Valid Parentheses — stack of opens; each close must match the top open.
+// Valid Parentheses - stack of opens; each close must match the top open.
 // Time O(n), Space O(n).
 
 class Solution {

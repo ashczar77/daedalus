@@ -1,4 +1,4 @@
-# Bubble Sort — adjacent swaps; largest element "bubbles" to the end each pass.
+# Bubble Sort - adjacent swaps; largest element "bubbles" to the end each pass.
 # Time O(n²), Space O(1).
 
 class Solution:

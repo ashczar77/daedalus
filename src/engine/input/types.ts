@@ -6,7 +6,7 @@ export type ParseResult<T> =
   | { ok: false; errors: string[] }
 
 /**
- * One form control. InputPanel switches on `widget` only — never on pack id.
+ * One form control. InputPanel switches on `widget` only - never on pack id.
  * Add a widget here when a future structure needs a new control type.
  */
 export type InputField =

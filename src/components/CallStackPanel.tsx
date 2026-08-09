@@ -60,7 +60,7 @@ function formatLocal(value: LocalValue): string {
   if (isHeapRef(value)) return `→ ${value.ref}`
   if (value === null) return 'null'
   if (value === undefined) return 'undefined'
-  // Pack node ids are plain strings — render as heap pointers.
+  // Pack node ids are plain strings - render as heap pointers.
   if (typeof value === 'string') {
     if (/^[a-zA-Z_][\w-]*$/.test(value)) return `→ ${value}`
     return value

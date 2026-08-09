@@ -1,4 +1,4 @@
-# Selection Sort — each pass select the minimum of the unsorted suffix and swap it forward.
+# Selection Sort - each pass select the minimum of the unsorted suffix and swap it forward.
 # Time O(n²), Space O(1).
 
 class Solution:

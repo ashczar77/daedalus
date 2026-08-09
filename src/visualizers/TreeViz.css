@@ -2,8 +2,9 @@
   display: grid;
   gap: 0.45rem;
   min-width: 0;
-  width: 100%;
-  max-width: 36rem;
+  /* Intrinsic SVG size so sibling trees share the same node scale; stage zoom scales both. */
+  width: max-content;
+  max-width: 100%;
   justify-self: center;
 }
 
@@ -24,17 +25,20 @@
 }
 
 .tree-viz__frame {
-  width: 100%;
+  width: max-content;
+  max-width: 100%;
   min-width: 0;
   overflow: auto;
 }
 
 .tree-viz__svg {
   display: block;
-  width: 100%;
+  /* Explicit width/height from layout coords - avoid min/max height clamps that
+     freeze one tree while the other still responds to Visualization -/+.
+     aspect-ratio (inline) keeps the box matched when max-width shrinks width. */
+  max-width: 100%;
   height: auto;
-  min-height: 12rem;
-  max-height: 24rem;
+  overflow: visible;
 }
 
 .tree-viz__edge {
@@ -134,8 +138,3 @@
   fill: var(--accent);
 }
 
-@media (max-width: 640px) {
-  .tree-viz__svg {
-    min-width: 18rem;
-  }
-}

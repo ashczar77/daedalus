@@ -1,4 +1,4 @@
-# Best Time to Buy and Sell Stock — track min buy so far; update max profit at each day.
+# Best Time to Buy and Sell Stock - track min buy so far; update max profit at each day.
 # Time O(n), Space O(1).
 
 class Solution:

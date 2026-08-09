@@ -16,7 +16,7 @@ import type {
 
 export const SORT_MAX_N = 48
 export const SORT_MIN_N = 2
-/** Distinct-ish default shuffle — enough bars to see the dance clearly. */
+/** Distinct-ish default shuffle - enough bars to see the dance clearly. */
 export const SORT_DEFAULT = [
   15, 3, 22, 8, 11, 1, 19, 27, 5, 14, 30, 9, 18, 2, 25, 12, 7, 21, 4, 16, 28, 10,
   23, 6, 31, 13, 20, 17,
@@ -73,7 +73,7 @@ export function sortingInput(generateSteps: (a: number[]) => Step[]): ProblemInp
         label: 'array',
         widget: 'text',
         placeholder: formatIntList(SORT_DEFAULT),
-        hint: `2–${SORT_MAX_N} integers (1–99). Use Randomize for a fresh shuffle.`,
+        hint: `2-${SORT_MAX_N} integers (1-99). Use Randomize for a fresh shuffle.`,
         randomize: true,
       },
     ],

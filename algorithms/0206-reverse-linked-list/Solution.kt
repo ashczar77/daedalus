@@ -1,4 +1,4 @@
-// Reverse Linked List — iterative three-pointer reversal (prev, cur, next).
+// Reverse Linked List - iterative three-pointer reversal (prev, cur, next).
 // Time O(n), Space O(1).
 
 class ListNode(var `val`: Int, var next: ListNode? = null)

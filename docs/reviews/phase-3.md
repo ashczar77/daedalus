@@ -1,12 +1,12 @@
-# Phase 3 Review — Linked lists + trees on the storytelling model
+# Phase 3 Review - Linked lists + trees on the storytelling model
 
-**Status:** Approved — Phase 4 started  
+**Status:** Approved - Phase 4 started  
 **Date:** 2026-08-07  
 **Approved:** 2026-08-08
 
 ## Goal
 
-Add LinkedList + Tree heap visualizers and ship the remaining PROGRESS problems: Reverse Linked List, Merge Two Sorted Lists, Linked List Cycle, Invert Binary Tree, Maximum Depth, Same Tree, Diameter of Binary Tree — with Java/Kotlin/Python sources and call-stack/heap storytelling beats.
+Add LinkedList + Tree heap visualizers and ship the remaining PROGRESS problems: Reverse Linked List, Merge Two Sorted Lists, Linked List Cycle, Invert Binary Tree, Maximum Depth, Same Tree, Diameter of Binary Tree - with Java/Kotlin/Python sources and call-stack/heap storytelling beats.
 
 ## What changed
 
@@ -35,7 +35,7 @@ Sources under [`algorithms/`](../../algorithms/) for each id. Registry: [`src/pr
 
 ## Why
 
-- List/tree problems need heap node graphs and (for DFS) multi-frame call stacks — the Phase 2b storytelling model.
+- List/tree problems need heap node graphs and (for DFS) multi-frame call stacks - the Phase 2b storytelling model.
 - Floyd cycle and pointer reversal only click when pointers and links are visible together.
 - Diameter/max-depth teach the difference between returned height and global answers via stacked frames.
 
@@ -46,10 +46,10 @@ npm run dev
 ```
 
 1. Catalog shows **17** problems.
-2. **Reverse Linked List** — watch prev/cur/next rewire the heap chain.
-3. **Linked List Cycle** — slow/fast meet; cycle annotation visible.
-4. **Merge Two Sorted Lists** — dummy + splice story.
-5. **Invert / Max Depth / Same Tree / Diameter** — tree SVG + recursion frames where authored.
+2. **Reverse Linked List** - watch prev/cur/next rewire the heap chain.
+3. **Linked List Cycle** - slow/fast meet; cycle annotation visible.
+4. **Merge Two Sorted Lists** - dummy + splice story.
+5. **Invert / Max Depth / Same Tree / Diameter** - tree SVG + recursion frames where authored.
 6. Language tabs still remap line focus.
 7. `npm run build` succeeds (verified).
 

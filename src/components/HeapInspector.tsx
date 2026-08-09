@@ -18,7 +18,7 @@ type HeapRow = {
 /**
  * Python-Tutor-style heap tied to the call stack.
  * Locals that reference node/structure ids light up those rows (← root*).
- * Idle objects stay visible but dimmed — they still exist in memory.
+ * Idle objects stay visible but dimmed - they still exist in memory.
  */
 export function HeapInspector({ objects, callStack }: Props) {
   const rows = objects.flatMap(expandObject)

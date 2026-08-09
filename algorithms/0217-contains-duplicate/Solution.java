@@ -1,4 +1,4 @@
-// Contains Duplicate — HashSet membership; add() returns false on collision.
+// Contains Duplicate - HashSet membership; add() returns false on collision.
 // Time O(n), Space O(n).
 
 import java.util.HashSet;

@@ -1,5 +1,5 @@
 /**
- * LeetCode #543 — Diameter of Binary Tree.
+ * LeetCode #543 - Diameter of Binary Tree.
  * Phase 4: level-order input + height DFS with global best and h= overlays.
  */
 import javaSrc from '../../algorithms/0543-diameter-of-binary-tree/Solution.java?raw'
@@ -186,7 +186,7 @@ function generateDiameterSteps(input: TreeInput): Step[] {
 
   push({
     narrative: `DFS finished. Return best=${best} as the diameter (edges).`,
-    why: 'Answer is max through-node path seen anywhere — not height(root).',
+    why: 'Answer is max through-node path seen anywhere - not height(root).',
     codeFocus: L.retBest,
     callStack: [
       {
@@ -211,7 +211,7 @@ const input = defineInput<TreeInput>({
       label: 'root (level-order)',
       widget: 'text',
       placeholder: '1, 2, 3, 4, 5',
-      hint: 'Up to 12 nodes, values -99–99',
+      hint: 'Up to 12 nodes, values -99-99',
     },
   ],
   defaultRaw: { root: formatLevelOrder(defaultValues) },

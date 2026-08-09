@@ -14,7 +14,7 @@ This repo is a browser lab for stepping through coding-interview algorithms (and
 
 ![Invert Binary Tree player](docs/media/player-invert-tree.png)
 
-**Terminal Academy.** Terminal has gated shell lessons on a simulated filesystem. Fundamentals cover navigation, files, pipes, and permissions. There is also a jq track for filtering JSON from the command line. Progress stays in local storage on your machine.
+**Terminal Academy.** Terminal has gated shell lessons on a simulated filesystem: fundamentals, a mastery track with reinforcement drills, and a jq workshop. Completing lessons earns XP and ranks. Progress stays in local storage on your machine.
 
 ![Terminal Academy catalog](docs/media/terminal-catalog.png)
 
@@ -36,10 +36,13 @@ npm run build
 Other scripts:
 
 ```bash
+npm test                  # unit + integration tests (Vitest)
 npm run validate:traces   # check curated traces against sources
 npm run lint
 npm run preview           # serve the production build locally
 ```
+
+`npm run build` runs trace validation and the test suite before compiling.
 
 ## Project layout (rough map)
 

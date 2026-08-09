@@ -1,5 +1,5 @@
 /**
- * Quick Sort lab — partition around a pivot with bar highlights.
+ * Quick Sort lab - partition around a pivot with bar highlights.
  */
 import javaSrc from '../../algorithms/sort-quick-sort/Solution.java?raw'
 import kotlinSrc from '../../algorithms/sort-quick-sort/Solution.kt?raw'
@@ -66,7 +66,7 @@ function generateSteps(input: number[]): Step[] {
           ;[a[i], a[j]] = [a[j]!, a[i]!]
           steps.push({
             id: id++,
-            narrative: `a[${j}]=${a[i]} < pivot — swap with a[${i}].`,
+            narrative: `a[${j}]=${a[i]} < pivot - swap with a[${i}].`,
             why: 'Grow the “less than pivot” region.',
             codeFocus: L.swap,
             callStack: [
@@ -126,7 +126,7 @@ function generateSteps(input: number[]): Step[] {
 
   steps.push({
     id: id++,
-    narrative: 'Done — every pivot placement finished the sort.',
+    narrative: 'Done - every pivot placement finished the sort.',
     why: 'When both sides of every pivot are sorted, the array is sorted.',
     codeFocus: L.sort,
     callStack: [{ name: 'quickSort', active: true, locals: { a: { ref: 'a' }, result: 'sorted' } }],
@@ -160,7 +160,7 @@ export const quickSort: ProblemPack = {
   ),
   walkthrough: {
     statement: 'Sort an integer array in non-decreasing order using Quick Sort.',
-    keyIdea: 'Partition, then recurse — the pivot never moves again.',
+    keyIdea: 'Partition, then recurse - the pivot never moves again.',
     approach: [
       'Choose pivot (here: a[hi]).',
       'Swap smaller values leftward; place pivot.',

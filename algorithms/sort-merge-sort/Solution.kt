@@ -1,4 +1,4 @@
-// Merge Sort — divide in half, sort recursively, merge ordered runs.
+// Merge Sort - divide in half, sort recursively, merge ordered runs.
 // Time O(n log n), Space O(n).
 
 class Solution {

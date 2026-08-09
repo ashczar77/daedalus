@@ -2,6 +2,7 @@ import type { ProblemPack } from '../engine/types'
 import { containerWithMostWater } from './0011-container-with-most-water'
 import { sameTree } from './0100-same-tree'
 import { maximumDepthOfBinaryTree } from './0104-maximum-depth-of-binary-tree'
+import { balancedBinaryTree } from './0110-balanced-binary-tree'
 import { validParentheses } from './0020-valid-parentheses'
 import { mergeTwoSortedLists } from './0021-merge-two-sorted-lists'
 import { twoSum } from './0001-two-sum'
@@ -15,6 +16,7 @@ import { containsDuplicate } from './0217-contains-duplicate'
 import { invertBinaryTree } from './0226-invert-binary-tree'
 import { validAnagram } from './0242-valid-anagram'
 import { diameterOfBinaryTree } from './0543-diameter-of-binary-tree'
+import { subtreeOfAnotherTree } from './0572-subtree-of-another-tree'
 import { binarySearch } from './0704-binary-search'
 import { bubbleSort } from './sort-bubble-sort'
 import { heapSort } from './sort-heap-sort'
@@ -42,8 +44,10 @@ export const problems: ProblemPack[] = [
   linkedListCycle,
   invertBinaryTree,
   maximumDepthOfBinaryTree,
+  balancedBinaryTree,
   sameTree,
   diameterOfBinaryTree,
+  subtreeOfAnotherTree,
   binarySearch,
   bubbleSort,
   insertionSort,

@@ -1,5 +1,5 @@
 /**
- * Heap Sort lab — max-heapify then extract maxima to the end.
+ * Heap Sort lab - max-heapify then extract maxima to the end.
  */
 import javaSrc from '../../algorithms/sort-heap-sort/Solution.java?raw'
 import kotlinSrc from '../../algorithms/sort-heap-sort/Solution.kt?raw'
@@ -78,7 +78,7 @@ function generateSteps(input: number[]): Step[] {
   }
   steps.push({
     id: id++,
-    narrative: 'Max-heap built — a[0] is the largest value.',
+    narrative: 'Max-heap built - a[0] is the largest value.',
     why: 'Ready to extract maxima into the sorted suffix.',
     codeFocus: L.build,
     callStack: [{ name: 'heapSort', active: true, locals: { a: { ref: 'a' }, phase: 'heap-ready' } }],
@@ -112,7 +112,7 @@ function generateSteps(input: number[]): Step[] {
 
   steps.push({
     id: id++,
-    narrative: 'Done — heap extractions filled the sorted suffix.',
+    narrative: 'Done - heap extractions filled the sorted suffix.',
     why: 'Heap Sort never needs an auxiliary array of size n.',
     codeFocus: L.extract,
     callStack: [{ name: 'heapSort', active: true, locals: { a: { ref: 'a' }, result: 'sorted' } }],

@@ -1,5 +1,5 @@
 /**
- * LeetCode #125 — Valid Palindrome (two pointers, skip non-alphanumeric).
+ * LeetCode #125 - Valid Palindrome (two pointers, skip non-alphanumeric).
  * Steps generated from validated string input (Phase 4).
  */
 import javaSrc from '../../algorithms/0125-valid-palindrome/Solution.java?raw'
@@ -102,7 +102,7 @@ function generateValidPalindromeSteps(s: string): Step[] {
       const idx = left
       steps.push({
         id: id++,
-        narrative: `left=${idx} is '${chars[idx]}' — not alphanumeric → left++.`,
+        narrative: `left=${idx} is '${chars[idx]}' - not alphanumeric → left++.`,
         why: 'Spaces and punctuation are ignored entirely.',
         codeFocus: L.skipLeft,
         callStack: [
@@ -123,7 +123,7 @@ function generateValidPalindromeSteps(s: string): Step[] {
       const idx = right
       steps.push({
         id: id++,
-        narrative: `right=${idx} is '${chars[idx]}' — not alphanumeric → right--.`,
+        narrative: `right=${idx} is '${chars[idx]}' - not alphanumeric → right--.`,
         why: 'Shrink the window from the right past junk characters.',
         codeFocus: L.skipRight,
         callStack: [
@@ -150,7 +150,7 @@ function generateValidPalindromeSteps(s: string): Step[] {
     if (lc !== rc) {
       steps.push({
         id: id++,
-        narrative: `left=${left} ('${rawL}'), right=${right} ('${rawR}') — lowercase '${lc}' vs '${rc}' → mismatch, return false.`,
+        narrative: `left=${left} ('${rawL}'), right=${right} ('${rawR}') - lowercase '${lc}' vs '${rc}' → mismatch, return false.`,
         why: 'First unequal pair proves the cleaned string is not a palindrome.',
         codeFocus: L.mismatch,
         callStack: [
@@ -178,7 +178,7 @@ function generateValidPalindromeSteps(s: string): Step[] {
 
     steps.push({
       id: id++,
-      narrative: `left=${left}, right=${right} → lowercase '${lc}' vs '${rc}' — match, then move inward.`,
+      narrative: `left=${left}, right=${right} → lowercase '${lc}' vs '${rc}' - match, then move inward.`,
       why: 'Equal characters at both ends; shrink the window and continue.',
       codeFocus: L.compare,
       callStack: [
@@ -262,7 +262,7 @@ export const validPalindrome: ProblemPack = {
   pattern: 'Two Pointers',
   difficulty: 'Easy',
   insight:
-    'Skip non-alphanumeric inline; compare Character.toLowerCase / .lower() on chars — never compare String objects with !=.',
+    'Skip non-alphanumeric inline; compare Character.toLowerCase / .lower() on chars - never compare String objects with !=.',
   invariant:
     'left and right always point at the next alphanumeric characters still left to compare.',
   complexity: {

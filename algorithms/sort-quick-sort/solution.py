@@ -1,4 +1,4 @@
-# Quick Sort — partition around a pivot, then recurse on both sides.
+# Quick Sort - partition around a pivot, then recurse on both sides.
 # Time O(n log n) average, O(n²) worst. Space O(log n) stack.
 
 class Solution:

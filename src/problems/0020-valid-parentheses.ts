@@ -1,5 +1,5 @@
 /**
- * LeetCode #20 — Valid Parentheses.
+ * LeetCode #20 - Valid Parentheses.
  * Steps generated from validated bracket string (Phase 4).
  */
 import javaSrc from '../../algorithms/0020-valid-parentheses/Solution.java?raw'
@@ -9,7 +9,7 @@ import { defineInput, parseString } from '../engine/input'
 import type { ArrayHighlight, HeapObject, ProblemPack, Step } from '../engine/types'
 import { placeholderBenchmark } from './benchmarkPlaceholders'
 
-/** Default demo — name kept for validate:traces index coverage. */
+/** Default demo - name kept for validate:traces index coverage. */
 const defaultS = '()[]{}'
 
 const PAIRS: Record<string, string> = { ')': '(', ']': '[', '}': '{' }
@@ -88,7 +88,7 @@ function generateValidParenthesesSteps(s: string): Step[] {
       stack.push(ch)
       steps.push({
         id: id++,
-        narrative: `i=${i}, ch="${ch}" — not a closer → push onto the stack.`,
+        narrative: `i=${i}, ch="${ch}" - not a closer → push onto the stack.`,
         why: 'Remember the opener until its match arrives.',
         codeFocus: L.push,
         callStack: [
@@ -106,7 +106,7 @@ function generateValidParenthesesSteps(s: string): Step[] {
     if (stack.length === 0) {
       steps.push({
         id: id++,
-        narrative: `i=${i}, ch="${ch}" — closer but stack is empty → return false.`,
+        narrative: `i=${i}, ch="${ch}" - closer but stack is empty → return false.`,
         why: 'Every closer needs a matching opener on top of the stack.',
         codeFocus: L.pop,
         callStack: [
@@ -128,8 +128,8 @@ function generateValidParenthesesSteps(s: string): Step[] {
     steps.push({
       id: id++,
       narrative: match
-        ? `i=${i}, ch="${ch}" — closer. Pop "${popped}" and confirm it matches.`
-        : `i=${i}, ch="${ch}" — closer. Pop "${popped}" but expected "${expected}" → return false.`,
+        ? `i=${i}, ch="${ch}" - closer. Pop "${popped}" and confirm it matches.`
+        : `i=${i}, ch="${ch}" - closer. Pop "${popped}" but expected "${expected}" → return false.`,
       why: match
         ? 'Empty stack or wrong opener would return false here.'
         : 'Wrong opener on top means brackets are crossed or mismatched.',
@@ -156,7 +156,7 @@ function generateValidParenthesesSteps(s: string): Step[] {
       steps.push({
         id: id++,
         narrative: 'Mismatch on pop → return false.',
-        why: 'Fail fast — no point scanning the rest of the string.',
+        why: 'Fail fast - no point scanning the rest of the string.',
         codeFocus: L.fail,
         callStack: [
           {
@@ -179,7 +179,7 @@ function generateValidParenthesesSteps(s: string): Step[] {
       : `Loop done. Stack still holds [${stack.join(', ')}] → return false.`,
     why: ok
       ? 'Any leftover opener would mean an unclosed bracket.'
-      : 'Unclosed openers remain — the string cannot be valid.',
+      : 'Unclosed openers remain - the string cannot be valid.',
     codeFocus: L.ret,
     callStack: [
       {
@@ -250,7 +250,7 @@ export const validParentheses: ProblemPack = {
   title: 'Valid Parentheses',
   pattern: 'Stack',
   difficulty: 'Easy',
-  insight: 'LIFO — the last opened bracket must close first. Fail fast on mismatch or empty pop.',
+  insight: 'LIFO - the last opened bracket must close first. Fail fast on mismatch or empty pop.',
   invariant:
     'Stack holds unmatched open brackets in order; each close must equal the current top.',
   complexity: { time: 'O(n)', space: 'O(n)' },

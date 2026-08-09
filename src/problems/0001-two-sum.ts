@@ -1,5 +1,5 @@
 /**
- * LeetCode #1 — Two Sum (hash map / complement lookup).
+ * LeetCode #1 - Two Sum (hash map / complement lookup).
  * Steps generated from validated nums + target (Phase 4).
  */
 import javaSrc from '../../algorithms/0001-two-sum/Solution.java?raw'
@@ -107,13 +107,13 @@ function generateTwoSumSteps({ nums: arr, target: t }: TwoSumInput): Step[] {
 
     steps.push({
       id: id++,
-      narrative: `i = ${i}. Read nums[${i}] = ${num}. Compute complement = ${t} − ${num} = ${complement}.`,
+      narrative: `i = ${i}. Read nums[${i}] = ${num}. Compute complement = ${t} - ${num} = ${complement}.`,
       why:
         hit != null
           ? `Map hit: ${complement} was stored at index ${hit}.`
           : hit === undefined && seen.size === 0
-            ? 'Map is empty — store this value and continue.'
-            : `${complement} is not in seen yet — we will store ${num} → ${i}.`,
+            ? 'Map is empty - store this value and continue.'
+            : `${complement} is not in seen yet - we will store ${num} → ${i}.`,
       codeFocus: hit != null ? L.hit : L.loop,
       callStack: [
         {
@@ -161,7 +161,7 @@ function generateTwoSumSteps({ nums: arr, target: t }: TwoSumInput): Step[] {
       steps.push({
         id: id++,
         narrative: `Return new int[]{${hit}, ${i}}. Frame exits with the answer.`,
-        why: 'One pass, O(n) time — each element paid for a single hash lookup.',
+        why: 'One pass, O(n) time - each element paid for a single hash lookup.',
         codeFocus: L.retHit,
         callStack: [
           {
@@ -295,7 +295,7 @@ const input = defineInput<TwoSumInput>({
       label: 'nums',
       widget: 'text',
       placeholder: '2, 7, 11, 15',
-      hint: 'Up to 16 integers from -99–99',
+      hint: 'Up to 16 integers from -99-99',
     },
     {
       key: 'target',
@@ -343,9 +343,9 @@ export const twoSum: ProblemPack = {
   pattern: 'Hash Map',
   difficulty: 'Easy',
   insight:
-    'Single pass — complement lookup is O(1) per element instead of O(n²) nested loops.',
+    'Single pass - complement lookup is O(1) per element instead of O(n²) nested loops.',
   invariant:
-    'Map stores each value seen so far with its index; before inserting nums[i], check if target − nums[i] is already present.',
+    'Map stores each value seen so far with its index; before inserting nums[i], check if target - nums[i] is already present.',
   complexity: {
     time: 'O(n)',
     space: 'O(n)',

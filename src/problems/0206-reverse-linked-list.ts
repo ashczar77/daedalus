@@ -1,5 +1,5 @@
 /**
- * LeetCode #206 — Reverse Linked List (iterative pointer flip).
+ * LeetCode #206 - Reverse Linked List (iterative pointer flip).
  * Steps generated from validated list values (Phase 4).
  */
 import javaSrc from '../../algorithms/0206-reverse-linked-list/Solution.java?raw'
@@ -34,7 +34,7 @@ function generateSteps(values: number[]): Step[] {
     return [
       {
         id: 1,
-        narrative: 'Empty list — head is null. Return null in one step.',
+        narrative: 'Empty list - head is null. Return null in one step.',
         why: 'Nothing to reverse; prev stays null.',
         codeFocus: L.ret,
         callStack: [
@@ -165,7 +165,7 @@ const input = defineInput<number[]>({
       label: 'list',
       widget: 'text',
       placeholder: '1, 2, 3',
-      hint: 'Up to 10 integers from -99–99',
+      hint: 'Up to 10 integers from -99-99',
     },
   ],
   defaultRaw: { list: formatIntList(defaultList) },
@@ -204,13 +204,13 @@ export const reverseLinkedList: ProblemPack = {
   steps: input.generateSteps(defaultParsed.value),
   input,
   benchmark: placeholderBenchmark(
-    'In-place pointer rewrites — no extra heap nodes allocated.',
+    'In-place pointer rewrites - no extra heap nodes allocated.',
   ),
   walkthrough: {
     statement:
       'Given the head of a singly linked list, reverse the list and return the new head.',
     keyIdea:
-      'Iteratively flip cur.next to prev while walking forward — three pointers: prev, cur, next.',
+      'Iteratively flip cur.next to prev while walking forward - three pointers: prev, cur, next.',
     approach: [
       'prev = null, cur = head.',
       'While cur: save next, set cur.next = prev, advance prev/cur.',

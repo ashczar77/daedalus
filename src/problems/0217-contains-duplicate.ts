@@ -1,5 +1,5 @@
 /**
- * LeetCode #217 — Contains Duplicate.
+ * LeetCode #217 - Contains Duplicate.
  * Steps generated from validated nums (Phase 4).
  */
 import javaSrc from '../../algorithms/0217-contains-duplicate/Solution.java?raw'
@@ -60,7 +60,7 @@ function generateSteps(arr: number[]): Step[] {
     if (isDup) {
       steps.push({
         id: id++,
-        narrative: `Read ${num} again. Set already contains it — duplicate found → true.`,
+        narrative: `Read ${num} again. Set already contains it - duplicate found → true.`,
         why: 'add would return false / membership hit means a prior occurrence.',
         codeFocus: L.hit,
         callStack: [
@@ -101,7 +101,7 @@ function generateSteps(arr: number[]): Step[] {
     seen.add(num)
     steps.push({
       id: id++,
-      narrative: `Read ${num}. Not in the set — add it.`,
+      narrative: `Read ${num}. Not in the set - add it.`,
       why: 'Unique so far; remember it for later comparisons.',
       codeFocus: L.add,
       callStack: [
@@ -171,7 +171,7 @@ const input = defineInput<number[]>({
       label: 'nums',
       widget: 'text',
       placeholder: '1, 2, 3, 1',
-      hint: 'Up to 16 integers from -99–99',
+      hint: 'Up to 16 integers from -99-99',
     },
   ],
   defaultRaw: { nums: formatIntList(nums) },
@@ -200,7 +200,7 @@ export const containsDuplicate: ProblemPack = {
   title: 'Contains Duplicate',
   pattern: 'Hash Set',
   difficulty: 'Easy',
-  insight: 'Only presence matters — HashSet is the right tool, not a map of counts.',
+  insight: 'Only presence matters - HashSet is the right tool, not a map of counts.',
   invariant:
     'The set holds every value seen so far; a duplicate is found if the current value is already present before insert.',
   complexity: { time: 'O(n)', space: 'O(n)' },
@@ -240,7 +240,7 @@ export const containsDuplicate: ProblemPack = {
   },
   walkthrough: {
     statement: 'Return true if any value appears at least twice; otherwise false.',
-    keyIdea: 'A hash set remembers values already seen — duplicate means membership hit.',
+    keyIdea: 'A hash set remembers values already seen - duplicate means membership hit.',
     approach: [
       'Create an empty set.',
       'For each number, if already in the set return true; else insert.',

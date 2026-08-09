@@ -1,4 +1,4 @@
-// Binary Search — keep target in [left, right]; update with mid ± 1.
+// Binary Search - keep target in [left, right]; update with mid ± 1.
 // Time O(log n), Space O(1).
 
 class Solution {

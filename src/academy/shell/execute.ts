@@ -5,6 +5,7 @@ import {
   writeRedirect,
   type CommandResult,
 } from './commands'
+import { expandArgv } from './expand'
 import { parseSimple, splitPipes } from './parse'
 import type { ShellState } from './state'
 import { basename, dirname, getNode, listNames, normalizePath } from './vfs'
@@ -39,10 +40,16 @@ export function executeLine(state: ShellState, line: string): CommandResult {
         stdin = read.stdout
       }
 
-      const argv = simple.argv
+      const argv = expandArgv(state, simple.argv)
       if (argv.length === 0) {
         last = { stdout: '', stderr: 'syntax error: empty command\n', exit: 2 }
         break
+      }
+
+      // Expand redirect paths ($HOME, globs - first match for writes).
+      for (const redir of simple.redirects) {
+        const expanded = expandArgv(state, [redir.path])
+        redir.path = expanded[0] ?? redir.path
       }
 
       const name = argv[0]!
@@ -63,7 +70,8 @@ export function executeLine(state: ShellState, line: string): CommandResult {
             name === 'head' ||
             name === 'tail' ||
             name === 'sort' ||
-            name === 'uniq') &&
+            name === 'uniq' ||
+            name === 'cut') &&
           stdin === ''
         ) {
           const fileArg = takeFileOperand(argv)

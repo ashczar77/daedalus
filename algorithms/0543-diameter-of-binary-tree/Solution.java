@@ -1,4 +1,4 @@
-// Diameter of Binary Tree — DFS returns height; track max left+right path.
+// Diameter of Binary Tree - DFS returns height; track max left+right path.
 // Time O(n), Space O(h).
 
 class TreeNode {

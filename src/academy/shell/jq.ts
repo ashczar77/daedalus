@@ -236,7 +236,7 @@ function evalPredicate(expr: string, data: unknown): boolean {
           return Number(lv) <= Number(rv)
       }
     }
-    // select(.tags[] == "sale") — true if any iterated left value matches
+    // select(.tags[] == "sale") - true if any iterated left value matches
     return leftValues.some(cmp)
   }
   return Boolean(evalFilter(expr, data)[0])

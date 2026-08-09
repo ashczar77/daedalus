@@ -1,4 +1,4 @@
-// Valid Palindrome — two pointers; skip non-alphanumeric; compare lowercase chars.
+// Valid Palindrome - two pointers; skip non-alphanumeric; compare lowercase chars.
 // Time O(n), Space O(1).
 
 class Solution {

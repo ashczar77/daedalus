@@ -1,5 +1,5 @@
 /**
- * LeetCode #167 — Two Sum II (sorted array, opposite-end two pointers).
+ * LeetCode #167 - Two Sum II (sorted array, opposite-end two pointers).
  * Steps generated from validated numbers + target (Phase 4).
  */
 import javaSrc from '../../algorithms/0167-two-sum-ii/Solution.java?raw'
@@ -108,7 +108,7 @@ function generateSteps({ numbers: arr, target: t }: Input): Step[] {
     if (sum === t) {
       steps.push({
         id: id++,
-        narrative: `sum = ${arr[left]} + ${arr[right]} = ${sum} — exact match.`,
+        narrative: `sum = ${arr[left]} + ${arr[right]} = ${sum} - exact match.`,
         why: 'Return 1-indexed positions.',
         codeFocus: L.eq,
         callStack: [
@@ -147,7 +147,7 @@ function generateSteps({ numbers: arr, target: t }: Input): Step[] {
     steps.push({
       id: id++,
       narrative: `sum = ${arr[left]} + ${arr[right]} = ${sum} ${
-        moveLeft ? `< ${t} — left++` : `> ${t} — right--`
+        moveLeft ? `< ${t} - left++` : `> ${t} - right--`
       }.`,
       why: moveLeft
         ? 'Need a larger sum; advance the left pointer.'
@@ -255,11 +255,11 @@ if (!defaultParsed.ok) throw new Error(defaultParsed.errors.join('; '))
 export const twoSumII: ProblemPack = {
   id: '0167-two-sum-ii',
   lcNumber: 167,
-  title: 'Two Sum II — Input Array Is Sorted',
+  title: 'Two Sum II - Input Array Is Sorted',
   pattern: 'Two Pointers',
   difficulty: 'Medium',
   insight:
-    'Sorted order lets opposite-end pointers eliminate impossible pairs in O(1) space — no hash map required.',
+    'Sorted order lets opposite-end pointers eliminate impossible pairs in O(1) space - no hash map required.',
   invariant:
     'If a pair exists, it lies between left and right. Too-small sums move left up; too-large sums move right down.',
   complexity: { time: 'O(n)', space: 'O(1)' },

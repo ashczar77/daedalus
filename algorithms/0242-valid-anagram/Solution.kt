@@ -1,4 +1,4 @@
-// Valid Anagram — count letters with IntArray(26); lengths must match first.
+// Valid Anagram - count letters with IntArray(26); lengths must match first.
 // Time O(n), Space O(1).
 
 class Solution {

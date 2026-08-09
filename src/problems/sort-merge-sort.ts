@@ -1,5 +1,5 @@
 /**
- * Merge Sort lab — divide, conquer, merge with bar windows.
+ * Merge Sort lab - divide, conquer, merge with bar windows.
  */
 import javaSrc from '../../algorithms/sort-merge-sort/Solution.java?raw'
 import kotlinSrc from '../../algorithms/sort-merge-sort/Solution.kt?raw'
@@ -30,7 +30,7 @@ function generateSteps(input: number[]): Step[] {
   steps.push({
     id: id++,
     narrative: `Merge Sort on ${n} bars. Divide until singles, then merge ordered runs.`,
-    why: 'Guaranteed O(n log n) — work is in the merges, not the splits.',
+    why: 'Guaranteed O(n log n) - work is in the merges, not the splits.',
     codeFocus: L.sort,
     callStack: [{ name: 'mergeSort', active: true, locals: { a: { ref: 'a' }, n } }],
     heap: [sortBars(a)],
@@ -95,7 +95,7 @@ function generateSteps(input: number[]): Step[] {
 
   steps.push({
     id: id++,
-    narrative: 'Done — final merge produced a fully sorted array.',
+    narrative: 'Done - final merge produced a fully sorted array.',
     why: 'Depth of recursion is ~log n; each level moves every element once.',
     codeFocus: L.merge,
     callStack: [{ name: 'mergeSort', active: true, locals: { a: { ref: 'a' }, result: 'sorted' } }],
@@ -121,7 +121,7 @@ export const mergeSort: ProblemPack = {
   steps: packSteps(input),
   input,
   benchmark: placeholderBenchmark(
-    'Stable O(n log n) — predictable, but uses extra memory unlike heapsort/quicksort in-place variants.',
+    'Stable O(n log n) - predictable, but uses extra memory unlike heapsort/quicksort in-place variants.',
   ),
   walkthrough: {
     statement: 'Sort an integer array in non-decreasing order using Merge Sort.',

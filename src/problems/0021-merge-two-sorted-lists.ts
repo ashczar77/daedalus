@@ -1,5 +1,5 @@
 /**
- * LeetCode #21 — Merge Two Sorted Lists (dummy head splice).
+ * LeetCode #21 - Merge Two Sorted Lists (dummy head splice).
  * Steps generated from validated list1/list2 (Phase 4).
  */
 import javaSrc from '../../algorithms/0021-merge-two-sorted-lists/Solution.java?raw'
@@ -22,9 +22,9 @@ const defaultList2 = [2, 4]
 const L = {
   dummy: { java: 13, kotlin: 8, python: 11 },
   whileHead: { java: 15, kotlin: 12, python: 13 },
-  /** if (list1.val <= list2.val) — take from list1 */
+  /** if (list1.val <= list2.val) - take from list1 */
   take1: { java: 17, kotlin: 14, python: 15 },
-  /** else — take from list2 */
+  /** else - take from list2 */
   take2: { java: 20, kotlin: 17, python: 18 },
   advanceRunner: { java: 23, kotlin: 20, python: 20 },
   attachTail: { java: 25, kotlin: 22, python: 21 },
@@ -96,7 +96,7 @@ function generateSteps({ list1: v1, list2: v2 }: Input): Step[] {
     return [
       {
         id: 1,
-        narrative: 'Both lists empty — dummy.next is null. Return null.',
+        narrative: 'Both lists empty - dummy.next is null. Return null.',
         why: 'Nothing to merge.',
         codeFocus: L.ret,
         callStack: [
@@ -188,7 +188,7 @@ function generateSteps({ list1: v1, list2: v2 }: Input): Step[] {
         : `Compare heads: ${vLeft} > ${vRight} → else branch takes list2’s ${vRight}.`,
       why: takeFrom1
         ? 'The if branch runs when list1’s head is smaller or equal.'
-        : 'When list2’s head is smaller, the else block runs — not the if.',
+        : 'When list2’s head is smaller, the else block runs - not the if.',
       codeFocus: takeFrom1 ? L.take1 : L.take2,
       callStack: [
         {
@@ -307,8 +307,8 @@ function generateSteps({ list1: v1, list2: v2 }: Input): Step[] {
       ? 'list2 is now null. Attach leftover list1 and return dummy.next.'
       : list2
         ? 'list1 is now null. Attach leftover list2 and return dummy.next.'
-        : 'Both exhausted — return dummy.next.',
-    why: 'When one list empties, the other is already sorted — one pointer assign finishes.',
+        : 'Both exhausted - return dummy.next.',
+    why: 'When one list empties, the other is already sorted - one pointer assign finishes.',
     codeFocus: L.attachTail,
     callStack: [
       {
@@ -412,7 +412,7 @@ export const mergeTwoSortedLists: ProblemPack = {
   pattern: 'Linked List',
   difficulty: 'Easy',
   insight:
-    'Dummy head + splice existing nodes — avoid new ListNode(val) for each value.',
+    'Dummy head + splice existing nodes - avoid new ListNode(val) for each value.',
   invariant:
     'Merged portion behind runner is sorted; list1/list2 point at remaining sorted tails.',
   complexity: {
@@ -425,7 +425,7 @@ export const mergeTwoSortedLists: ProblemPack = {
   steps: input.generateSteps(defaultParsed.value),
   input,
   benchmark: placeholderBenchmark(
-    'Pointer splicing dominates — language gaps are small at interview sizes.',
+    'Pointer splicing dominates - language gaps are small at interview sizes.',
   ),
   walkthrough: {
     statement:

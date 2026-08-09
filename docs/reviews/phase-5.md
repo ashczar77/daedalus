@@ -1,11 +1,11 @@
-# Phase 5 Review — Terminal Academy runtime + lesson engine
+# Phase 5 Review - Terminal Academy runtime + lesson engine
 
-**Status:** Complete — awaiting approval before Phase 6 content is treated as locked  
+**Status:** Complete - awaiting approval before Phase 6 content is treated as locked  
 **Date:** 2026-08-09
 
 ## Goal
 
-Ship a sibling **Terminal Academy** mode inside Daedalus: simulated shell, lesson packs, checkers, progress gating, and a short starter curriculum (framework complete for Phases 6–7).
+Ship a sibling **Terminal Academy** mode inside Daedalus: simulated shell, lesson packs, checkers, progress gating, and a short starter curriculum (framework complete for Phases 6-7).
 
 ## What changed
 
@@ -25,13 +25,13 @@ Ship a sibling **Terminal Academy** mode inside Daedalus: simulated shell, lesso
 - Progress in `localStorage` with unlock graph
 
 ### Starter lessons
-Fundamentals 01–05 style openers (pwd, ls, cd, cat, hidden files) plus the rest of the fundamentals/jq tracks land in Phases 6–7 docs.
+Fundamentals 01-05 style openers (pwd, ls, cd, cat, hidden files) plus the rest of the fundamentals/jq tracks land in Phases 6-7 docs.
 
 ## Verify
 
 ```bash
 npm run dev
-# open /terminal — first lesson unlocked
+# open /terminal - first lesson unlocked
 # complete “Where am I?” with pwd → Check → next unlocks
 npm run build
 ```

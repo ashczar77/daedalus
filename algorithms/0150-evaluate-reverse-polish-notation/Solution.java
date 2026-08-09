@@ -1,4 +1,4 @@
-// Evaluate RPN — stack of operands; operators pop right then left (b op a).
+// Evaluate RPN - stack of operands; operators pop right then left (b op a).
 // Time O(n), Space O(n).
 
 import java.util.ArrayDeque;

@@ -1,5 +1,5 @@
 /**
- * LeetCode #704 — Binary Search.
+ * LeetCode #704 - Binary Search.
  * Steps generated from validated sorted nums + target (Phase 4).
  */
 import javaSrc from '../../algorithms/0704-binary-search/Solution.java?raw'
@@ -142,7 +142,7 @@ function generateSteps({ nums: arr, target: t }: Input): Step[] {
   while (left <= right) {
     steps.push({
       id: id++,
-      narrative: `While left (${left}) ≤ right (${right}) — enter loop body.`,
+      narrative: `While left (${left}) ≤ right (${right}) - enter loop body.`,
       why: 'Stop when the inclusive window is empty.',
       codeFocus: L.while,
       callStack: [
@@ -172,7 +172,7 @@ function generateSteps({ nums: arr, target: t }: Input): Step[] {
     if (midVal === t) {
       steps.push({
         id: id++,
-        narrative: `mid = ${mid}. Heap read nums[${mid}] = ${midVal} — equals target.`,
+        narrative: `mid = ${mid}. Heap read nums[${mid}] = ${midVal} - equals target.`,
         why: 'The search window collapsed onto the answer without scanning every index.',
         codeFocus: L.found,
         callStack: [
@@ -202,7 +202,7 @@ function generateSteps({ nums: arr, target: t }: Input): Step[] {
       steps.push({
         id: id++,
         narrative: `Return mid = ${mid} from the active frame.`,
-        why: 'Logarithmic comparisons beat a linear scan — locals did the bookkeeping, the heap held the data.',
+        why: 'Logarithmic comparisons beat a linear scan - locals did the bookkeeping, the heap held the data.',
         codeFocus: L.found,
         callStack: [
           {
@@ -228,7 +228,7 @@ function generateSteps({ nums: arr, target: t }: Input): Step[] {
     const tooSmall = midVal < t
     steps.push({
       id: id++,
-      narrative: `mid = ${mid}. Read nums[${mid}] = ${midVal} — ${
+      narrative: `mid = ${mid}. Read nums[${mid}] = ${midVal} - ${
         tooSmall ? `too small (< ${t}).` : `too large (> ${t}).`
       }`,
       why: tooSmall
@@ -290,8 +290,8 @@ function generateSteps({ nums: arr, target: t }: Input): Step[] {
       right = mid - 1
       steps.push({
         id: id++,
-        narrative: `Update local right = mid − 1 → ${right}. The heap window shrinks to [${left}, ${right}].`,
-        why: 'Critical: mid − 1 (not right--). Each iteration removes half the remaining indices.',
+        narrative: `Update local right = mid - 1 → ${right}. The heap window shrinks to [${left}, ${right}].`,
+        why: 'Critical: mid - 1 (not right--). Each iteration removes half the remaining indices.',
         codeFocus: L.rightDec,
         callStack: [
           {
@@ -398,7 +398,7 @@ export const binarySearch: ProblemPack = {
   pattern: 'Binary Search',
   difficulty: 'Easy',
   insight:
-    'Each step halves the search space. When nums[mid] is too small, set left = mid + 1; when too large, set right = mid − 1.',
+    'Each step halves the search space. When nums[mid] is too small, set left = mid + 1; when too large, set right = mid - 1.',
   invariant:
     'If the target exists, it is always inside [left, right]; each iteration shrinks that inclusive window.',
   complexity: {
@@ -442,7 +442,7 @@ export const binarySearch: ProblemPack = {
         ],
       },
     ],
-    note: 'Logarithmic growth stays nearly flat. Locals are scalars — almost no heap pressure.',
+    note: 'Logarithmic growth stays nearly flat. Locals are scalars - almost no heap pressure.',
   },
   walkthrough: {
     statement:

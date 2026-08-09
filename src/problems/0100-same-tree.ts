@@ -1,5 +1,5 @@
 /**
- * LeetCode #100 — Same Tree (simultaneous DFS).
+ * LeetCode #100 - Same Tree (simultaneous DFS).
  * Phase 4: two level-order fields + lockstep compare generator.
  */
 import javaSrc from '../../algorithms/0100-same-tree/Solution.java?raw'
@@ -198,7 +198,7 @@ function generateSameTreeSteps(input: SameTreeInput): Step[] {
       push({
         narrative:
           stack.length === 1
-            ? `Compare roots p=${pNode.value} and q=${qNode.value}. Values match — recurse both subtrees.`
+            ? `Compare roots p=${pNode.value} and q=${qNode.value}. Values match - recurse both subtrees.`
             : `At nodes ${pNode.value} and ${qNode.value}: values match.`,
         why: 'Check structure (null) before comparing values.',
         codeFocus: L.vals,
@@ -394,7 +394,7 @@ export const sameTree: ProblemPack = {
   ),
   walkthrough: {
     statement:
-      'Given the roots of two binary trees p and q, write a function to check whether they are the same — same structure and same node values.',
+      'Given the roots of two binary trees p and q, write a function to check whether they are the same - same structure and same node values.',
     keyIdea:
       'DFS both trees together: null mismatch → false; value mismatch → false; else left AND right.',
     approach: [

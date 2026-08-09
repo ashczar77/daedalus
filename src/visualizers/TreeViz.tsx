@@ -15,9 +15,16 @@ type Positioned = {
 const NODE_R = 20
 const X_GAP = 78
 const Y_GAP = 86
-const PAD = 40
+/** Outer padding beyond node/overlay extents (stroke + antialias). */
+const PAD = 20
 const NULL_OFFSET_X = 36
 const NULL_OFFSET_Y = 52
+const FORMULA_CHIP_H = 15
+const MARK_CHIP_H = 13
+/** Space between node top and formula chip center. */
+const FORMULA_GAP = NODE_R + 16
+/** Space between node center and mark chip center. */
+const MARK_GAP = NODE_R + 12
 
 /** Tight chip width for Space Mono labels (approx. 0.62em + horizontal pad). */
 function chipWidth(text: string, fontPx: number, min = 28): number {
@@ -30,9 +37,9 @@ function FormulaChip({ x, y, text }: { x: number; y: number; text: string }) {
     <g transform={`translate(${x}, ${y})`}>
       <rect
         x={-w / 2}
-        y={-7.5}
+        y={-FORMULA_CHIP_H / 2}
         width={w}
-        height={15}
+        height={FORMULA_CHIP_H}
         rx={3}
         className="tree-viz__formula-bg"
       />
@@ -41,6 +48,19 @@ function FormulaChip({ x, y, text }: { x: number; y: number; text: string }) {
       </text>
     </g>
   )
+}
+
+/** Expand viewBox so formula / mark / null chips are never clipped. */
+function expandBounds(
+  xs: number[],
+  ys: number[],
+  x: number,
+  y: number,
+  halfW: number,
+  halfH: number,
+) {
+  xs.push(x - halfW, x + halfW)
+  ys.push(y - halfH, y + halfH)
 }
 
 /**
@@ -90,20 +110,46 @@ export function TreeViz({ scene }: Props) {
       }
     : null
 
-  const xs = [
-    ...positioned.map((node) => node.x),
-    ...(nullGhost ? [nullGhost.x] : []),
-    ...(formula?.at ? [formula.at.x + 70] : []),
-  ]
-  const ys = [
-    ...positioned.map((node) => node.y),
-    ...(nullGhost ? [nullGhost.y] : []),
-    ...(formula?.at ? [formula.at.y - 28] : []),
-  ]
+  const xs: number[] = []
+  const ys: number[] = []
+  for (const node of positioned) {
+    // Node circle
+    expandBounds(xs, ys, node.x, node.y, NODE_R, NODE_R)
+    const mark =
+      viz.marks?.[node.id] ??
+      (viz.depths?.[node.id] != null ? `d=${viz.depths[node.id]}` : undefined)
+    if (mark != null) {
+      expandBounds(
+        xs,
+        ys,
+        node.x,
+        node.y + MARK_GAP,
+        chipWidth(mark, 9) / 2,
+        MARK_CHIP_H / 2,
+      )
+    }
+  }
+  if (nullGhost) {
+    expandBounds(xs, ys, nullGhost.x, nullGhost.y, NODE_R * 0.85, NODE_R * 0.85)
+    // Return label under the null ghost (e.g. "→ 0")
+    expandBounds(xs, ys, nullGhost.x, nullGhost.y + NODE_R + 14, 28, 8)
+  }
+  if (formula?.at) {
+    const fw = chipWidth(formula.text, 10, 40)
+    expandBounds(
+      xs,
+      ys,
+      formula.at.x,
+      formula.at.y - FORMULA_GAP,
+      fw / 2,
+      FORMULA_CHIP_H / 2,
+    )
+  }
+
   const minX = Math.min(...xs) - PAD
   const maxX = Math.max(...xs) + PAD
   const minY = Math.min(...ys) - PAD
-  const maxY = Math.max(...ys) + PAD + 12
+  const maxY = Math.max(...ys) + PAD
   const width = Math.max(maxX - minX, PAD * 2)
   const height = Math.max(maxY - minY, PAD * 2)
 
@@ -114,6 +160,8 @@ export function TreeViz({ scene }: Props) {
         <svg
           key={structureKey}
           className="tree-viz__svg"
+          width={width}
+          height={height}
           viewBox={`${minX} ${minY} ${width} ${height}`}
           preserveAspectRatio="xMidYMid meet"
           role="img"
@@ -184,12 +232,12 @@ export function TreeViz({ scene }: Props) {
                   {String(node.value)}
                 </text>
                 {mark != null ? (
-                  <g className="tree-viz__depth" transform={`translate(0, ${NODE_R + 12})`}>
+                  <g className="tree-viz__depth" transform={`translate(0, ${MARK_GAP})`}>
                     <rect
                       x={-markW / 2}
-                      y={-6.5}
+                      y={-MARK_CHIP_H / 2}
                       width={markW}
-                      height={13}
+                      height={MARK_CHIP_H}
                       rx={3}
                       className="tree-viz__depth-bg"
                     />
@@ -203,7 +251,11 @@ export function TreeViz({ scene }: Props) {
           })}
 
           {formula?.at ? (
-            <FormulaChip x={formula.at.x} y={formula.at.y - NODE_R - 16} text={formula.text} />
+            <FormulaChip
+              x={formula.at.x}
+              y={formula.at.y - FORMULA_GAP}
+              text={formula.text}
+            />
           ) : null}
         </svg>
       </div>
