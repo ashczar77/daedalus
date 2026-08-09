@@ -216,7 +216,13 @@ function TerminalCatalog() {
             <button
               type="button"
               className="catalog__text-btn"
-              onClick={() => setProgress(resetAllProgress(lessons))}
+              onClick={() => {
+                const ok = window.confirm(
+                  'Reset all Terminal Academy progress? Completed lessons will be locked again.',
+                )
+                if (!ok) return
+                setProgress(resetAllProgress(lessons))
+              }}
             >
               Reset progress
             </button>
