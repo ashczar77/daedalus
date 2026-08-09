@@ -18,6 +18,7 @@ import { validAnagram } from './0242-valid-anagram'
 import { diameterOfBinaryTree } from './0543-diameter-of-binary-tree'
 import { subtreeOfAnotherTree } from './0572-subtree-of-another-tree'
 import { binarySearch } from './0704-binary-search'
+import { dailyTemperatures } from './0739-daily-temperatures'
 import { bubbleSort } from './sort-bubble-sort'
 import { heapSort } from './sort-heap-sort'
 import { insertionSort } from './sort-insertion-sort'
@@ -39,6 +40,7 @@ export const problems: ProblemPack[] = [
   bestTimeToBuyAndSellStock,
   validParentheses,
   evaluateReversePolishNotation,
+  dailyTemperatures,
   reverseLinkedList,
   mergeTwoSortedLists,
   linkedListCycle,
