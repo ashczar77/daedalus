@@ -5,6 +5,7 @@ import { sameTree } from './0100-same-tree'
 import { binaryTreeLevelOrderTraversal } from './0102-binary-tree-level-order-traversal'
 import { maximumDepthOfBinaryTree } from './0104-maximum-depth-of-binary-tree'
 import { balancedBinaryTree } from './0110-balanced-binary-tree'
+import { removeNthNodeFromEndOfList } from './0019-remove-nth-node-from-end-of-list'
 import { validParentheses } from './0020-valid-parentheses'
 import { mergeTwoSortedLists } from './0021-merge-two-sorted-lists'
 import { twoSum } from './0001-two-sum'
@@ -45,6 +46,7 @@ export const problems: ProblemPack[] = [
   evaluateReversePolishNotation,
   dailyTemperatures,
   reverseLinkedList,
+  removeNthNodeFromEndOfList,
   mergeTwoSortedLists,
   linkedListCycle,
   invertBinaryTree,

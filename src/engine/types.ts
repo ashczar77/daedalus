@@ -98,6 +98,12 @@ export type LinkedListScene = {
   cycleTo?: [string, string]
   label?: string
   focusIds?: string[]
+  /** Nodes marked for deletion / danger (solid red highlight). */
+  dangerIds?: string[]
+  /** Nodes unlinked from the list but still shown as a ghost (e.g. deleted nth). */
+  discardIds?: string[]
+  /** Emphasize a specific next-edge (fromId → toId), e.g. after a rewire. */
+  linkFocus?: [string, string]
   /** Short teaching caption under the list (e.g. flip / meet) */
   caption?: string
 }
@@ -213,6 +219,9 @@ export type HeapObject =
       pointers?: Record<string, string | null>
       cycleTo?: [string, string]
       focusIds?: string[]
+      dangerIds?: string[]
+      discardIds?: string[]
+      linkFocus?: [string, string]
       caption?: string
     })
   | (HeapObjectBase & {

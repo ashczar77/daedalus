@@ -43,6 +43,11 @@
   stroke-width: 2;
 }
 
+.ll-viz__edge.is-focus {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
 .ll-viz__cycle-edge {
   stroke: var(--warn);
 }
@@ -61,18 +66,41 @@
   fill: var(--muted);
 }
 
+.ll-viz__marker.is-focus {
+  fill: var(--accent);
+}
+
 .ll-viz__node {
   fill: var(--surface-2);
   stroke: var(--line);
   stroke-width: 2;
   transition:
     fill 180ms ease,
-    stroke 180ms ease;
+    stroke 180ms ease,
+    opacity 180ms ease;
 }
 
 .ll-viz__node.is-focus {
   fill: color-mix(in srgb, var(--accent) 14%, var(--lift));
   stroke: var(--accent);
+}
+
+.ll-viz__node.is-danger {
+  fill: color-mix(in srgb, var(--danger) 22%, var(--lift));
+  stroke: var(--danger);
+  stroke-width: 2.5;
+}
+
+.ll-viz__node.is-discard {
+  fill: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  stroke: var(--danger);
+  stroke-dasharray: 4 3;
+  opacity: 0.55;
+}
+
+.ll-viz__discard-slash {
+  stroke: var(--danger);
+  stroke-width: 2.5;
 }
 
 .ll-viz__value {

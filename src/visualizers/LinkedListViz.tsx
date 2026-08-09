@@ -16,10 +16,16 @@ const POINTER_H = 22
 /**
  * Linked-list visualizer with stable node slots and SVG next-pointers.
  * Nodes keep declaration order so reverse/cycle steps animate edges, not chaos.
+ * Discarded nodes stay in place as ghosts after an unlink.
  */
 export function LinkedListViz({ scene }: Props) {
   const markerId = useId().replace(/:/g, '')
   const focus = new Set(scene.focusIds ?? [])
+  const danger = new Set(scene.dangerIds ?? [])
+  const discarded = new Set(scene.discardIds ?? [])
+  const linkFocusKey = scene.linkFocus
+    ? `${scene.linkFocus[0]}->${scene.linkFocus[1]}`
+    : null
   const nodes = scene.nodes
   const indexById = new Map(nodes.map((node, index) => [node.id, index]))
 
@@ -40,21 +46,31 @@ export function LinkedListViz({ scene }: Props) {
     y: PAD_Y + POINTER_H + NODE_H / 2,
   })
 
-  const edges: Array<{ key: string; x1: number; y1: number; x2: number; y2: number }> = []
+  const edges: Array<{
+    key: string
+    x1: number
+    y1: number
+    x2: number
+    y2: number
+    focused: boolean
+  }> = []
   for (const node of nodes) {
     if (!node.next) continue
+    if (discarded.has(node.id) || discarded.has(node.next)) continue
     const from = indexById.get(node.id)
     const to = indexById.get(node.next)
     if (from == null || to == null) continue
     const a = centerOf(from)
     const b = centerOf(to)
     const dir = Math.sign(b.x - a.x) || 1
+    const key = `${node.id}->${node.next}`
     edges.push({
-      key: `${node.id}->${node.next}`,
+      key,
       x1: a.x + dir * (NODE_W / 2 - 2),
       y1: a.y,
       x2: b.x - dir * (NODE_W / 2 - 2),
       y2: b.y,
+      focused: linkFocusKey === key,
     })
   }
 
@@ -95,6 +111,17 @@ export function LinkedListViz({ scene }: Props) {
             >
               <path d="M 0 0 L 10 5 L 0 10 z" className="ll-viz__marker" />
             </marker>
+            <marker
+              id={`ll-arrow-focus-${markerId}`}
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" className="ll-viz__marker is-focus" />
+            </marker>
           </defs>
 
           {edges.map((edge) => (
@@ -104,8 +131,12 @@ export function LinkedListViz({ scene }: Props) {
               y1={edge.y1}
               x2={edge.x2}
               y2={edge.y2}
-              className="ll-viz__edge"
-              markerEnd={`url(#ll-arrow-${markerId})`}
+              className={`ll-viz__edge${edge.focused ? ' is-focus' : ''}`}
+              markerEnd={
+                edge.focused
+                  ? `url(#ll-arrow-focus-${markerId})`
+                  : `url(#ll-arrow-${markerId})`
+              }
             />
           ))}
 
@@ -119,12 +150,17 @@ export function LinkedListViz({ scene }: Props) {
 
           {nodes.map((node, index) => {
             const { x, y } = centerOf(index)
+            const isDiscard = discarded.has(node.id)
             const pointersHere = Object.entries(scene.pointers ?? {})
               .filter(([, target]) => target === node.id)
               .map(([name]) => name)
 
             return (
-              <g key={node.id} transform={`translate(${x}, ${y})`}>
+              <g
+                key={node.id}
+                className={isDiscard ? 'll-viz__node-group is-discard' : undefined}
+                transform={`translate(${x}, ${y})`}
+              >
                 {pointersHere.map((name, ptrIndex) => (
                   <text
                     key={name}
@@ -141,15 +177,26 @@ export function LinkedListViz({ scene }: Props) {
                   width={NODE_W}
                   height={NODE_H}
                   rx={8}
-                  className={`ll-viz__node${focus.has(node.id) ? ' is-focus' : ''}`}
+                  className={`ll-viz__node${danger.has(node.id) ? ' is-danger' : ''}${
+                    focus.has(node.id) && !danger.has(node.id) ? ' is-focus' : ''
+                  }${isDiscard ? ' is-discard' : ''}`}
                 />
+                {isDiscard ? (
+                  <line
+                    x1={-NODE_W / 2 + 8}
+                    y1={-NODE_H / 2 + 8}
+                    x2={NODE_W / 2 - 8}
+                    y2={NODE_H / 2 - 8}
+                    className="ll-viz__discard-slash"
+                  />
+                ) : null}
                 <text className="ll-viz__value" textAnchor="middle" dy="0.1em">
                   {String(node.value)}
                 </text>
                 <text className="ll-viz__id" textAnchor="middle" y={NODE_H / 2 - 8}>
-                  {node.id}
+                  {isDiscard ? 'removed' : node.id}
                 </text>
-                {node.next == null && !scene.cycleTo?.includes(node.id) ? (
+                {!isDiscard && node.next == null && !scene.cycleTo?.includes(node.id) ? (
                   <text className="ll-viz__null" x={NODE_W / 2 + 14} dy="0.35em">
                     ∅
                   </text>

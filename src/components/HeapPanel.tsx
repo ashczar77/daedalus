@@ -104,6 +104,9 @@ function HeapObjectView({ object }: { object: HeapObject }) {
           pointers: object.pointers,
           cycleTo: object.cycleTo,
           focusIds: object.focusIds,
+          dangerIds: object.dangerIds,
+          discardIds: object.discardIds,
+          linkFocus: object.linkFocus,
           caption: object.caption,
         }}
       />
