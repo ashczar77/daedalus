@@ -137,7 +137,8 @@ function buildAliases(objects: HeapObject[]): Map<string, string> {
     if (
       object.kind === 'array' ||
       object.kind === 'hashmap' ||
-      object.kind === 'stack'
+      object.kind === 'stack' ||
+      object.kind === 'queue'
     ) {
       aliases.set(object.id, object.id)
     }

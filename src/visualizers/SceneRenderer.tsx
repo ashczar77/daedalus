@@ -2,6 +2,7 @@ import type { Scene } from '../engine/types'
 import { ArrayViz } from './ArrayViz'
 import { HashMapViz } from './HashMapViz'
 import { LinkedListViz } from './LinkedListViz'
+import { QueueViz } from './QueueViz'
 import { StackViz } from './StackViz'
 import { TreeViz } from './TreeViz'
 import './SceneRenderer.css'
@@ -30,6 +31,7 @@ export function SceneRenderer({ scene }: Props) {
   if (scene.type === 'array') return <ArrayViz scene={scene} />
   if (scene.type === 'hashmap') return <HashMapViz scene={scene} />
   if (scene.type === 'stack') return <StackViz scene={scene} />
+  if (scene.type === 'queue') return <QueueViz scene={scene} />
   if (scene.type === 'linkedList') return <LinkedListViz scene={scene} />
   return <TreeViz scene={scene} />
 }

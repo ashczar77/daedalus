@@ -1,0 +1,107 @@
+.queue-viz {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  align-items: stretch;
+  min-width: 0;
+  width: 100%;
+}
+
+.queue-viz__label {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.queue-viz__rail {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.queue-viz__end {
+  flex: 0 0 auto;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.queue-viz__frame {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, var(--surface) 90%, var(--lift));
+}
+
+.queue-viz__empty {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.queue-viz__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.4rem;
+  padding: 0.45rem 0.7rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  background: var(--surface-2);
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.queue-viz__item.is-offer,
+.queue-viz__item.is-peek {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, var(--lift));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+.queue-viz__item.is-poll {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 14%, var(--lift));
+}
+
+.queue-viz__value {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.queue-viz__tag {
+  position: absolute;
+  top: 0.15rem;
+  left: 0.25rem;
+  font-size: 0.55rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.queue-viz__tag.is-back {
+  left: auto;
+  right: 0.25rem;
+}
+
+.queue-viz__action {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}

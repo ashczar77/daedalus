@@ -3,6 +3,7 @@ import type { HeapObject } from '../engine/types'
 import { ArrayViz } from '../visualizers/ArrayViz'
 import { HashMapViz } from '../visualizers/HashMapViz'
 import { LinkedListViz } from '../visualizers/LinkedListViz'
+import { QueueViz } from '../visualizers/QueueViz'
 import { StackViz } from '../visualizers/StackViz'
 import { TreeViz } from '../visualizers/TreeViz'
 import './StructureStage.css'
@@ -138,6 +139,19 @@ function StructureView({ object }: { object: HeapObject }) {
           type: 'stack',
           items: object.items,
           topAction: object.topAction,
+          label: object.label,
+        }}
+      />
+    )
+  }
+
+  if (object.kind === 'queue') {
+    return (
+      <QueueViz
+        scene={{
+          type: 'queue',
+          items: object.items,
+          frontAction: object.frontAction,
           label: object.label,
         }}
       />

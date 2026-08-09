@@ -76,6 +76,17 @@ export type StackScene = {
 }
 
 /**
+ * Snapshot of a queue (front → back).
+ * `frontAction` highlights the most recent offer/poll/peek for BFS cues.
+ */
+export type QueueScene = {
+  type: 'queue'
+  items: unknown[]
+  frontAction?: 'offer' | 'poll' | 'peek'
+  label?: string
+}
+
+/**
  * Snapshot of a linked list on the heap.
  * `pointers` map names (prev/cur/fast) → node id; `cycleTo` draws a back-edge.
  */
@@ -137,6 +148,7 @@ export type Scene =
   | ArrayScene
   | HashMapScene
   | StackScene
+  | QueueScene
   | LinkedListScene
   | TreeScene
   | { type: 'group'; children: Scene[] }
@@ -189,6 +201,11 @@ export type HeapObject =
       kind: 'stack'
       items: unknown[]
       topAction?: 'push' | 'pop' | 'peek' | 'mismatch'
+    })
+  | (HeapObjectBase & {
+      kind: 'queue'
+      items: unknown[]
+      frontAction?: 'offer' | 'poll' | 'peek'
     })
   | (HeapObjectBase & {
       kind: 'linkedList'

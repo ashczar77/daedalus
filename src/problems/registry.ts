@@ -2,6 +2,7 @@ import type { ProblemPack } from '../engine/types'
 import { longestSubstringWithoutRepeating } from './0003-longest-substring-without-repeating-characters'
 import { containerWithMostWater } from './0011-container-with-most-water'
 import { sameTree } from './0100-same-tree'
+import { binaryTreeLevelOrderTraversal } from './0102-binary-tree-level-order-traversal'
 import { maximumDepthOfBinaryTree } from './0104-maximum-depth-of-binary-tree'
 import { balancedBinaryTree } from './0110-balanced-binary-tree'
 import { validParentheses } from './0020-valid-parentheses'
@@ -50,6 +51,7 @@ export const problems: ProblemPack[] = [
   maximumDepthOfBinaryTree,
   balancedBinaryTree,
   sameTree,
+  binaryTreeLevelOrderTraversal,
   diameterOfBinaryTree,
   subtreeOfAnotherTree,
   binarySearch,

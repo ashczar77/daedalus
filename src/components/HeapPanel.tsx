@@ -2,6 +2,7 @@ import type { HeapObject } from '../engine/types'
 import { ArrayViz } from '../visualizers/ArrayViz'
 import { HashMapViz } from '../visualizers/HashMapViz'
 import { LinkedListViz } from '../visualizers/LinkedListViz'
+import { QueueViz } from '../visualizers/QueueViz'
 import { StackViz } from '../visualizers/StackViz'
 import { TreeViz } from '../visualizers/TreeViz'
 import './HeapPanel.css'
@@ -77,6 +78,18 @@ function HeapObjectView({ object }: { object: HeapObject }) {
           type: 'stack',
           items: object.items,
           topAction: object.topAction,
+        }}
+      />
+    )
+  }
+
+  if (object.kind === 'queue') {
+    return (
+      <QueueViz
+        scene={{
+          type: 'queue',
+          items: object.items,
+          frontAction: object.frontAction,
         }}
       />
     )
