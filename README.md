@@ -2,7 +2,7 @@
 
 In the old stories, Daedalus was the craftsman who built the Labyrinth: clever enough to design a maze you could get lost in, and careful enough to leave himself a way through it. That is roughly the spirit of this project. Interview algorithms can feel like a maze of pointers, stacks, and recursive returns. Daedalus is here so you can walk the path with the lights on.
 
-**Daedalus is a growing learning platform** — a browser lab for stepping through coding-interview algorithms, plus a Terminal Academy for shell basics. Curated execution traces, animated structures, and the same idea in Java, Kotlin, and Python side by side. The catalog and curriculum expand as people solve new problems and teach them well.
+**Daedalus is a growing learning platform:** a browser lab for stepping through coding-interview algorithms, plus a Terminal Academy for shell basics. Curated execution traces, animated structures, and the same idea in Java, Kotlin, and Python side by side. The catalog and curriculum expand as people solve new problems and teach them well.
 
 **Repo:** https://github.com/ashczar77/daedalus
 
@@ -22,7 +22,7 @@ In the old stories, Daedalus was the craftsman who built the Labyrinth: clever e
 
 ## Contributing
 
-Engineers are welcome — especially if you care about clear teaching, not just “another LeetCode dump.” Good PRs make a pattern easier to *see*.
+Engineers are welcome, especially if you care about clear teaching, not just "another LeetCode dump." Good PRs make a pattern easier to *see*.
 
 **High-impact ways to help**
 
@@ -36,22 +36,22 @@ Engineers are welcome — especially if you care about clear teaching, not just 
 
 **Adding a problem pack (short path)**
 
-1. Solutions under `algorithms/<id>-<slug>/` (`Solution.java`, `Solution.kt`, `solution.py`).
+1. Solutions under a folder like `algorithms/0215-kth-largest-element-in-an-array/` (`Solution.java`, `Solution.kt`, `solution.py`). Use the LeetCode number plus a short kebab-case name.
 2. Pack module in `src/problems/` with `generateSteps`, metadata, and a `defineInput` spec.
 3. Register it in `src/problems/registry.ts`.
 4. Reuse an existing visualizer when you can; add a scene kind only when the structure is new.
-5. Run `npm test` and `npm run build` — trace validation and the suite gate merges.
+5. Run `npm test` and `npm run build`. Trace validation and the suite gate merges.
 
 Authoring checklist (inputs, fixtures, limits): [`docs/reviews/phase-4.md`](docs/reviews/phase-4.md). Mirror a recent pack (heap, queue, linked list) if you want a template.
 
 **PR tips**
 
 - Prefer one pack or one focused improvement per PR.
-- Teach the invariant in the narrative — “what just happened” and “why it is safe.”
+- Teach the invariant in the narrative: "what just happened" and "why it is safe."
 - Keep demos small enough to step through without drowning the learner.
-- Match existing tone and visual language; we optimize for clarity over chrome.
+- Follow the look and writing style of nearby packs. Prefer clear teaching over fancy UI.
 
-Open an issue if you want to align on a pattern or a new structure before coding. Questions and draft PRs are fine — this platform grows by people teaching what they just learned.
+Open an issue if you want to align on a pattern or a new structure before coding. Questions and draft PRs are fine. This platform grows by people teaching what they just learned.
 
 ## Develop
 

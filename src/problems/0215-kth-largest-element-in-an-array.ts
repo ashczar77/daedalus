@@ -187,7 +187,7 @@ function generateSteps({ nums, k }: Input): Step[] {
 
   const answer = heap[0]!
   push(
-    `Return minHeap.peek() = ${answer} — the kth largest element.`,
+    `Return minHeap.peek() = ${answer}, the kth largest element.`,
     'After one pass, the heap’s minimum is exactly the kth largest in nums.',
     L.ret,
     null,
@@ -267,7 +267,7 @@ export const kthLargestElementInAnArray: ProblemPack = {
   pattern: 'Heap',
   difficulty: 'Medium',
   insight:
-    'A size-k min-heap tracks the k largest; its root is the kth largest — cheaper than sorting all n.',
+    'A size-k min-heap tracks the k largest; its root is the kth largest, cheaper than sorting all n.',
   invariant:
     'After each insert (and optional poll), the heap holds the k largest values seen so far.',
   complexity: { time: 'O(n log k)', space: 'O(k)' },
@@ -287,7 +287,7 @@ export const kthLargestElementInAnArray: ProblemPack = {
     approach: [
       'Create an empty min-heap (PriorityQueue).',
       'For each num: add it; if size > k, poll the minimum.',
-      'Return peek() — the smallest of the k largest.',
+      'Return peek(): the smallest of the k largest.',
     ],
   },
 }
