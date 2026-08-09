@@ -32,13 +32,13 @@
 
 .array-bars__ptr-badge {
   display: inline-block;
-  padding: 0.08rem 0.3rem;
-  border-radius: 0.28rem;
+  padding: 0.04rem 0.26rem;
+  border-radius: 0.2rem;
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   font-weight: 700;
   line-height: 1.15;
-  color: white;
+  color: var(--bg);
   white-space: nowrap;
 }
 
@@ -115,14 +115,15 @@
 }
 
 .array-bars__water-label {
-  margin-top: 0.2rem;
-  padding: 0.1rem 0.35rem;
-  border-radius: 0.25rem;
+  margin-top: 0.15rem;
+  padding: 0.05rem 0.28rem;
+  border-radius: 0.2rem;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   font-weight: 700;
-  color: var(--ink);
-  background: color-mix(in srgb, white 78%, transparent);
+  color: var(--accent);
+  background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
   white-space: nowrap;
 }
 

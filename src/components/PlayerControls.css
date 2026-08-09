@@ -3,8 +3,8 @@
   gap: 0.45rem;
   padding: 0.65rem 0.85rem;
   border: 1px solid var(--line);
-  border-radius: 0.75rem;
-  background: color-mix(in srgb, var(--surface) 94%, white);
+  border-radius: 0.25rem;
+  background: var(--surface);
   min-width: 0;
   width: 100%;
   overflow: hidden;
@@ -26,13 +26,18 @@
 
 .player button {
   border: 1px solid var(--line);
-  background: white;
+  background: var(--surface-2);
   color: var(--ink);
-  border-radius: 0.45rem;
+  border-radius: 0.2rem;
   padding: 0.4rem 0.7rem;
   font: inherit;
   font-size: 0.82rem;
   cursor: pointer;
+}
+
+.player button:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  color: var(--accent);
 }
 
 .player button:disabled {
@@ -41,9 +46,14 @@
 }
 
 .player__primary {
-  background: var(--ink) !important;
-  color: white !important;
-  border-color: var(--ink) !important;
+  background: var(--accent) !important;
+  color: var(--bg) !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 14px var(--glow);
+}
+
+.player__primary:hover:not(:disabled) {
+  color: var(--bg) !important;
 }
 
 .player__scrub {

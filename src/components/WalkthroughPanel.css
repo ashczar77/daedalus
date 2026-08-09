@@ -14,9 +14,9 @@
 
 .walkthrough__card {
   border: 1px solid var(--line);
-  border-radius: 0.75rem;
+  border-radius: 0.25rem;
   padding: 0.9rem 1rem;
-  background: color-mix(in srgb, var(--surface) 94%, white);
+  background: color-mix(in srgb, var(--surface) 94%, var(--lift));
   min-width: 0;
   font-size: 14px;
 }

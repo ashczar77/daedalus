@@ -62,7 +62,7 @@
 }
 
 .ll-viz__node {
-  fill: white;
+  fill: var(--surface-2);
   stroke: var(--line);
   stroke-width: 2;
   transition:
@@ -71,7 +71,7 @@
 }
 
 .ll-viz__node.is-focus {
-  fill: color-mix(in srgb, var(--accent) 14%, white);
+  fill: color-mix(in srgb, var(--accent) 14%, var(--lift));
   stroke: var(--accent);
 }
 

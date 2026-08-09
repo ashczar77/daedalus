@@ -1,8 +1,8 @@
 .code-runtime {
   border: 1px solid var(--line);
-  border-radius: 0.75rem;
+  border-radius: 0.25rem;
   padding: 0.65rem 0.75rem 0.75rem;
-  background: color-mix(in srgb, var(--surface) 92%, white);
+  background: color-mix(in srgb, var(--surface) 92%, var(--lift));
   display: grid;
   gap: 0.5rem;
   min-width: 0;

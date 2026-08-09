@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AlgoMetrics } from '../components/AlgoMetrics'
+import { ModeSwitch } from '../components/ModeSwitch'
 import { CallStackPanel } from '../components/CallStackPanel'
 import { CodePanel } from '../components/CodePanel'
 import { CodeRuntime } from '../components/CodeRuntime'
@@ -34,7 +35,18 @@ export function ProblemPage() {
     setRunEpoch((value) => value + 1)
   }, [problem?.id])
 
-  const steps = activeSteps ?? problem?.steps ?? []
+  // Prefer live generation over pack-baked steps so heap snapshots stay fresh
+  // after generator fixes (HMR can leave a stale `problem.steps` array around).
+  const steps = useMemo(() => {
+    if (activeSteps) return activeSteps
+    if (!problem) return []
+    if (problem.input) {
+      const parsed = problem.input.parse(problem.input.defaultRaw)
+      if (parsed.ok) return problem.input.generateSteps(parsed.value)
+    }
+    return problem.steps
+  }, [activeSteps, problem])
+
   const inputLabel = activeLabel ?? problem?.inputLabel ?? ''
   const playback = usePlayback({ steps })
 
@@ -67,9 +79,12 @@ export function ProblemPage() {
   return (
     <div className="problem">
       <header className="problem__header">
-        <Link to="/" className="problem__back">
-          ← Daedalus
-        </Link>
+        <div className="problem__top">
+          <Link to="/" className="problem__back">
+            ← DAEDALUS // CATALOG
+          </Link>
+          <ModeSwitch mode="algorithms" />
+        </div>
         <div className="problem__meta">
           <span>{problem.lcNumber > 0 ? `#${problem.lcNumber}` : 'Lab'}</span>
           <span>{problem.pattern}</span>

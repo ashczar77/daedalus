@@ -1,8 +1,8 @@
 .call-stack {
   border: 1px solid var(--line);
-  border-radius: 0.75rem;
+  border-radius: 0.25rem;
   padding: 0.75rem 0.85rem;
-  background: color-mix(in srgb, var(--surface) 92%, white);
+  background: color-mix(in srgb, var(--surface) 92%, var(--lift));
   display: grid;
   gap: 0.55rem;
   min-width: 0;
@@ -39,7 +39,7 @@
   border: 1px solid var(--line);
   border-radius: 0.65rem;
   padding: 0.65rem 0.75rem;
-  background: white;
+  background: var(--surface-2);
   min-width: 0;
   overflow: hidden;
   transition:
@@ -50,7 +50,7 @@
 
 .call-stack__frame.is-active {
   border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 8%, white);
+  background: color-mix(in srgb, var(--accent) 8%, var(--lift));
   box-shadow: inset 3px 0 0 var(--accent);
 }
 

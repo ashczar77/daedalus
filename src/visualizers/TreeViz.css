@@ -42,13 +42,28 @@
   stroke-width: 2;
 }
 
+.tree-viz__edge-side {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.tree-viz__edge-side.is-left {
+  fill: var(--accent);
+}
+
+.tree-viz__edge-side.is-right {
+  fill: var(--accent-2);
+}
+
 .tree-viz__edge--null {
   stroke-dasharray: 4 3;
   stroke: var(--muted);
 }
 
 .tree-viz__node {
-  fill: white;
+  fill: var(--surface-2);
   stroke: var(--line);
   stroke-width: 2;
   transition:
@@ -57,7 +72,7 @@
 }
 
 .tree-viz__node.is-focus {
-  fill: color-mix(in srgb, var(--accent) 22%, white);
+  fill: color-mix(in srgb, var(--accent) 22%, var(--lift));
   stroke: var(--accent);
 }
 
@@ -74,7 +89,7 @@
 }
 
 .tree-viz__null {
-  fill: color-mix(in srgb, var(--surface) 70%, white);
+  fill: color-mix(in srgb, var(--surface) 70%, var(--lift));
   stroke: var(--muted);
   stroke-width: 1.5;
   stroke-dasharray: 3 2;
@@ -94,28 +109,29 @@
 }
 
 .tree-viz__depth-bg {
-  fill: color-mix(in srgb, var(--good) 16%, white);
-  stroke: color-mix(in srgb, var(--good) 45%, var(--line));
+  fill: var(--surface);
+  stroke: color-mix(in srgb, var(--good) 55%, var(--line));
   stroke-width: 1;
 }
 
 .tree-viz__depth-text {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   fill: var(--good);
 }
 
 .tree-viz__formula-bg {
-  fill: color-mix(in srgb, var(--ink) 92%, #0f766e);
-  stroke: none;
+  fill: var(--surface);
+  stroke: color-mix(in srgb, var(--accent) 55%, var(--line));
+  stroke-width: 1;
 }
 
 .tree-viz__formula {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  fill: #ecfdf5;
+  fill: var(--accent);
 }
 
 @media (max-width: 640px) {

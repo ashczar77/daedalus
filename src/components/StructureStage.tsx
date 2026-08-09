@@ -65,7 +65,7 @@ export function StructureStage({ objects }: Props) {
           <div className="structure-stage__canvas">
             {objects.map((object) => (
               <div
-                key={object.id}
+                key={structureObjectKey(object)}
                 className={`structure-stage__item${object.focused ? ' is-focused' : ''}`}
               >
                 <StructureView object={object} />
@@ -80,6 +80,23 @@ export function StructureStage({ objects }: Props) {
 
 function roundScale(value: number): number {
   return Math.round(value * 100) / 100
+}
+
+/** Include pointer topology so tree/list swaps remount instead of silently reusing DOM. */
+function structureObjectKey(object: HeapObject): string {
+  if (object.kind === 'tree') {
+    const links = object.nodes
+      .map((node) => `${node.id}:${node.left ?? ''}:${node.right ?? ''}`)
+      .join('|')
+    return `${object.id}:${links}`
+  }
+  if (object.kind === 'linkedList') {
+    const links = object.nodes
+      .map((node) => `${node.id}>${node.next ?? ''}`)
+      .join('|')
+    return `${object.id}:${links}`
+  }
+  return object.id
 }
 
 function StructureView({ object }: { object: HeapObject }) {

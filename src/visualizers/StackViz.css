@@ -23,8 +23,8 @@
   max-width: 14rem;
   padding: 0.7rem;
   border: 1px solid var(--line);
-  border-radius: 0.75rem;
-  background: color-mix(in srgb, var(--surface) 90%, white);
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, var(--surface) 90%, var(--lift));
   min-width: 0;
 }
 
@@ -43,10 +43,10 @@
   justify-content: center;
   width: 100%;
   min-width: 0;
-  padding: 0.6rem 1.6rem 0.6rem 0.75rem;
+  padding: 0.4rem 1.4rem 0.4rem 0.55rem;
   border: 1px solid var(--line);
-  border-radius: 0.5rem;
-  background: white;
+  border-radius: 0.25rem;
+  background: var(--surface-2);
   transition:
     border-color 180ms ease,
     background 180ms ease,
@@ -56,23 +56,23 @@
 .stack-viz__item.is-push,
 .stack-viz__item.is-peek {
   border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 14%, white);
+  background: color-mix(in srgb, var(--accent) 14%, var(--lift));
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 16%, transparent);
 }
 
 .stack-viz__item.is-pop {
   border-color: var(--warn);
-  background: color-mix(in srgb, var(--warn) 14%, white);
+  background: color-mix(in srgb, var(--warn) 14%, var(--lift));
 }
 
 .stack-viz__item.is-mismatch {
-  border-color: #b91c1c;
-  background: color-mix(in srgb, #b91c1c 12%, white);
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, var(--lift));
 }
 
 .stack-viz__value {
   font-family: var(--font-body);
-  font-size: 1.05rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: var(--ink);
   overflow-wrap: anywhere;

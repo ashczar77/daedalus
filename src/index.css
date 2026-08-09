@@ -1,31 +1,48 @@
-@import url('https://fonts.googleapis.com/css2?family=Bungee+Outline&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-  /* Brand + headings: https://fonts.google.com/specimen/Bungee+Outline */
-  --font-display: 'Bungee Outline', sans-serif;
+  /* Terminal chrome + brand: https://fonts.google.com/specimen/Share+Tech+Mono */
+  --font-display: 'Share Tech Mono', monospace;
   /* Body, UI, and code: https://fonts.google.com/specimen/Space+Mono */
   --font-body: 'Space Mono', monospace;
   --font-mono: 'Space Mono', monospace;
 
-  --bg: #eef3f6;
-  --surface: #e7eef3;
-  --ink: #14212b;
-  --ink-soft: #314554;
-  --muted: #6a7c8a;
-  --line: #c9d6e0;
-  --accent: #0f766e;
-  --accent-2: #0369a1;
-  --good: #15803d;
-  --warn: #b45309;
+  /* Black terminal board — Encom-adjacent, not a clone */
+  --bg: #030507;
+  --surface: #0a1016;
+  --surface-2: #101820;
+  --lift: #152028;
+  --ink: #d4ebe6;
+  --ink-soft: #9bb8b2;
+  --muted: #6a8580;
+  --line: #1c322e;
+  --accent: #3dfff0;
+  --accent-2: #5eb8ff;
+  --good: #5dff9a;
+  --warn: #ffc857;
+  --danger: #ff6b6b;
+  --code-bg: #050a0e;
+  --glow: color-mix(in srgb, var(--accent) 28%, transparent);
 
   font-family: var(--font-body);
   line-height: 1.5;
   font-weight: 400;
   color: var(--ink);
-  background:
-    radial-gradient(circle at 15% -10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 34%),
-    radial-gradient(circle at 90% 0%, color-mix(in srgb, #0369a1 12%, transparent), transparent 28%),
-    linear-gradient(180deg, #f5f8fa 0%, var(--bg) 40%, #e8eef2 100%);
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--accent) 4%, transparent) 0,
+      transparent 1px
+    ),
+    radial-gradient(ellipse at 50% -20%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 55%),
+    radial-gradient(ellipse at 100% 0%, color-mix(in srgb, var(--accent-2) 8%, transparent), transparent 40%),
+    linear-gradient(180deg, #05080c 0%, var(--bg) 45%, #020406 100%);
+  background-size:
+    100% 3px,
+    auto,
+    auto,
+    auto;
   background-attachment: fixed;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -39,6 +56,7 @@
 
 html {
   overflow-x: hidden;
+  color-scheme: dark;
 }
 
 html,
@@ -53,11 +71,36 @@ body {
   overflow-x: hidden;
 }
 
+/* Soft phosphor selection */
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+  color: var(--ink);
+}
+
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
+  color: inherit;
 }
 
 a {
   color: inherit;
+}
+
+/* Terminal caret blink for explicit .is-blink nodes */
+@keyframes terminal-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.is-blink {
+  animation: terminal-blink 1.1s step-end infinite;
 }

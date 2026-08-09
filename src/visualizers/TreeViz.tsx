@@ -19,6 +19,30 @@ const PAD = 40
 const NULL_OFFSET_X = 36
 const NULL_OFFSET_Y = 52
 
+/** Tight chip width for Space Mono labels (approx. 0.62em + horizontal pad). */
+function chipWidth(text: string, fontPx: number, min = 28): number {
+  return Math.max(min, Math.ceil(text.length * fontPx * 0.62) + 10)
+}
+
+function FormulaChip({ x, y, text }: { x: number; y: number; text: string }) {
+  const w = chipWidth(text, 10, 40)
+  return (
+    <g transform={`translate(${x}, ${y})`}>
+      <rect
+        x={-w / 2}
+        y={-7.5}
+        width={w}
+        height={15}
+        rx={3}
+        className="tree-viz__formula-bg"
+      />
+      <text className="tree-viz__formula" textAnchor="middle" dy="0.35em">
+        {text}
+      </text>
+    </g>
+  )
+}
+
 /**
  * Binary-tree visualizer with inorder layout.
  * Optional viz overlays show returned depths, null→0, and 1+max formulas.
@@ -39,16 +63,24 @@ export function TreeViz({ scene }: Props) {
   }
 
   const posById = new Map(positioned.map((node) => [node.id, node]))
-  const edges: Array<{ from: Positioned; to: Positioned }> = []
+  const edges: Array<{ from: Positioned; to: Positioned; side: 'L' | 'R' }> = []
   for (const node of scene.nodes) {
     const from = posById.get(node.id)
     if (!from) continue
-    for (const childId of [node.left, node.right]) {
-      if (!childId) continue
-      const to = posById.get(childId)
-      if (to) edges.push({ from, to })
+    if (node.left) {
+      const to = posById.get(node.left)
+      if (to) edges.push({ from, to, side: 'L' })
+    }
+    if (node.right) {
+      const to = posById.get(node.right)
+      if (to) edges.push({ from, to, side: 'R' })
     }
   }
+
+  // Force a remount when pointers change so swaps can't look like a no-op paint.
+  const structureKey = scene.nodes
+    .map((node) => `${node.id}:${node.left ?? ''}:${node.right ?? ''}`)
+    .join('|')
 
   const nullGhost = placeNullCall(viz.nullCall, posById)
   const formula = viz.formula
@@ -76,10 +108,11 @@ export function TreeViz({ scene }: Props) {
   const height = Math.max(maxY - minY, PAD * 2)
 
   return (
-    <div className="tree-viz">
+    <div className="tree-viz" data-structure={structureKey}>
       {scene.label ? <p className="tree-viz__label">{scene.label}</p> : null}
       <div className="tree-viz__frame">
         <svg
+          key={structureKey}
           className="tree-viz__svg"
           viewBox={`${minX} ${minY} ${width} ${height}`}
           preserveAspectRatio="xMidYMid meet"
@@ -87,16 +120,28 @@ export function TreeViz({ scene }: Props) {
           aria-label="binary tree"
           style={{ aspectRatio: `${width} / ${height}` }}
         >
-          {edges.map(({ from, to }) => (
-            <line
-              key={`${from.id}-${to.id}`}
-              x1={from.x}
-              y1={from.y + NODE_R * 0.55}
-              x2={to.x}
-              y2={to.y - NODE_R * 0.55}
-              className="tree-viz__edge"
-            />
-          ))}
+          {edges.map(({ from, to, side }) => {
+            const x1 = from.x
+            const y1 = from.y + NODE_R * 0.55
+            const x2 = to.x
+            const y2 = to.y - NODE_R * 0.55
+            const mx = (x1 + x2) / 2
+            const my = (y1 + y2) / 2
+            return (
+              <g key={`${from.id}-${side}-${to.id}`}>
+                <line x1={x1} y1={y1} x2={x2} y2={y2} className="tree-viz__edge" />
+                <text
+                  x={mx}
+                  y={my}
+                  className={`tree-viz__edge-side is-${side === 'L' ? 'left' : 'right'}`}
+                  textAnchor="middle"
+                  dy="0.35em"
+                >
+                  {side}
+                </text>
+              </g>
+            )
+          })}
 
           {nullGhost ? (
             <g transform={`translate(${nullGhost.x}, ${nullGhost.y})`}>
@@ -126,6 +171,7 @@ export function TreeViz({ scene }: Props) {
               viz.marks?.[node.id] ??
               (viz.depths?.[node.id] != null ? `d=${viz.depths[node.id]}` : undefined)
             const focused = focus.has(node.id)
+            const markW = mark != null ? chipWidth(mark, 9) : 0
             return (
               <g key={node.id} transform={`translate(${node.x}, ${node.y})`}>
                 <circle
@@ -138,13 +184,13 @@ export function TreeViz({ scene }: Props) {
                   {String(node.value)}
                 </text>
                 {mark != null ? (
-                  <g className="tree-viz__depth" transform={`translate(0, ${NODE_R + 14})`}>
+                  <g className="tree-viz__depth" transform={`translate(0, ${NODE_R + 12})`}>
                     <rect
-                      x={-Math.max(16, mark.length * 4.2)}
-                      y={-9}
-                      width={Math.max(32, mark.length * 8.4)}
-                      height={16}
-                      rx={4}
+                      x={-markW / 2}
+                      y={-6.5}
+                      width={markW}
+                      height={13}
+                      rx={3}
                       className="tree-viz__depth-bg"
                     />
                     <text textAnchor="middle" dy="0.35em" className="tree-viz__depth-text">
@@ -157,21 +203,7 @@ export function TreeViz({ scene }: Props) {
           })}
 
           {formula?.at ? (
-            <g
-              transform={`translate(${formula.at.x}, ${formula.at.y - NODE_R - 18})`}
-            >
-              <rect
-                x={-72}
-                y={-12}
-                width={144}
-                height={22}
-                rx={6}
-                className="tree-viz__formula-bg"
-              />
-              <text className="tree-viz__formula" textAnchor="middle" dy="0.35em">
-                {formula.text}
-              </text>
-            </g>
+            <FormulaChip x={formula.at.x} y={formula.at.y - NODE_R - 16} text={formula.text} />
           ) : null}
         </svg>
       </div>

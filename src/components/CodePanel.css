@@ -6,17 +6,18 @@
   width: 100%;
   height: 100%;
   border: 1px solid var(--line);
-  border-radius: 0.75rem;
+  border-radius: 0.25rem;
   overflow: hidden;
-  background: #12202c;
-  color: #d7e2ea;
+  background: var(--code-bg);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 6%, transparent);
 }
 
 .code-panel__header {
   display: grid;
   gap: 0.25rem;
-  background: #0d1822;
-  border-bottom: 1px solid #243746;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
   padding-bottom: 0.35rem;
   flex-shrink: 0;
 }
@@ -45,10 +46,10 @@
 }
 
 .code-panel__font-btn {
-  border: 1px solid #243746;
-  background: #12202c;
-  color: #8fa3b3;
-  border-radius: 0.35rem;
+  border: 1px solid var(--line);
+  background: var(--code-bg);
+  color: var(--muted);
+  border-radius: 0.2rem;
   padding: 0.2rem 0.45rem;
   font: inherit;
   font-size: 0.72rem;
@@ -58,8 +59,8 @@
 }
 
 .code-panel__font-btn:hover:not(:disabled) {
-  color: #f3f8fb;
-  border-color: #3d5566;
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
 }
 
 .code-panel__font-btn:disabled {
@@ -71,28 +72,30 @@
   margin: 0;
   padding: 0 0.75rem;
   font-size: 0.72rem;
-  color: #8fa3b3;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .code-panel__now strong {
-  color: #b7f3e2;
+  color: var(--accent);
   font-family: var(--font-mono);
 }
 
 .code-panel__tab {
   border: 0;
   background: transparent;
-  color: #8fa3b3;
+  color: var(--muted);
   padding: 0.35rem 0.65rem;
-  border-radius: 0.4rem;
+  border-radius: 0.2rem;
   font: inherit;
   font-size: 0.8rem;
   cursor: pointer;
 }
 
 .code-panel__tab.is-active {
-  background: color-mix(in srgb, var(--accent) 28%, #12202c);
-  color: #f3f8fb;
+  background: color-mix(in srgb, var(--accent) 18%, var(--code-bg));
+  color: var(--accent);
 }
 
 /* Single scroll owner for the whole code block — never per-line. */
@@ -120,35 +123,35 @@
 }
 
 .code-panel__line.is-focus {
-  background: color-mix(in srgb, var(--accent) 32%, transparent);
-  box-shadow: inset 3px 0 0 #5eead4;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  box-shadow: inset 3px 0 0 var(--accent);
 }
 
 .code-panel__gutter {
   text-align: right;
-  color: #6d8293;
+  color: var(--muted);
   user-select: none;
 }
 
 .code-panel__line.is-focus .code-panel__gutter {
-  color: #b7f3e2;
+  color: var(--accent);
   font-weight: 600;
 }
 
 .code-panel__text {
   white-space: pre;
-  color: #e5eef4;
+  color: var(--ink-soft);
 }
 
 .code-panel__line.is-focus .code-panel__text {
-  color: #ffffff;
+  color: var(--ink);
   font-weight: 600;
 }
 
 .code-panel__caret {
   position: absolute;
   left: 0.15rem;
-  color: #5eead4;
+  color: var(--accent);
   font-size: 0.65rem;
   top: 50%;
   transform: translateY(-50%);

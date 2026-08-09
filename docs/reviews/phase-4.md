@@ -9,6 +9,8 @@
 - Constraints + edge fixtures on each kind (empty, not-found, no-cycle, etc.)
 - Sorted inputs offer **Sort for me** where required
 - **Sorting labs** (Bubble, Insertion, Selection, Merge, Quick, Heap) with dense bar viz, up to 48 bars, Randomize
+- Catalog pattern/difficulty filters
+- Terminal dark visual direction (black board + phosphor accent; Encom-inspired, not a clone)
 
 ## Goal
 

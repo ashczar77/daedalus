@@ -1,0 +1,216 @@
+.academy-lesson {
+  width: min(1400px, calc(100% - 1rem));
+  margin: 0 auto;
+  padding: 1.5rem 0 2.5rem;
+  display: grid;
+  gap: 1rem;
+  animation: academy-lesson-in 280ms ease both;
+}
+
+@keyframes academy-lesson-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.4rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .academy-lesson {
+    animation: none;
+  }
+}
+
+.academy-lesson--locked {
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.academy-lesson__top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.academy-lesson__back {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+}
+
+.academy-lesson__back:hover {
+  color: var(--accent);
+}
+
+.academy-lesson__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin: 0.65rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.academy-lesson__meta .is-done {
+  color: var(--good);
+  font-weight: 700;
+}
+
+.academy-lesson__title {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 400;
+  color: var(--accent);
+}
+
+.academy-lesson__summary {
+  margin: 0.35rem 0 0;
+  color: var(--ink-soft);
+}
+
+.academy-lesson__grid {
+  display: grid;
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .academy-lesson__grid {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr);
+  }
+}
+
+.academy-lesson__teach {
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  background: var(--surface);
+  padding: 0.9rem 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.academy-lesson__teach p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.academy-lesson__goals h2 {
+  margin: 0 0 0.35rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.academy-lesson__goals ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--ink);
+  font-size: 0.88rem;
+}
+
+.academy-lesson__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.academy-lesson__btn {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--ink-soft);
+  border-radius: 0.2rem;
+  padding: 0.4rem 0.7rem;
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.academy-lesson__btn:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  color: var(--accent);
+}
+
+.academy-lesson__btn.is-primary {
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface-2));
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.academy-lesson__hints {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.82rem;
+}
+
+.academy-lesson__hints code {
+  font-family: var(--font-mono);
+  color: var(--accent-2);
+}
+
+.academy-lesson__help {
+  border-top: 1px solid var(--line);
+  padding-top: 0.65rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.academy-lesson__help p {
+  margin: 0 0 0.35rem;
+}
+
+.academy-lesson__result {
+  margin: 0;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.2rem;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+}
+
+.academy-lesson__result.is-ok {
+  color: var(--good);
+  background: color-mix(in srgb, var(--good) 10%, var(--surface-2));
+  border: 1px solid color-mix(in srgb, var(--good) 35%, var(--line));
+}
+
+.academy-lesson__result.is-bad {
+  color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 10%, var(--surface-2));
+  border: 1px solid color-mix(in srgb, var(--warn) 35%, var(--line));
+}
+
+.academy-lesson__next {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.academy-lesson__next a {
+  color: var(--accent);
+}
+
+.academy-lesson__shell {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.academy-lesson__shell-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 0.15rem;
+}

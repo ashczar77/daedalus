@@ -46,14 +46,15 @@ function heap(
   focusIds: string[],
   viz?: TreeVizState,
 ): HeapObject[] {
+  // Snapshot: generator mutates left/right in place; steps must not share refs.
   return [
     {
       id: 'tree',
       kind: 'tree',
       label: 'TreeNode root',
-      nodes,
+      nodes: cloneNodes(nodes),
       rootId,
-      focusIds,
+      focusIds: [...focusIds],
       focused: true,
       viz,
     },
@@ -214,7 +215,8 @@ function generateInvertSteps(input: TreeInput): Step[] {
   return steps
 }
 
-const defaultValues: Array<number | null> = [2, 1, 3]
+/** Classic LC example — values clearly rearrange when inverted. */
+const defaultValues: Array<number | null> = [4, 2, 7, 1, 3, 6, 9]
 
 const input = defineInput<TreeInput>({
   kind: 'levelOrderTree',
@@ -223,7 +225,7 @@ const input = defineInput<TreeInput>({
       key: 'root',
       label: 'root (level-order)',
       widget: 'text',
-      placeholder: '2, 1, 3',
+      placeholder: '4, 2, 7, 1, 3, 6, 9',
       hint: 'Up to 12 nodes, values -99–99; use null for missing children',
     },
   ],

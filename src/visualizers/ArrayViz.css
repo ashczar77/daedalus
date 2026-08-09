@@ -30,7 +30,7 @@
   padding: 0.7rem 0.55rem 1.2rem;
   border: 1px solid var(--line);
   border-radius: 0.55rem;
-  background: color-mix(in srgb, var(--surface) 88%, white);
+  background: color-mix(in srgb, var(--surface) 88%, var(--lift));
   text-align: center;
   transition:
     background 180ms ease,
@@ -42,27 +42,27 @@
 
 .array-viz__cell.is-current {
   border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 16%, white);
+  background: color-mix(in srgb, var(--accent) 16%, var(--lift));
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .array-viz__cell.is-compare {
   border-color: var(--warn);
-  background: color-mix(in srgb, var(--warn) 14%, white);
+  background: color-mix(in srgb, var(--warn) 14%, var(--lift));
 }
 
 .array-viz__cell.is-found {
   border-color: var(--good);
-  background: color-mix(in srgb, var(--good) 18%, white);
+  background: color-mix(in srgb, var(--good) 18%, var(--lift));
 }
 
 .array-viz__cell.is-visited {
-  background: color-mix(in srgb, var(--ink) 6%, white);
+  background: color-mix(in srgb, var(--ink) 6%, var(--lift));
 }
 
 .array-viz__cell.is-window {
   border-color: var(--accent-2);
-  background: color-mix(in srgb, var(--accent-2) 14%, white);
+  background: color-mix(in srgb, var(--accent-2) 14%, var(--lift));
 }
 
 .array-viz__cell.is-discard {
@@ -71,7 +71,7 @@
 
 .array-viz__cell.is-sorted {
   border-color: var(--good);
-  background: color-mix(in srgb, var(--good) 16%, white);
+  background: color-mix(in srgb, var(--good) 16%, var(--lift));
 }
 
 /* Pointer-bearing cells stay vivid — discard must not hide left/right. */
@@ -81,19 +81,19 @@
 
 .array-viz__cell.has-ptr--left {
   border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 18%, white);
+  background: color-mix(in srgb, var(--accent) 18%, var(--lift));
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
 .array-viz__cell.has-ptr--right {
   border-color: var(--accent-2);
-  background: color-mix(in srgb, var(--accent-2) 18%, white);
+  background: color-mix(in srgb, var(--accent-2) 18%, var(--lift));
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-2) 22%, transparent);
 }
 
 .array-viz__cell.has-ptr--mid {
   border-color: var(--warn);
-  background: color-mix(in srgb, var(--warn) 16%, white);
+  background: color-mix(in srgb, var(--warn) 16%, var(--lift));
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--warn) 20%, transparent);
 }
 
@@ -102,7 +102,7 @@
 .array-viz__cell.has-ptr--k,
 .array-viz__cell.has-ptr--default {
   border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 14%, white);
+  background: color-mix(in srgb, var(--accent) 14%, var(--lift));
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 16%, transparent);
 }
 
@@ -111,8 +111,8 @@
   border-color: var(--ink-soft);
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--accent) 20%, white),
-    color-mix(in srgb, var(--accent-2) 20%, white)
+    color-mix(in srgb, var(--accent) 20%, var(--lift)),
+    color-mix(in srgb, var(--accent-2) 20%, var(--lift))
   );
 }
 
@@ -130,14 +130,14 @@
 
 .array-viz__ptr-badge {
   display: inline-block;
-  padding: 0.1rem 0.35rem;
-  border-radius: 0.3rem;
+  padding: 0.05rem 0.28rem;
+  border-radius: 0.2rem;
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-  line-height: 1.2;
-  color: white;
+  line-height: 1.15;
+  color: var(--bg);
   white-space: nowrap;
 }
 

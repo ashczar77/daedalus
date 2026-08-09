@@ -7,8 +7,8 @@
   height: 100%;
   padding: 0.85rem 1rem 1rem;
   border: 1px solid var(--line);
-  border-radius: 0.75rem;
-  background: color-mix(in srgb, var(--surface) 88%, white);
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, var(--surface) 88%, var(--lift));
 }
 
 .structure-stage__header {
@@ -36,7 +36,7 @@
 
 .structure-stage__zoom-btn {
   border: 1px solid var(--line);
-  background: color-mix(in srgb, white 70%, var(--surface));
+  background: color-mix(in srgb, var(--lift) 70%, var(--surface));
   color: var(--ink-soft);
   border-radius: 0.35rem;
   padding: 0.15rem 0.5rem;
@@ -50,7 +50,7 @@
 .structure-stage__zoom-btn:hover:not(:disabled) {
   color: var(--ink);
   border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
-  background: color-mix(in srgb, var(--accent) 8%, white);
+  background: color-mix(in srgb, var(--accent) 8%, var(--lift));
 }
 
 .structure-stage__zoom-btn:disabled {

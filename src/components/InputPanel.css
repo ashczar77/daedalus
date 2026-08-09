@@ -4,8 +4,8 @@
   min-width: 0;
   padding: 0.7rem 0.85rem;
   border: 1px solid var(--line);
-  border-radius: 0.75rem;
-  background: color-mix(in srgb, var(--surface) 88%, white);
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, var(--surface) 88%, var(--lift));
 }
 
 .input-panel__fields {
@@ -53,7 +53,7 @@
   font-family: var(--font-mono);
   font-size: 0.82rem;
   color: var(--ink);
-  background: color-mix(in srgb, white 80%, var(--surface));
+  background: color-mix(in srgb, var(--lift) 80%, var(--surface));
 }
 
 .input-panel__control:focus {
@@ -75,7 +75,7 @@
 
 .input-panel__btn {
   border: 1px solid var(--line);
-  background: color-mix(in srgb, white 70%, var(--surface));
+  background: color-mix(in srgb, var(--lift) 70%, var(--surface));
   color: var(--ink-soft);
   border-radius: 0.4rem;
   padding: 0.35rem 0.7rem;
@@ -91,7 +91,7 @@
 }
 
 .input-panel__btn--primary {
-  background: color-mix(in srgb, var(--accent) 14%, white);
+  background: color-mix(in srgb, var(--accent) 14%, var(--lift));
   border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
   color: var(--accent);
 }
@@ -104,7 +104,7 @@
 .input-panel__errors {
   margin: 0;
   padding-left: 1.1rem;
-  color: #9a3412;
+  color: var(--warn);
   font-size: 0.78rem;
 }
 

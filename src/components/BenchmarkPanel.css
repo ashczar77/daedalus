@@ -19,9 +19,9 @@
 
 .benchmark__card {
   border: 1px solid var(--line);
-  border-radius: 0.9rem;
+  border-radius: 0.25rem;
   padding: 1rem 1.1rem;
-  background: color-mix(in srgb, var(--surface) 94%, white);
+  background: color-mix(in srgb, var(--surface) 94%, var(--lift));
   min-width: 0;
   overflow: hidden;
 }
