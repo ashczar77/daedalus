@@ -11,7 +11,7 @@ export const lruLab: SystemDesignLab = {
   teachingSteps: [
     {
       narrative: 'Caches are finite. When they fill, something must leave to make room.',
-      why: 'Eviction policy is the rule for choosing the victim.',
+      why: 'An eviction policy is the rule for choosing the victim.',
     },
     {
       narrative: 'LRU means Least Recently Used: drop the key that has gone longest without a touch.',
@@ -26,8 +26,8 @@ export const lruLab: SystemDesignLab = {
       why: 'That "scan resistance" problem is why some systems prefer LFU or hybrid policies.',
     },
     {
-      narrative: 'Run the sim and watch the victim highlight when a new key needs a slot.',
-      why: 'The coldest lastUsed timestamp should be the one that disappears.',
+      narrative: 'Run the sim and watch COLD / HOT labels, then the VICTIM when a new key needs a slot.',
+      why: 'Slots are ordered cold → hot. The coldest lastUsed timestamp should be the one that disappears.',
     },
   ],
   simDefaults: {

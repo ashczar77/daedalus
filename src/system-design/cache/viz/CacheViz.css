@@ -463,6 +463,25 @@
   background: color-mix(in srgb, var(--warn) 14%, var(--lift));
 }
 
+.cache-viz__legend-chip.is-cold {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 55%, var(--line));
+  background: color-mix(in srgb, var(--danger) 12%, var(--lift));
+}
+
+.cache-viz__legend-chip.is-hot {
+  color: var(--good);
+  border-color: color-mix(in srgb, var(--good) 55%, var(--line));
+  background: color-mix(in srgb, var(--good) 12%, var(--lift));
+}
+
+.cache-viz__legend-chip.is-victim {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 18%, var(--lift));
+  border-style: dashed;
+}
+
 .cache-viz__step.is-done {
   opacity: 0.72;
 }
@@ -523,10 +542,42 @@
   stroke: var(--warn);
 }
 
+.cache-viz__slot.is-cold {
+  fill: color-mix(in srgb, var(--danger) 14%, var(--lift));
+  stroke: color-mix(in srgb, var(--danger) 70%, var(--line));
+  stroke-width: 2;
+}
+
+.cache-viz__slot.is-heat-hot {
+  fill: color-mix(in srgb, var(--good) 16%, var(--lift));
+  stroke: color-mix(in srgb, var(--good) 70%, var(--line));
+  stroke-width: 2;
+}
+
 .cache-viz__slot.is-victim {
   stroke: var(--danger);
-  fill: color-mix(in srgb, var(--danger) 22%, var(--lift));
-  stroke-width: 2.5;
+  fill: color-mix(in srgb, var(--danger) 28%, var(--lift));
+  stroke-width: 3;
+  stroke-dasharray: 4 2;
+}
+
+.cache-viz__slot-badge {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.cache-viz__slot-badge.is-cold {
+  fill: var(--danger);
+}
+
+.cache-viz__slot-badge.is-hot {
+  fill: var(--good);
+}
+
+.cache-viz__slot-badge.is-victim {
+  fill: var(--danger);
 }
 
 .cache-viz__slot-key {

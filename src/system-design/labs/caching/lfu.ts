@@ -26,8 +26,8 @@ export const lfuLab: SystemDesignLab = {
       why: 'Production systems often age counters or mix in recency (LRU-ish hybrids).',
     },
     {
-      narrative: 'Run the sim and watch the f= counters on each slot.',
-      why: 'The lowest frequency should be the victim when D arrives into a full cache.',
+      narrative: 'Run the sim and watch the frequency counters, with COLD on the left.',
+      why: 'Each slot shows freq (how many times that key was accessed). The lowest frequency should be the victim when D arrives into a full cache.',
     },
   ],
   simDefaults: {

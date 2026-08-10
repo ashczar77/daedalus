@@ -81,20 +81,20 @@ function evictionMeta(algo: CacheAlgo): { badge: string; hint: string; idle: str
     case 'lru':
       return {
         badge: 'LRU eviction',
-        hint: 'When full, remove the entry used least recently (the cold end).',
-        idle: 'Press Play. Re-reading a key keeps it; cold keys leave first.',
+        hint: 'When full, remove the entry used least recently (the cold end on the left).',
+        idle: 'Press Play. Slots sort cold → hot. Re-reading a key moves it right; the left key leaves first.',
       }
     case 'lfu':
       return {
         badge: 'LFU eviction',
-        hint: 'When full, remove the entry with the lowest access count.',
-        idle: 'Press Play. Watch frequency counters decide who leaves.',
+        hint: 'When full, remove the entry with the lowest access count (cold end on the left).',
+        idle: 'Press Play. Watch frequency counters on each slot; lowest freq stays on the left and leaves first.',
       }
     case 'fifo':
       return {
         badge: 'FIFO eviction',
         hint: 'When full, remove the oldest inserted entry. Re-reads do not change insert order.',
-        idle: 'Press Play. The first key in is the first key out when capacity fills.',
+        idle: 'Press Play. Left is oldest in; that key leaves even if you re-read it.',
       }
     case 'ttl':
       return {
@@ -177,7 +177,7 @@ function GuidedCacheStage({
       {...meta}
       footer={
         <>
-          <SpeakerLegend />
+          {showEvictionCues ? <HeatLegend algo={state.algo} /> : <SpeakerLegend />}
           <StepsFooter flight={flight} steps={steps} phase={phase} />
         </>
       }
@@ -753,6 +753,21 @@ function phaseFromBeats(beats: FlowBeat[], progress: number): FlowPhase {
   }
 }
 
+function HeatLegend({ algo }: { algo: CacheAlgo }) {
+  const coldLabel =
+    algo === 'ttl' ? 'Expiring soon' : algo === 'fifo' ? 'Oldest in' : 'Cold · next out'
+  const hotLabel =
+    algo === 'ttl' ? 'Freshest TTL' : algo === 'fifo' ? 'Newest in' : 'Hot · safest'
+  return (
+    <div className="cache-viz__legend" aria-label="Hot and cold keys">
+      <span className="cache-viz__legend-title">Heat</span>
+      <span className="cache-viz__legend-chip is-cold">{coldLabel}</span>
+      <span className="cache-viz__legend-chip is-hot">{hotLabel}</span>
+      <span className="cache-viz__legend-chip is-victim">Victim</span>
+    </div>
+  )
+}
+
 function SpeakerLegend() {
   return (
     <div className="cache-viz__legend" aria-label="Who is talking">
@@ -762,6 +777,44 @@ function SpeakerLegend() {
       <span className="cache-viz__legend-chip is-db">DB</span>
     </div>
   )
+}
+
+/** Coldest → hottest order for eviction teaching (left = next victim). */
+function sortEntriesForHeat(
+  algo: CacheAlgo,
+  entries: CacheEntry[],
+  tick: number,
+): CacheEntry[] {
+  const copy = [...entries]
+  switch (algo) {
+    case 'lru':
+      return copy.sort((a, b) => a.lastUsed - b.lastUsed || a.insertedAt - b.insertedAt)
+    case 'lfu':
+      return copy.sort(
+        (a, b) => a.freq - b.freq || a.insertedAt - b.insertedAt,
+      )
+    case 'fifo':
+      return copy.sort((a, b) => a.insertedAt - b.insertedAt)
+    case 'ttl':
+      return copy.sort((a, b) => {
+        const ae = a.expiresAt ?? Number.POSITIVE_INFINITY
+        const be = b.expiresAt ?? Number.POSITIVE_INFINITY
+        return ae - be || a.insertedAt - b.insertedAt
+      })
+    default:
+      void tick
+      return copy
+  }
+}
+
+type HeatRole = 'cold' | 'hot' | 'mid'
+
+function heatRoleForIndex(index: number, count: number): HeatRole {
+  if (count <= 0) return 'mid'
+  if (count === 1) return 'hot'
+  if (index === 0) return 'cold'
+  if (index === count - 1) return 'hot'
+  return 'mid'
 }
 
 function AlgoShell({
@@ -975,9 +1028,16 @@ function CachePanel({
   emphasize?: boolean
   speaking?: boolean
 }) {
-  const slots = Array.from({ length: state.capacity }, (_, i) => state.entries[i] ?? null)
-  const slotW = 52
-  const gap = 8
+  const displayEntries = showEvictionCues
+    ? sortEntriesForHeat(state.algo, state.entries, state.tick)
+    : state.entries
+  const slots = Array.from(
+    { length: state.capacity },
+    (_, i) => displayEntries[i] ?? null,
+  )
+  const filledCount = displayEntries.length
+  const slotW = 56
+  const gap = 10
   const totalW = state.capacity * slotW + (state.capacity - 1) * gap
   const startX = -totalW / 2
   const focusKey = state.flight?.key ?? null
@@ -989,14 +1049,15 @@ function CachePanel({
         speaking ? ' is-speaking' : ''
       }`}
     >
-      <text className="cache-viz__cache-title" textAnchor="middle" y={-72}>
+      <text className="cache-viz__cache-title" textAnchor="middle" y={-84}>
         cache ({state.entries.length}/{state.capacity})
+        {showEvictionCues ? ' · cold → hot' : ''}
       </text>
       {resultBadge ? (
         <text
           className={`cache-viz__result-badge cache-viz__result-badge--${resultBadge.toLowerCase()}`}
           textAnchor="middle"
-          y={-56}
+          y={-68}
         >
           {resultBadge}
         </text>
@@ -1004,6 +1065,13 @@ function CachePanel({
       {slots.map((entry, index) => {
         const x = startX + index * (slotW + gap)
         const focused = entry?.key === focusKey
+        const heat =
+          showEvictionCues && entry
+            ? heatRoleForIndex(
+                displayEntries.findIndex((e) => e.key === entry.key),
+                filledCount,
+              )
+            : null
         const hitMissClass =
           focused && resultBadge === 'HIT'
             ? ' is-hit'
@@ -1024,6 +1092,7 @@ function CachePanel({
             tick={state.tick}
             focusClass={hitMissClass}
             victim={entry != null && entry.key === victimKey}
+            heat={heat}
             showEvictionCues={showEvictionCues}
           />
         )
@@ -1040,6 +1109,7 @@ function CacheSlot({
   tick,
   focusClass,
   victim,
+  heat,
   showEvictionCues,
 }: {
   x: number
@@ -1049,52 +1119,84 @@ function CacheSlot({
   tick: number
   focusClass: string
   victim: boolean
+  heat: HeatRole | null
   showEvictionCues: boolean
 }) {
-  const h = 56
+  const h = 64
+  const heatClass =
+    heat === 'cold' ? ' is-cold' : heat === 'hot' ? ' is-heat-hot' : ''
+  const badge =
+    victim
+      ? 'VICTIM'
+      : heat === 'cold'
+        ? algo === 'ttl'
+          ? 'EXPIRING'
+          : algo === 'fifo'
+            ? 'OLDEST'
+            : 'COLD'
+        : heat === 'hot'
+          ? algo === 'ttl'
+            ? 'FRESH'
+            : algo === 'fifo'
+              ? 'NEWEST'
+              : 'HOT'
+          : null
+
   return (
     <g transform={`translate(${x}, ${-h / 2})`}>
+      {badge ? (
+        <text
+          className={`cache-viz__slot-badge${
+            victim ? ' is-victim' : heat === 'cold' ? ' is-cold' : ' is-hot'
+          }`}
+          textAnchor="middle"
+          x={width / 2}
+          y={-8}
+        >
+          {badge}
+        </text>
+      ) : null}
       <rect
         x={0}
         y={0}
         width={width}
         height={h}
         rx={6}
-        className={`cache-viz__slot${focusClass}${
+        className={`cache-viz__slot${focusClass}${heatClass}${
           victim ? ' is-victim' : ''
         }${!entry ? ' is-empty' : ''}`}
       />
       {entry ? (
         <>
-          <text className="cache-viz__slot-key" textAnchor="middle" x={width / 2} y={18}>
+          <text className="cache-viz__slot-key" textAnchor="middle" x={width / 2} y={20}>
             {entry.key}
           </text>
-          <text className="cache-viz__slot-val" textAnchor="middle" x={width / 2} y={34}>
+          <text className="cache-viz__slot-val" textAnchor="middle" x={width / 2} y={36}>
             {entry.value}
           </text>
           {showEvictionCues && algo === 'lfu' ? (
-            <text className="cache-viz__slot-meta" textAnchor="middle" x={width / 2} y={48}>
-              f={entry.freq}
+            <text className="cache-viz__slot-meta" textAnchor="middle" x={width / 2} y={52}>
+              freq {entry.freq}
             </text>
           ) : null}
           {showEvictionCues && algo === 'lru' ? (
-            <text className="cache-viz__slot-meta" textAnchor="middle" x={width / 2} y={48}>
-              t={entry.lastUsed}
+            <text className="cache-viz__slot-meta" textAnchor="middle" x={width / 2} y={52}>
+              used {entry.lastUsed}
             </text>
           ) : null}
           {showEvictionCues && algo === 'fifo' ? (
-            <text className="cache-viz__slot-meta" textAnchor="middle" x={width / 2} y={48}>
-              in={entry.insertedAt}
+            <text className="cache-viz__slot-meta" textAnchor="middle" x={width / 2} y={52}>
+              inserted {entry.insertedAt}
             </text>
           ) : null}
           {showEvictionCues && algo === 'ttl' && entry.expiresAt != null ? (
-            <text className="cache-viz__slot-meta" textAnchor="middle" x={width / 2} y={48}>
+            <text className="cache-viz__slot-meta" textAnchor="middle" x={width / 2} y={52}>
               ttl {Math.max(0, entry.expiresAt - tick)}
             </text>
           ) : null}
         </>
       ) : (
-        <text className="cache-viz__slot-empty" textAnchor="middle" x={width / 2} y={32}>
+        <text className="cache-viz__slot-empty" textAnchor="middle" x={width / 2} y={36}>
           ·
         </text>
       )}

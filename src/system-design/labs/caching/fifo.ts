@@ -19,7 +19,7 @@ export const fifoLab: SystemDesignLab = {
     },
     {
       narrative: 'Fill A, B, C, re-read A, then insert D. A still leaves.',
-      why: 'Watch the in= insert timestamps. Lowest insert time is the victim.',
+      why: 'Watch the insert timestamps on each slot. Oldest sits on the left and is the victim.',
     },
     {
       narrative: 'FIFO is easy to implement and explain, but it can drop hot keys that arrived early.',
