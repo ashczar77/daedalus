@@ -66,17 +66,22 @@
 
 .structure-stage__viewport {
   min-width: 0;
-  min-height: 14rem;
+  /* Fixed band so growing result/path content scrolls inside instead of
+     resizing the page and bouncing the whole visualization column. */
+  height: min(32rem, 58vh);
+  min-height: 16rem;
   overflow: auto;
+  overscroll-behavior: contain;
   display: grid;
-  align-content: center;
+  align-content: start;
   justify-items: center;
+  padding-top: 0.35rem;
 }
 
 .structure-stage__canvas {
   display: grid;
   gap: 1rem;
-  align-content: center;
+  align-content: start;
   justify-items: center;
   min-width: 0;
   width: 100%;
@@ -92,7 +97,7 @@
   flex-wrap: nowrap;
   gap: 1.25rem;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: max-content;
   max-width: 100%;
 }

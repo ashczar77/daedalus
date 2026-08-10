@@ -29,14 +29,24 @@ export function StackViz({ scene }: Props) {
                 className={`stack-viz__item${isTop && action ? ` is-${action}` : ''}`}
               >
                 <span className="stack-viz__value">{String(item)}</span>
-                {isTop ? <span className="stack-viz__top-tag">top</span> : null}
+                {isTop ? (
+                  <span className="stack-viz__top-tag">
+                    {action === 'push' ? 'add' : action === 'pop' ? 'remove' : 'top'}
+                  </span>
+                ) : null}
               </div>
             )
           })
         )}
       </div>
       {action ? (
-        <p className="stack-viz__action">last action: {action}</p>
+        <p className={`stack-viz__action is-${action}`}>
+          {action === 'push'
+            ? 'ADD · push onto top'
+            : action === 'pop'
+              ? 'REMOVE · pop from top'
+              : `last action: ${action}`}
+        </p>
       ) : null}
     </div>
   )

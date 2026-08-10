@@ -103,6 +103,7 @@
   margin: 0;
   padding: 0.65rem 0;
   overflow: auto;
+  overscroll-behavior: contain;
   flex: 1 1 auto;
   max-height: min(28rem, 55vh);
   font-family: var(--font-mono);

@@ -11,6 +11,7 @@ import { validParentheses } from './0020-valid-parentheses'
 import { mergeTwoSortedLists } from './0021-merge-two-sorted-lists'
 import { twoSum } from './0001-two-sum'
 import { validateBinarySearchTree } from './0098-validate-binary-search-tree'
+import { subsets } from './0078-subsets'
 import { linkedListCycle } from './0141-linked-list-cycle'
 import { evaluateReversePolishNotation } from './0150-evaluate-reverse-polish-notation'
 import { twoSumII } from './0167-two-sum-ii'
@@ -50,6 +51,7 @@ export const problems: ProblemPack[] = [
   validParentheses,
   evaluateReversePolishNotation,
   dailyTemperatures,
+  subsets,
   reverseLinkedList,
   removeNthNodeFromEndOfList,
   kthLargestElementInAnArray,

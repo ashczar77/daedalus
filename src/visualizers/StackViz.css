@@ -93,5 +93,15 @@
   margin: 0;
   font-family: var(--font-mono);
   font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   color: var(--ink-soft);
+}
+
+.stack-viz__action.is-push {
+  color: var(--accent);
+}
+
+.stack-viz__action.is-pop {
+  color: var(--warn);
 }

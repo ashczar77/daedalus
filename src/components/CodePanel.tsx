@@ -37,7 +37,20 @@ export function CodePanel({
   const [fontPx, setFontPx] = useState(FONT_DEFAULT)
 
   useEffect(() => {
-    focusRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    const line = focusRef.current
+    const scroller = line?.closest('.code-panel__pre')
+    if (!line || !(scroller instanceof HTMLElement)) return
+
+    // Scroll only inside the code pane. scrollIntoView would move the page
+    // and make the visualization jump up and down.
+    const lineRect = line.getBoundingClientRect()
+    const viewRect = scroller.getBoundingClientRect()
+    const pad = 12
+    if (lineRect.top < viewRect.top + pad) {
+      scroller.scrollTop -= viewRect.top + pad - lineRect.top
+    } else if (lineRect.bottom > viewRect.bottom - pad) {
+      scroller.scrollTop += lineRect.bottom - (viewRect.bottom - pad)
+    }
   }, [focusLine, language])
 
   return (
