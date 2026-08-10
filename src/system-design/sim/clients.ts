@@ -1,11 +1,16 @@
-/** Named clients reused across the sim so hashing shows stickiness. */
+/**
+ * Named clients reused across the sim so hashing shows stickiness.
+ * Chosen so the default 3-server consistent-hash ring (spots 90 / 210 / 330)
+ * actually receives traffic on every server:
+ *   carol, dave → S1; uma, olivia → S2; alice, bob → S3
+ */
 export const CLIENT_NAMES = [
   'alice',
   'bob',
   'carol',
   'dave',
-  'erin',
-  'frank',
+  'uma',
+  'olivia',
 ] as const
 
 export function clientNameFor(index: number): string {

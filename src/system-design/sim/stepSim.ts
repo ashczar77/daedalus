@@ -1,7 +1,7 @@
 import { CLIENT_NAMES, clientNameFor } from './clients'
-import { pickServer } from './strategies'
-import type { LoadBalancerSimState, SimFlight, SimRequest } from './types'
-import { buildServers, serverLabel } from './createState'
+import { hashToRing, pickServer, weightedSlots } from './strategies'
+import type { LoadBalancerSimState, SimFlight, SimRequest, SimServer } from './types'
+import { placeInLargestGap, serverLabel } from './createState'
 
 function ageRequests(state: LoadBalancerSimState): LoadBalancerSimState {
   const servers = state.servers.map((s) => ({ ...s }))
@@ -41,6 +41,10 @@ export function spawnRequest(state: LoadBalancerSimState): LoadBalancerSimState 
   const clientKey = clientNameFor(next.nextClientIndex)
   next = { ...next, nextClientIndex: next.nextClientIndex + 1 }
 
+  const cursorBefore = next.rrIndex
+  const slots = weightedSlots(next.servers)
+  const keyRingPos = hashToRing(clientKey)
+
   const pick = pickServer({
     algo: next.algo,
     servers: next.servers,
@@ -69,12 +73,18 @@ export function spawnRequest(state: LoadBalancerSimState): LoadBalancerSimState 
     serverId: server.id,
     remainingTicks: next.requestDurationTicks,
   }
-  const flight: SimFlight = {
+
+  const flight: SimFlight = buildFlight({
     id: request.id,
     clientKey,
     clientIndex,
-    serverId: server.id,
-  }
+    server,
+    serverCount: next.servers.length,
+    algo: next.algo,
+    cursorBefore,
+    slots,
+    keyRingPos,
+  })
 
   return {
     ...next,
@@ -85,6 +95,81 @@ export function spawnRequest(state: LoadBalancerSimState): LoadBalancerSimState 
     wrrCurrentWeight: pick.wrrCurrentWeight,
     nextRequestId: next.nextRequestId + 1,
     arrivalsCount: next.arrivalsCount + 1,
+  }
+}
+
+function buildFlight(args: {
+  id: string
+  clientKey: string
+  clientIndex: number
+  server: { id: string; label: string; weight: number; activeConnections: number }
+  serverCount: number
+  algo: LoadBalancerSimState['algo']
+  cursorBefore: number
+  slots: string[]
+  keyRingPos: number
+}): SimFlight {
+  const {
+    id,
+    clientKey,
+    clientIndex,
+    server,
+    serverCount,
+    algo,
+    cursorBefore,
+    slots,
+    keyRingPos,
+  } = args
+
+  switch (algo) {
+    case 'round-robin': {
+      const cursorIndex = cursorBefore % Math.max(1, serverCount)
+      return {
+        id,
+        clientKey,
+        clientIndex,
+        serverId: server.id,
+        cursorIndex,
+        reason: `Round-robin cursor → ${server.label}`,
+      }
+    }
+    case 'weighted-round-robin': {
+      const slotIndex = slots.length ? cursorBefore % slots.length : 0
+      return {
+        id,
+        clientKey,
+        clientIndex,
+        serverId: server.id,
+        slotIndex,
+        reason: `Weight slot ${slotIndex + 1}/${slots.length || 1} → ${server.label} (w=${server.weight})`,
+      }
+    }
+    case 'least-connections':
+      return {
+        id,
+        clientKey,
+        clientIndex,
+        serverId: server.id,
+        chosenActive: server.activeConnections,
+        reason: `Fewest active connections (${server.activeConnections}) → ${server.label}`,
+      }
+    case 'consistent-hash':
+      return {
+        id,
+        clientKey,
+        clientIndex,
+        serverId: server.id,
+        keyRingPos,
+        reason: `${clientKey} hashes onto the ring → clockwise to ${server.label}`,
+      }
+    default:
+      return {
+        id,
+        clientKey,
+        clientIndex,
+        serverId: server.id,
+        reason: `Routed to ${server.label}`,
+      }
   }
 }
 
@@ -105,24 +190,23 @@ export function idleTick(state: LoadBalancerSimState): LoadBalancerSimState {
 }
 
 export function addServer(state: LoadBalancerSimState): LoadBalancerSimState {
+  if (state.servers.length >= state.maxServers) return state
   const index = state.servers.length
-  const merged = [
-    ...state.servers.map((s) => ({ ...s })),
-    ...buildServers(1, [1]).map((s, i) => ({
-      ...s,
-      id: `server-${index + i + 1}`,
-      label: serverLabel(index + i),
-    })),
-  ]
-  const rebuilt = buildServers(
-    merged.length,
-    merged.map((s) => s.weight),
-  ).map((s, i) => ({
-    ...s,
-    activeConnections: merged[i]?.activeConnections ?? 0,
-    totalHandled: merged[i]?.totalHandled ?? 0,
-  }))
-  return { ...state, servers: rebuilt, rrIndex: 0, finished: false }
+  // Keep existing ring positions so stickiness teaching stays honest.
+  const next: SimServer = {
+    id: `server-${index + 1}`,
+    label: serverLabel(index),
+    weight: 1,
+    activeConnections: 0,
+    totalHandled: 0,
+    ringPosition: placeInLargestGap(state.servers),
+  }
+  return {
+    ...state,
+    servers: [...state.servers.map((s) => ({ ...s })), next],
+    rrIndex: 0,
+    finished: false,
+  }
 }
 
 export function removeServer(state: LoadBalancerSimState): LoadBalancerSimState {

@@ -103,7 +103,7 @@ export function SystemDesignLabPage() {
           <h2>
             <span className="sd-lab__prompt">&gt;</span> Live simulation
           </h2>
-          <p>Watch requests land; tweak knobs and compare server totals.</p>
+          <p>Each algorithm shows its decision rule. Watch the request trail follow that choice.</p>
         </div>
 
         <div className="sd-lab__controls">
@@ -144,8 +144,16 @@ export function SystemDesignLabPage() {
 
           {lab.simDefaults.allowServerChurn ? (
             <>
-              <button type="button" className="sd-lab__btn" onClick={sim.addServer}>
+              <button
+                type="button"
+                className="sd-lab__btn"
+                onClick={sim.addServer}
+                disabled={sim.state.servers.length >= sim.state.maxServers}
+              >
                 Add server
+                {sim.state.servers.length >= sim.state.maxServers
+                  ? ` (max ${sim.state.maxServers})`
+                  : ''}
               </button>
               <button
                 type="button"

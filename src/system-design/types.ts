@@ -32,6 +32,8 @@ export type LoadBalancerSimDefaults = {
   maxArrivals?: number
   /** Show add/remove server controls (consistent hashing). */
   allowServerChurn?: boolean
+  /** Cap how many servers the sim may grow to (keeps the ring readable). */
+  maxServers?: number
 }
 
 /**

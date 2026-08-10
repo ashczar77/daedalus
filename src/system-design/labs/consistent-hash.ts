@@ -6,27 +6,33 @@ export const consistentHashLab: SystemDesignLab = {
   pathId: 'load-balancing',
   order: 4,
   summary: 'Map clients onto a hash ring so most stick when the fleet changes.',
-  insight: 'Only keys near a removed (or added) node remapped; the rest keep their server.',
+  insight:
+    'Only clients near the change move. Everyone else keeps the same server.',
   teachingSteps: [
     {
-      narrative: 'Sometimes you want the same client to keep hitting the same backend.',
-      why: 'Caches, sessions, or shard-local state get warmer with sticky routing.',
+      narrative:
+        'Sometimes you want the same client to keep talking to the same server.',
+      why: 'That helps caches stay warm, and keeps session or shard-local data on one machine.',
     },
     {
-      narrative: 'Place servers on a ring (0..360). Hash the client key to a point.',
-      why: 'Walk clockwise to the first server at or after the key. That server owns it.',
+      narrative:
+        'A common trick is hash(client) % serverCount. It looks fine until the fleet changes.',
+      why: 'Add or remove one server and almost every client gets a new server. Caches go cold all at once.',
     },
     {
-      narrative: 'The same client key always lands on the same server while the ring is fixed.',
-      why: 'Watch alice/bob/carol stick as requests keep arriving.',
+      narrative:
+        'Consistent hashing pretends the hash range wraps into a ring. The circle you see is a diagram of that idea, not a real network shape.',
+      why: 'Hash values are still plain numbers. Drawing them on a ring just makes "next server forward" easy to follow.',
     },
     {
-      narrative: 'Add or remove a server: only nearby keys move.',
-      why: 'Unlike mod-N hashing, you do not reshuffle the whole keyspace.',
+      narrative:
+        'Each server claims a spot on that ring. Each client name hashes to a spot too. From the client spot, move forward (clockwise here) to the next server.',
+      why: 'Same client name lands on the same spot, so it keeps the same server while the ring stays unchanged.',
     },
     {
-      narrative: 'Use Add server / Remove server in the sim, then compare who remaps.',
-      why: 'Most sticky clients should stay put; a minority jumps to the new neighbor.',
+      narrative:
+        'Add a server and only the clients in its new slice move over. Everyone else stays put.',
+      why: 'That is the whole point: small fleet changes should not reshuffle the whole world. Try Add server in the sim and watch who moves.',
     },
   ],
   simDefaults: {
@@ -36,19 +42,21 @@ export const consistentHashLab: SystemDesignLab = {
     arrivalEveryTicks: 3,
     maxArrivals: 12,
     allowServerChurn: true,
+    maxServers: 5,
   },
   tradeoffs: [
-    'Pros: sticky routing with small remap on churn; great for cache locality.',
-    'Cons: can hotspot if key distribution is skewed; often needs virtual nodes in production.',
-    'Use when: you care about affinity and fleet changes should not flush everything.',
+    'Pros: sticky routing with only a small remapping when servers change; great when cache locality matters.',
+    'Cons: uneven key popularity can overload one server; production systems often add virtual nodes for smoother balance.',
+    'Use when: you care about client-to-server stickiness, and fleet changes should not flush everything.',
   ],
   walkthrough: {
-    statement: 'Route by hashing the client onto a ring of servers.',
-    keyIdea: 'Ownership is the next clockwise server; churn only moves a slice of keys.',
+    statement: 'Route each client by hashing them onto a ring of servers.',
+    keyIdea:
+      'Own the arc clockwise to the next server. When the fleet changes, only a slice of clients move.',
     approach: [
-      'Assign each server a ring position from its id.',
-      'Hash the client key; pick the first server at or after that angle (wrap around).',
-      'Add/remove a server and observe that most clients stay sticky.',
+      'Place each server on the ring (evenly spaced here so the picture stays clear).',
+      'Hash the client key to a point, then walk clockwise to the next server.',
+      'Add or remove a server and check that most clients stay sticky.',
     ],
   },
 }

@@ -1,21 +1,38 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { CLIENT_NAMES } from '../sim/clients'
-import { RING_SIZE, type LoadBalancerSimState, type SimFlight } from '../sim/types'
+import { hashToRing, weightedSlots } from '../sim/strategies'
+import {
+  RING_SIZE,
+  type LoadBalancerSimState,
+  type SimFlight,
+  type SimServer,
+} from '../sim/types'
 import './LoadBalancerViz.css'
+
+const SCALE_MIN = 0.7
+const SCALE_MAX = 1.6
+const SCALE_STEP = 0.15
+const SCALE_DEFAULT = 1
+
+function roundScale(value: number): number {
+  return Math.round(value * 100) / 100
+}
 
 type Props = {
   state: LoadBalancerSimState
-  /** Full client → server travel time (ms). */
   travelMs: number
 }
 
 const CLIENT_X = 80
-const LB_X = 300
-const SERVER_X = 530
+const LB_X = 290
+const SERVER_X = 520
 const TOP = 48
 const ROW = 54
-const NODE_R = 17
-const VIEW_PAD = 28
+const NODE_R = 16
+
+function easeInOut(t: number): number {
+  return t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2
+}
 
 function clientsColumnY(index: number): number {
   return TOP + index * ROW
@@ -25,195 +42,634 @@ function lbY(): number {
   return TOP + ((CLIENT_NAMES.length - 1) * ROW) / 2
 }
 
-function serversColumnY(index: number, count: number): number {
+function serversColumnY(index: number, count: number, row = ROW): number {
   if (count <= 1) return lbY()
-  const span = (count - 1) * ROW
-  const start = lbY() - span / 2
-  return start + index * ROW
+  const span = (count - 1) * row
+  return lbY() - span / 2 + index * row
 }
 
-/** Smooth cubic route client → LB → server. */
-function routePathD(
+function serverIndexFor(servers: SimServer[], serverId: string): number {
+  return Math.max(0, servers.findIndex((s) => s.id === serverId))
+}
+
+function linearRouteD(
   clientIndex: number,
   serverIndex: number,
   serverCount: number,
+  serverRow = ROW,
 ): string {
   const x1 = CLIENT_X
   const y1 = clientsColumnY(clientIndex)
   const x2 = LB_X
   const y2 = lbY()
   const x3 = SERVER_X
-  const y3 = serversColumnY(serverIndex, serverCount)
+  const y3 = serversColumnY(serverIndex, serverCount, serverRow)
   const c1x = x1 + (x2 - x1) * 0.55
   const c2x = x2 + (x3 - x2) * 0.45
   return `M ${x1} ${y1} C ${c1x} ${y1}, ${c1x} ${y2}, ${x2} ${y2} C ${c2x} ${y2}, ${c2x} ${y3}, ${x3} ${y3}`
 }
 
-function serverIndexFor(state: LoadBalancerSimState, serverId: string): number {
-  return Math.max(0, state.servers.findIndex((s) => s.id === serverId))
-}
-
-function easeInOut(t: number): number {
-  return t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2
-}
-
 /**
- * Load-balancer scene with Tron-style flow:
- * a request moves along a route; the lit trail grows behind it.
+ * Algorithm-specific load balancer stages.
+ * Each lab makes its decision rule visible, not just "request goes somewhere."
  */
 export function LoadBalancerViz({ state, travelMs }: Props) {
-  const showRing = state.algo === 'consistent-hash'
-  const serverCount = state.servers.length
-  const height = TOP + (CLIENT_NAMES.length - 1) * ROW + VIEW_PAD + 20
-  const width = SERVER_X + VIEW_PAD + 70
-  const balancerY = lbY()
+  if (state.algo === 'consistent-hash') {
+    return <ConsistentHashStage state={state} travelMs={travelMs} />
+  }
+  if (state.algo === 'weighted-round-robin') {
+    return <WeightedRoundRobinStage state={state} travelMs={travelMs} />
+  }
+  if (state.algo === 'least-connections') {
+    return <LeastConnectionsStage state={state} travelMs={travelMs} />
+  }
+  return <RoundRobinStage state={state} travelMs={travelMs} />
+}
+
+function RoundRobinStage({
+  state,
+  travelMs,
+}: {
+  state: LoadBalancerSimState
+  travelMs: number
+}) {
   const flight = state.flight
-
-  const pathD = useMemo(() => {
-    if (!flight) return null
-    return routePathD(
-      flight.clientIndex,
-      serverIndexFor(state, flight.serverId),
-      serverCount,
-    )
-  }, [flight, state, serverCount])
-
   const progress = useTrailProgress(flight?.id ?? null, travelMs)
-  const serverLabel = flight
-    ? (state.servers.find((s) => s.id === flight.serverId)?.label ?? flight.serverId)
+  const n = state.servers.length
+  const nextCursor =
+    flight?.cursorIndex ?? (n ? state.rrIndex % n : 0)
+  const pathD = flight
+    ? linearRouteD(
+        flight.clientIndex,
+        serverIndexFor(state.servers, flight.serverId),
+        n,
+      )
     : null
 
   return (
-    <div className="lb-viz">
-      <div className="lb-viz__scene">
-        <svg
-          className="lb-viz__svg"
-          viewBox={`0 0 ${width} ${height}`}
-          width={width}
-          height={height}
-          role="img"
-          aria-label="request flowing along a route from client to server"
-        >
-          {/* Resting topology (dim), clipped to the board */}
-          {CLIENT_NAMES.map((_, index) => (
-            <line
-              key={`wire-c-${index}`}
-              x1={CLIENT_X}
-              y1={clientsColumnY(index)}
-              x2={LB_X}
-              y2={balancerY}
-              className="lb-viz__wire"
-            />
-          ))}
-          {state.servers.map((server, index) => (
-            <line
-              key={`wire-s-${server.id}`}
-              x1={LB_X}
-              y1={balancerY}
-              x2={SERVER_X}
-              y2={serversColumnY(index, serverCount)}
-              className="lb-viz__wire"
-            />
-          ))}
+    <AlgoShell
+      state={state}
+      flight={flight}
+      badge="Round robin"
+      hint="Cursor walks S1 → S2 → S3 → S1. Equal turns, ignore load."
+      idlePrompt="Press Play. Watch the highlighted cursor step around the backends."
+    >
+      <svg
+        className="lb-viz__svg"
+        viewBox={`0 0 640 ${TOP + (CLIENT_NAMES.length - 1) * ROW + 40}`}
+        role="img"
+        aria-label="round robin load balancing"
+      >
+        <FanTopology state={state} />
+        {flight && pathD ? (
+          <TronFlow pathD={pathD} progress={progress} requestId={flight.id} />
+        ) : null}
+        <ClientColumn state={state} flight={flight} />
+        <LbBadge label="LB" sub="cursor" active={Boolean(flight)} />
+        {state.servers.map((server, index) => {
+          const y = serversColumnY(index, n)
+          const isTarget = flight?.serverId === server.id
+          const isNext = !flight && index === nextCursor
+          return (
+            <g key={server.id} transform={`translate(${SERVER_X}, ${y})`}>
+              <rect
+                x={-36}
+                y={-24}
+                width={72}
+                height={48}
+                rx={8}
+                className={`lb-viz__server${isTarget || isNext ? ' is-active' : ''}`}
+              />
+              <text className="lb-viz__server-name" textAnchor="middle" y={-4}>
+                {server.label}
+              </text>
+              <text className="lb-viz__server-meta" textAnchor="middle" y={12}>
+                Σ{server.totalHandled}
+              </text>
+            </g>
+          )
+        })}
+      </svg>
+    </AlgoShell>
+  )
+}
 
-          {flight && pathD ? (
-            <TronFlow
-              pathD={pathD}
-              progress={progress}
-              requestId={flight.id}
-            />
-          ) : null}
+function WeightedRoundRobinStage({
+  state,
+  travelMs,
+}: {
+  state: LoadBalancerSimState
+  travelMs: number
+}) {
+  const flight = state.flight
+  const progress = useTrailProgress(flight?.id ?? null, travelMs)
+  const slots = weightedSlots(state.servers)
+  const n = state.servers.length
+  const activeSlot =
+    flight?.slotIndex ?? (slots.length ? state.rrIndex % slots.length : 0)
+  const pathD = flight
+    ? linearRouteD(
+        flight.clientIndex,
+        serverIndexFor(state.servers, flight.serverId),
+        n,
+      )
+    : null
+  const maxW = Math.max(1, ...state.servers.map((s) => s.weight))
+  const topologyBottom = TOP + (CLIENT_NAMES.length - 1) * ROW
+  // Leave room under client captions before the weight-slot strip.
+  const slotStripY = topologyBottom + 72
+  const viewHeight = slotStripY + 48
 
-          {CLIENT_NAMES.map((name, index) => {
-            const y = clientsColumnY(index)
-            const active = flight?.clientKey === name
+  return (
+    <AlgoShell
+      state={state}
+      flight={flight}
+      badge="Weighted round robin"
+      hint="Higher weight = more slots in the rotation. Bigger box = more capacity."
+      idlePrompt="Press Play. Follow which weight slot fires, then where the request goes."
+    >
+      <svg
+        className="lb-viz__svg"
+        viewBox={`0 0 640 ${viewHeight}`}
+        role="img"
+        aria-label="weighted round robin load balancing"
+      >
+        <FanTopology state={state} />
+        {flight && pathD ? (
+          <TronFlow pathD={pathD} progress={progress} requestId={flight.id} />
+        ) : null}
+        <ClientColumn state={state} flight={flight} />
+        <LbBadge label="LB" sub="weights" active={Boolean(flight)} />
+        {state.servers.map((server, index) => {
+          const y = serversColumnY(index, n)
+          const isTarget = flight?.serverId === server.id
+          const w = 56 + (server.weight / maxW) * 36
+          const h = 40 + server.weight * 4
+          return (
+            <g key={server.id} transform={`translate(${SERVER_X}, ${y})`}>
+              <rect
+                x={-w / 2}
+                y={-h / 2}
+                width={w}
+                height={h}
+                rx={8}
+                className={`lb-viz__server${isTarget ? ' is-active' : ''}`}
+              />
+              <text className="lb-viz__server-name" textAnchor="middle" y={-2}>
+                {server.label}
+              </text>
+              <text className="lb-viz__server-meta" textAnchor="middle" y={14}>
+                w={server.weight} · Σ{server.totalHandled}
+              </text>
+            </g>
+          )
+        })}
+
+        {/* Slot strip: the actual WRR rotation */}
+        <g transform={`translate(80, ${slotStripY})`}>
+          <text className="lb-viz__strip-label" x={0} y={-8}>
+            weight slots (cycle)
+          </text>
+          {slots.map((serverId, index) => {
+            const label =
+              state.servers.find((s) => s.id === serverId)?.label ?? '?'
+            const active = index === activeSlot
             return (
-              <g key={name} transform={`translate(${CLIENT_X}, ${y})`}>
-                <circle
-                  r={NODE_R}
-                  className={`lb-viz__node lb-viz__node--client${active ? ' is-active' : ''}`}
+              <g key={`${serverId}-${index}`} transform={`translate(${index * 46}, 0)`}>
+                <rect
+                  x={0}
+                  y={0}
+                  width={40}
+                  height={28}
+                  rx={4}
+                  className={`lb-viz__slot${active ? ' is-active' : ''}`}
                 />
-                <text className="lb-viz__node-label" textAnchor="middle" dy="0.35em">
-                  {name.slice(0, 1).toUpperCase()}
-                </text>
-                <text className="lb-viz__caption" textAnchor="middle" y={NODE_R + 13}>
-                  {name}
+                <text
+                  className="lb-viz__slot-text"
+                  textAnchor="middle"
+                  x={20}
+                  y={18}
+                >
+                  {label}
                 </text>
               </g>
             )
           })}
+        </g>
+      </svg>
+    </AlgoShell>
+  )
+}
 
-          <g transform={`translate(${LB_X}, ${balancerY})`}>
-            <rect
-              x={-44}
-              y={-26}
-              width={88}
-              height={52}
-              rx={8}
-              className={`lb-viz__lb${flight && progress > 0.2 && progress < 0.85 ? ' is-active' : ''}`}
+function LeastConnectionsStage({
+  state,
+  travelMs,
+}: {
+  state: LoadBalancerSimState
+  travelMs: number
+}) {
+  const flight = state.flight
+  const progress = useTrailProgress(flight?.id ?? null, travelMs)
+  const n = state.servers.length
+  // Taller rows so server cards, bars, and labels never stack on each other.
+  const serverRow = 92
+  const maxActive = Math.max(1, ...state.servers.map((s) => s.activeConnections))
+  const quietestId = state.servers.reduce((best, s) => {
+    if (!best) return s.id
+    const b = state.servers.find((x) => x.id === best)!
+    if (s.activeConnections < b.activeConnections) return s.id
+    if (s.activeConnections === b.activeConnections && s.id < best) return s.id
+    return best
+  }, state.servers[0]?.id ?? '')
+  const pathD = flight
+    ? linearRouteD(
+        flight.clientIndex,
+        serverIndexFor(state.servers, flight.serverId),
+        n,
+        serverRow,
+      )
+    : null
+  const topPad = 40
+  const bottomPad = 48
+  const stackSpan = n <= 1 ? 0 : (n - 1) * serverRow
+  const viewHeight = Math.max(
+    TOP + (CLIENT_NAMES.length - 1) * ROW + 40,
+    lbY() + stackSpan / 2 + bottomPad + topPad,
+  )
+
+  return (
+    <AlgoShell
+      state={state}
+      flight={flight}
+      badge="Least connections"
+      hint="Each request picks the server with the fewest active connections right now."
+      idlePrompt="Press Play. Watch the quietest server (shortest bar) get the next request."
+    >
+      <svg
+        className="lb-viz__svg"
+        viewBox={`0 0 640 ${viewHeight}`}
+        role="img"
+        aria-label="least connections load balancing"
+      >
+        <FanTopology state={state} serverRow={serverRow} />
+        {flight && pathD ? (
+          <TronFlow pathD={pathD} progress={progress} requestId={flight.id} />
+        ) : null}
+        <ClientColumn state={state} flight={flight} />
+        <LbBadge label="LB" sub="fewest" active={Boolean(flight)} />
+        {state.servers.map((server, index) => {
+          const y = serversColumnY(index, n, serverRow)
+          const isTarget = flight?.serverId === server.id
+          const isQuiet = server.id === quietestId
+          const barW = 10 + (server.activeConnections / maxActive) * 70
+          return (
+            <g key={server.id} transform={`translate(${SERVER_X}, ${y})`}>
+              <rect
+                x={-34}
+                y={-22}
+                width={68}
+                height={44}
+                rx={8}
+                className={`lb-viz__server${isTarget || (!flight && isQuiet) ? ' is-active' : ''}`}
+              />
+              <text className="lb-viz__server-name" textAnchor="middle" y={4}>
+                {server.label}
+              </text>
+              {/* Load bar + count sit below the box so nothing stacks inside it. */}
+              <rect
+                x={-40}
+                y={34}
+                width={80}
+                height={8}
+                rx={2}
+                className="lb-viz__load-track"
+              />
+              <rect
+                x={-40}
+                y={34}
+                width={barW}
+                height={8}
+                rx={2}
+                className={`lb-viz__load-fill${isQuiet ? ' is-best' : ''}`}
+              />
+              <text className="lb-viz__server-meta" textAnchor="middle" y={56}>
+                {server.activeConnections} active
+              </text>
+            </g>
+          )
+        })}
+      </svg>
+    </AlgoShell>
+  )
+}
+
+function ConsistentHashStage({
+  state,
+  travelMs,
+}: {
+  state: LoadBalancerSimState
+  travelMs: number
+}) {
+  const flight = state.flight
+  const progress = useTrailProgress(flight?.id ?? null, travelMs)
+  const cx = 280
+  const cy = 270
+  const r = 168
+  const labelR = r + 42
+  const keyPos = flight?.keyRingPos ?? (flight ? hashToRing(flight.clientKey) : 0)
+  const target = flight
+    ? state.servers.find((s) => s.id === flight.serverId)
+    : null
+  const pathD =
+    flight && target
+      ? clockwiseArcPath(
+          cx,
+          cy,
+          r,
+          // Keep a readable trail even when the key lands right next to its server.
+          visualTrailStart(keyPos, target.ringPosition),
+          target.ringPosition,
+        )
+      : null
+  const keyMarkerPos = keyPos
+  // Draw the client key slightly inside the ring so it stays distinct from the server node.
+  const keyPoint = ringPoint(cx, cy, r - 28, keyMarkerPos)
+  const ordered = [...state.servers].sort(
+    (a, b) => a.ringPosition - b.ringPosition,
+  )
+
+  return (
+    <AlgoShell
+      state={state}
+      flight={flight}
+      badge="Consistent hashing"
+      hint="The ring is a diagram of hash values. A client lands, then walks clockwise to the next server."
+      idlePrompt="Press Play to watch stickiness. Then add a server and see who moves."
+    >
+      <svg
+        className="lb-viz__svg lb-viz__svg--ring"
+        viewBox="0 0 560 540"
+        role="img"
+        aria-label="consistent hash ring"
+      >
+        <circle cx={cx} cy={cy} r={r} className="lb-viz__ring-track" />
+
+        {ordered.map((server, index, arr) => {
+          const prev = arr[(index - 1 + arr.length) % arr.length]!
+          const d = clockwiseArcPath(
+            cx,
+            cy,
+            r - 22,
+            prev.ringPosition,
+            server.ringPosition,
+          )
+          return (
+            <path
+              key={`own-${server.id}`}
+              d={d}
+              className={`lb-viz__ring-owned${
+                flight?.serverId === server.id ? ' is-active' : ''
+              }`}
             />
-            <text className="lb-viz__lb-title" textAnchor="middle" y={-2}>
-              LB
-            </text>
-            <text className="lb-viz__lb-sub" textAnchor="middle" y={14}>
-              {algoShort(state.algo)}
+          )
+        })}
+
+        {flight && pathD ? (
+          <TronFlow pathD={pathD} progress={progress} requestId={flight.id} />
+        ) : null}
+
+        {flight ? (
+          <g transform={`translate(${keyPoint.x}, ${keyPoint.y})`}>
+            <circle r={7} className="lb-viz__key-dot" />
+            <text className="lb-viz__key-label" textAnchor="middle" y={-14}>
+              {flight.clientKey}
             </text>
           </g>
+        ) : null}
 
-          {state.servers.map((server, index) => {
-            const y = serversColumnY(index, serverCount)
-            const active = flight?.serverId === server.id && progress > 0.85
-            return (
-              <g key={server.id} transform={`translate(${SERVER_X}, ${y})`}>
-                <rect
-                  x={-34}
-                  y={-22}
-                  width={68}
-                  height={44}
-                  rx={8}
-                  className={`lb-viz__server${active ? ' is-active' : ''}`}
+        {state.servers.map((server) => {
+          const p = ringPoint(cx, cy, r, server.ringPosition)
+          const label = ringPoint(cx, cy, labelR, server.ringPosition)
+          const active = flight?.serverId === server.id
+          const anchor = ringTextAnchor(server.ringPosition)
+          return (
+            <g key={server.id}>
+              <g transform={`translate(${p.x}, ${p.y})`}>
+                <circle
+                  r={active ? 24 : 20}
+                  className={`lb-viz__ring-server${active ? ' is-active' : ''}`}
                 />
-                <text className="lb-viz__server-name" textAnchor="middle" y={-2}>
+                <text
+                  className="lb-viz__ring-server-label"
+                  textAnchor="middle"
+                  dy="0.35em"
+                >
                   {server.label}
                 </text>
-                <text className="lb-viz__server-meta" textAnchor="middle" y={14}>
-                  {state.algo === 'weighted-round-robin'
-                    ? `w${server.weight} · Σ${server.totalHandled}`
-                    : `n=${server.activeConnections} · Σ${server.totalHandled}`}
-                </text>
               </g>
-            )
-          })}
-        </svg>
-      </div>
+              <text
+                className="lb-viz__ring-server-meta"
+                textAnchor={anchor}
+                x={label.x}
+                y={label.y}
+              >
+                {server.totalHandled} routed
+              </text>
+            </g>
+          )
+        })}
 
+        <text className="lb-viz__ring-center" textAnchor="middle" x={cx} y={cy - 6}>
+          hash ring
+        </text>
+        <text className="lb-viz__ring-center-sub" textAnchor="middle" x={cx} y={cy + 14}>
+          walk clockwise
+        </text>
+      </svg>
+    </AlgoShell>
+  )
+}
+
+function ringTextAnchor(pos: number): 'start' | 'middle' | 'end' {
+  const angle = (pos / RING_SIZE) * Math.PI * 2 - Math.PI / 2
+  const cos = Math.cos(angle)
+  if (cos > 0.35) return 'start'
+  if (cos < -0.35) return 'end'
+  return 'middle'
+}
+
+function AlgoShell({
+  state,
+  flight,
+  badge,
+  hint,
+  idlePrompt,
+  children,
+}: {
+  state: LoadBalancerSimState
+  flight: SimFlight | null
+  badge: string
+  hint: string
+  idlePrompt: string
+  children: ReactNode
+}) {
+  const [scale, setScale] = useState(SCALE_DEFAULT)
+
+  return (
+    <div
+      className="lb-viz"
+      style={{ ['--viz-scale' as string]: String(scale) }}
+    >
+      <div className="lb-viz__algo-banner">
+        <div className="lb-viz__algo-head">
+          <span className="lb-viz__algo-badge">{badge}</span>
+          <div className="lb-viz__zoom" role="group" aria-label="Visualization size">
+            <button
+              type="button"
+              className="lb-viz__zoom-btn"
+              aria-label="Decrease visualization size"
+              disabled={scale <= SCALE_MIN + 0.001}
+              onClick={() =>
+                setScale((value) => Math.max(SCALE_MIN, roundScale(value - SCALE_STEP)))
+              }
+            >
+              -
+            </button>
+            <button
+              type="button"
+              className="lb-viz__zoom-btn"
+              aria-label="Increase visualization size"
+              disabled={scale >= SCALE_MAX - 0.001}
+              onClick={() =>
+                setScale((value) => Math.min(SCALE_MAX, roundScale(value + SCALE_STEP)))
+              }
+            >
+              +
+            </button>
+          </div>
+        </div>
+        <p className="lb-viz__algo-hint">{hint}</p>
+      </div>
+      <div className="lb-viz__scene">
+        <div className="lb-viz__viewport">
+          <div className="lb-viz__canvas">{children}</div>
+        </div>
+      </div>
       <p className="lb-viz__story" aria-live="polite">
         {state.finished ? (
           <>
             Burst complete: {state.arrivalsCount} requests routed. Hit Replay to watch again.
           </>
-        ) : flight && serverLabel ? (
-          <>
-            <strong>{flight.clientKey}</strong> flowing to <strong>{serverLabel}</strong>
-            <span className="lb-viz__story-muted"> · {flight.id}</span>
-          </>
+        ) : flight ? (
+          <>{flight.reason}</>
         ) : state.arrivalsCount === 0 ? (
-          <>Press Play. A request will leave a client and trail light to its server.</>
+          <>{idlePrompt}</>
         ) : (
           <>
-            Routed {state.arrivalsCount}/{state.maxArrivals}. Next request coming up…
+            Routed {state.arrivalsCount}/{state.maxArrivals}. Next decision coming up…
           </>
         )}
       </p>
-
-      {showRing ? <HashRing state={state} flight={flight} /> : null}
     </div>
   )
 }
 
-/**
- * Tron trail: path draws from 0 → progress while the request rides the tip.
- */
+function FanTopology({
+  state,
+  serverRow = ROW,
+}: {
+  state: LoadBalancerSimState
+  serverRow?: number
+}) {
+  const n = state.servers.length
+  const balancerY = lbY()
+  return (
+    <g className="lb-viz__wires">
+      {CLIENT_NAMES.map((_, index) => (
+        <line
+          key={`c-${index}`}
+          x1={CLIENT_X}
+          y1={clientsColumnY(index)}
+          x2={LB_X}
+          y2={balancerY}
+          className="lb-viz__wire"
+        />
+      ))}
+      {state.servers.map((server, index) => (
+        <line
+          key={`s-${server.id}`}
+          x1={LB_X}
+          y1={balancerY}
+          x2={SERVER_X}
+          y2={serversColumnY(index, n, serverRow)}
+          className="lb-viz__wire"
+        />
+      ))}
+    </g>
+  )
+}
+
+function ClientColumn({
+  state,
+  flight,
+}: {
+  state: LoadBalancerSimState
+  flight: SimFlight | null
+}) {
+  void state
+  return (
+    <g>
+      {CLIENT_NAMES.map((name, index) => {
+        const y = clientsColumnY(index)
+        const active = flight?.clientKey === name
+        return (
+          <g key={name} transform={`translate(${CLIENT_X}, ${y})`}>
+            <circle
+              r={NODE_R}
+              className={`lb-viz__node lb-viz__node--client${active ? ' is-active' : ''}`}
+            />
+            <text className="lb-viz__node-label" textAnchor="middle" dy="0.35em">
+              {name.slice(0, 1).toUpperCase()}
+            </text>
+            <text className="lb-viz__caption" textAnchor="middle" y={NODE_R + 12}>
+              {name}
+            </text>
+          </g>
+        )
+      })}
+    </g>
+  )
+}
+
+function LbBadge({
+  label,
+  sub,
+  active,
+}: {
+  label: string
+  sub: string
+  active: boolean
+}) {
+  return (
+    <g transform={`translate(${LB_X}, ${lbY()})`}>
+      <rect
+        x={-42}
+        y={-26}
+        width={84}
+        height={52}
+        rx={8}
+        className={`lb-viz__lb${active ? ' is-active' : ''}`}
+      />
+      <text className="lb-viz__lb-title" textAnchor="middle" y={-2}>
+        {label}
+      </text>
+      <text className="lb-viz__lb-sub" textAnchor="middle" y={14}>
+        {sub}
+      </text>
+    </g>
+  )
+}
+
 function TronFlow({
   pathD,
   progress,
@@ -224,27 +680,22 @@ function TronFlow({
   requestId: string
 }) {
   const measureRef = useRef<SVGPathElement | null>(null)
-  const [tip, setTip] = useState({ x: CLIENT_X, y: lbY() })
-
+  const [tip, setTip] = useState({ x: 0, y: 0 })
   const revealed = easeInOut(Math.min(1, Math.max(0, progress)))
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const path = measureRef.current
     if (!path) return
     const length = path.getTotalLength()
+    if (length <= 0) return
     const point = path.getPointAtLength(length * revealed)
     setTip({ x: point.x, y: point.y })
   }, [revealed, pathD])
 
   return (
     <g className="lb-viz__flow">
-      {/* Invisible geometry path for getPointAtLength */}
       <path ref={measureRef} d={pathD} className="lb-viz__measure" />
-
-      {/* Faint full route hint */}
       <path d={pathD} className="lb-viz__route-ghost" />
-
-      {/* Lit trail grows from client toward the rider (Tron style) */}
       <path
         d={pathD}
         pathLength={1}
@@ -254,8 +705,6 @@ function TronFlow({
           strokeDashoffset: 1 - revealed,
         }}
       />
-
-      {/* Request entity rides the tip of the trail */}
       <g className="lb-viz__rider" transform={`translate(${tip.x}, ${tip.y})`}>
         <circle r={12} className="lb-viz__rider-glow" />
         <circle r={8} className="lb-viz__rider-core" />
@@ -267,7 +716,6 @@ function TronFlow({
   )
 }
 
-/** Drive 0→1 over travelMs whenever a new flight id appears. */
 function useTrailProgress(flightId: string | null, travelMs: number): number {
   const [progress, setProgress] = useState(0)
 
@@ -291,69 +739,42 @@ function useTrailProgress(flightId: string | null, travelMs: number): number {
   return progress
 }
 
-function HashRing({
-  state,
-  flight,
-}: {
-  state: LoadBalancerSimState
-  flight: SimFlight | null
-}) {
-  return (
-    <div className="lb-viz__ring" aria-label="consistent hash ring">
-      <p className="lb-viz__label">Hash ring</p>
-      <svg
-        className="lb-viz__ring-svg"
-        viewBox="0 0 220 220"
-        width={200}
-        height={200}
-        role="img"
-      >
-        <circle cx="110" cy="110" r="78" className="lb-viz__ring-circle" />
-        {state.servers.map((server) => {
-          const angle =
-            (server.ringPosition / RING_SIZE) * Math.PI * 2 - Math.PI / 2
-          const x = 110 + Math.cos(angle) * 78
-          const y = 110 + Math.sin(angle) * 78
-          const focused = flight?.serverId === server.id
-          return (
-            <g key={server.id}>
-              <circle
-                cx={x}
-                cy={y}
-                r={focused ? 11 : 9}
-                className={`lb-viz__ring-node${focused ? ' is-focus' : ''}`}
-              />
-              <text
-                x={x}
-                y={y}
-                textAnchor="middle"
-                dy="0.35em"
-                className="lb-viz__ring-text"
-              >
-                {server.label.replace('S', '')}
-              </text>
-            </g>
-          )
-        })}
-      </svg>
-      <p className="lb-viz__ring-caption">
-        Same client name hashes to the same angle; ownership is the next clockwise server.
-      </p>
-    </div>
-  )
+/** Minimum clockwise degrees so a near-hit still shows a visible trail. */
+const MIN_TRAIL_DEGREES = 32
+
+function visualTrailStart(keyPos: number, serverPos: number): number {
+  const start = ((keyPos % RING_SIZE) + RING_SIZE) % RING_SIZE
+  const end = ((serverPos % RING_SIZE) + RING_SIZE) % RING_SIZE
+  let delta = (end - start + RING_SIZE) % RING_SIZE
+  if (delta === 0) delta = RING_SIZE
+  if (delta >= MIN_TRAIL_DEGREES) return start
+  return (end - MIN_TRAIL_DEGREES + RING_SIZE) % RING_SIZE
 }
 
-function algoShort(algo: LoadBalancerSimState['algo']): string {
-  switch (algo) {
-    case 'round-robin':
-      return 'round robin'
-    case 'weighted-round-robin':
-      return 'weighted RR'
-    case 'least-connections':
-      return 'least conn'
-    case 'consistent-hash':
-      return 'hash ring'
-    default:
-      return algo
+function ringPoint(cx: number, cy: number, radius: number, pos: number) {
+  const angle = (pos / RING_SIZE) * Math.PI * 2 - Math.PI / 2
+  return { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius }
+}
+
+/** Clockwise arc along the hash ring from fromPos → toPos. */
+function clockwiseArcPath(
+  cx: number,
+  cy: number,
+  radius: number,
+  fromPos: number,
+  toPos: number,
+): string {
+  const start = ((fromPos % RING_SIZE) + RING_SIZE) % RING_SIZE
+  const end = ((toPos % RING_SIZE) + RING_SIZE) % RING_SIZE
+  let delta = (end - start + RING_SIZE) % RING_SIZE
+  if (delta === 0) {
+    // Same-point full-circle arcs have zero length in SVG; nudge the start.
+    const nudged = (end - MIN_TRAIL_DEGREES + RING_SIZE) % RING_SIZE
+    return clockwiseArcPath(cx, cy, radius, nudged, end)
   }
+  const a = ringPoint(cx, cy, radius, start)
+  const b = ringPoint(cx, cy, radius, end)
+  const large = delta > RING_SIZE / 2 ? 1 : 0
+  // sweep-flag 1 = clockwise in SVG's y-down coordinates
+  return `M ${a.x} ${a.y} A ${radius} ${radius} 0 ${large} 1 ${b.x} ${b.y}`
 }

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { buildServers } from './createState'
+import { CLIENT_NAMES } from './clients'
+import { buildServers, placeInLargestGap } from './createState'
 import { hashToRing, pickServer, weightedSlots } from './strategies'
 
 describe('load balancer strategies', () => {
@@ -82,5 +83,33 @@ describe('load balancer strategies', () => {
     expect(a.serverId).toBe(b.serverId)
     expect(hashToRing('alice')).toBeGreaterThanOrEqual(0)
     expect(hashToRing('alice')).toBeLessThan(360)
+  })
+
+  it('spaces servers evenly around the ring', () => {
+    const servers = buildServers(3)
+    expect(servers.map((s) => s.ringPosition)).toEqual([90, 210, 330])
+  })
+
+  it('places a new server in the largest gap', () => {
+    const servers = buildServers(2)
+    expect(servers.map((s) => s.ringPosition)).toEqual([90, 270])
+    expect(placeInLargestGap(servers)).toBe(180)
+  })
+
+  it('demo clients hit every default consistent-hash server', () => {
+    const servers = buildServers(3)
+    const owners = new Set(
+      CLIENT_NAMES.map(
+        (clientKey) =>
+          pickServer({
+            algo: 'consistent-hash',
+            servers,
+            rrIndex: 0,
+            wrrCurrentWeight: 0,
+            request: { clientKey },
+          }).serverId,
+      ),
+    )
+    expect(owners).toEqual(new Set(['server-1', 'server-2', 'server-3']))
   })
 })
