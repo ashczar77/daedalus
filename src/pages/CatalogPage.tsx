@@ -4,20 +4,46 @@ import { lessons, TRACK_META } from '../academy/lessons/registry'
 import { isUnlocked, loadProgress, resetAllProgress } from '../academy/progress'
 import { nextRank, rankForScore } from '../academy/scoring'
 import type { AcademyTrack, LessonProgress } from '../academy/types'
-import { ModeSwitch } from '../components/ModeSwitch'
+import { ModeSwitch, type AppMode } from '../components/ModeSwitch'
 import type { Difficulty } from '../engine/types'
 import { problems } from '../problems/registry'
+import {
+  labsForPath,
+  pathTitle,
+  systemDesignLabs,
+  systemDesignPaths,
+} from '../system-design/registry'
 import './CatalogPage.css'
 
 const DIFFICULTIES: Array<Difficulty | 'All'> = ['All', 'Easy', 'Medium', 'Hard']
 
+function catalogMode(pathname: string): AppMode {
+  if (pathname.startsWith('/terminal')) return 'terminal'
+  if (pathname.startsWith('/system-design')) return 'system-design'
+  return 'algorithms'
+}
+
 /**
- * Shared Daedalus home: hero stays put; Algorithms / Terminal swap only the
- * catalog body (same shell width) with a light crossfade.
+ * Shared Daedalus home: hero stays put; mode swaps only the catalog body
+ * (same shell width) with a light crossfade.
  */
 export function CatalogPage() {
   const { pathname } = useLocation()
-  const mode = pathname.startsWith('/terminal') ? 'terminal' : 'algorithms'
+  const mode = catalogMode(pathname)
+
+  const statusLabel =
+    mode === 'terminal'
+      ? 'TERMINAL'
+      : mode === 'system-design'
+        ? 'SYSTEM DESIGN'
+        : 'CATALOG'
+
+  const eyebrow =
+    mode === 'terminal'
+      ? 'Interactive shell academy'
+      : mode === 'system-design'
+        ? 'System design labs'
+        : 'Step-through algorithm lab'
 
   return (
     <div className="catalog">
@@ -26,7 +52,7 @@ export function CatalogPage() {
           <p className="catalog__status">
             <span>DAEDALUS // OS</span>
             <span className="catalog__status-sep">·</span>
-            <span>{mode === 'terminal' ? 'TERMINAL' : 'CATALOG'}</span>
+            <span>{statusLabel}</span>
             <span className="catalog__status-sep">·</span>
             <span className="catalog__status-live">
               LINK READY<span className="is-blink">_</span>
@@ -34,17 +60,20 @@ export function CatalogPage() {
           </p>
           <ModeSwitch mode={mode} />
         </div>
-        <p className="catalog__eyebrow">
-          {mode === 'terminal'
-            ? 'Interactive shell academy'
-            : 'Step-through algorithm lab'}
-        </p>
+        <p className="catalog__eyebrow">{eyebrow}</p>
         <h1 className="catalog__brand">Daedalus</h1>
         <p className="catalog__lede">
           {mode === 'terminal' ? (
             <>
               Learn the shell by doing - fundamentals, mastery drills, and jq.
               Earn XP and climb ranks as you clear gated checks.
+              <span className="is-blink catalog__caret">█</span>
+            </>
+          ) : mode === 'system-design' ? (
+            <>
+              Explore distributed-systems ideas with teaching beats and live
+              sims. Start with load balancing: round robin through consistent
+              hashing.
               <span className="is-blink catalog__caret">█</span>
             </>
           ) : (
@@ -59,9 +88,88 @@ export function CatalogPage() {
       </header>
 
       <div key={mode} className="catalog__stage">
-        {mode === 'terminal' ? <TerminalCatalog /> : <AlgorithmsCatalog />}
+        {mode === 'terminal' ? (
+          <TerminalCatalog />
+        ) : mode === 'system-design' ? (
+          <SystemDesignCatalog />
+        ) : (
+          <AlgorithmsCatalog />
+        )}
       </div>
     </div>
+  )
+}
+
+function SystemDesignCatalog() {
+  const [pathId, setPathId] = useState<string>('all')
+
+  const filtered = useMemo(() => {
+    if (pathId === 'all') return systemDesignLabs
+    return labsForPath(pathId)
+  }, [pathId])
+
+  return (
+    <section className="catalog__list" aria-label="System design labs">
+      <div className="catalog__list-head">
+        <h2>
+          <span className="catalog__prompt">&gt;</span> Lab catalog
+        </h2>
+        <p>
+          {filtered.length === systemDesignLabs.length
+            ? `${systemDesignLabs.length} labs · suggested path order`
+            : `${filtered.length} of ${systemDesignLabs.length} labs`}
+        </p>
+      </div>
+
+      <div className="catalog__filters">
+        <div className="catalog__filter-row" role="group" aria-label="Filter by path">
+          <span className="catalog__filter-label">Path</span>
+          <div className="catalog__chips">
+            <button
+              type="button"
+              className={`catalog__chip${pathId === 'all' ? ' is-active' : ''}`}
+              aria-pressed={pathId === 'all'}
+              onClick={() => setPathId('all')}
+            >
+              All
+            </button>
+            {systemDesignPaths.map((path) => (
+              <button
+                key={path.id}
+                type="button"
+                className={`catalog__chip${pathId === path.id ? ' is-active' : ''}`}
+                aria-pressed={pathId === path.id}
+                onClick={() => setPathId(path.id)}
+              >
+                {path.title}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <ul>
+        {filtered.map((lab) => {
+          const pathLabs = labsForPath(lab.pathId)
+          return (
+            <li key={lab.id}>
+              <Link to={`/system-design/${lab.id}`} className="catalog__card">
+                <div className="catalog__card-top">
+                  <span className="catalog__lc">
+                    Lab {lab.order}/{pathLabs.length}
+                  </span>
+                  <span className="catalog__level is-intro">open</span>
+                </div>
+                <h3>{lab.title}</h3>
+                <p>
+                  {pathTitle(lab.pathId)} · {lab.summary}
+                </p>
+              </Link>
+            </li>
+          )
+        })}
+      </ul>
+    </section>
   )
 }
 

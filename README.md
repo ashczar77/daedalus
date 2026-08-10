@@ -2,7 +2,7 @@
 
 In the old stories, Daedalus was the craftsman who built the Labyrinth: clever enough to design a maze you could get lost in, and careful enough to leave himself a way through it. That is roughly the spirit of this project. Interview algorithms can feel like a maze of pointers, stacks, and recursive returns. Daedalus is here so you can walk the path with the lights on.
 
-**Daedalus is a growing learning platform:** a browser lab for stepping through coding-interview algorithms, plus a Terminal Academy for shell basics. Curated execution traces, animated structures, and the same idea in Java, Kotlin, and Python side by side. The catalog and curriculum expand as people solve new problems and teach them well.
+**Daedalus is a growing learning platform:** a browser lab for stepping through coding-interview algorithms, a Terminal Academy for shell basics, and System Design labs with live sims. Curated execution traces, animated structures, and the same idea in Java, Kotlin, and Python side by side. The catalog and curriculum expand as people solve new problems and teach them well.
 
 **Repo:** https://github.com/ashczar77/daedalus
 
@@ -20,6 +20,8 @@ In the old stories, Daedalus was the craftsman who built the Labyrinth: clever e
 
 ![Terminal lesson](docs/media/terminal-lesson.png)
 
+**System Design.** Open `/system-design` for concept labs: short teaching beats, then a live simulation. The first path is Load Balancing (round robin, weighted round robin, least connections, consistent hashing). Labs are listed in a suggested order and all start unlocked.
+
 ## Contributing
 
 Engineers are welcome, especially if you care about clear teaching, not just "another LeetCode dump." Good PRs make a pattern easier to *see*.
@@ -31,6 +33,7 @@ Engineers are welcome, especially if you care about clear teaching, not just "an
 | New algorithm pack | Grow the catalog with a real walkthrough (Java / Kotlin / Python + stepped viz) |
 | Stronger visualizations | Sharper structure drawings, better focus beats, clearer unlink / heap / tree cues |
 | Terminal Academy lessons | More shell drills, better checks, new tracks |
+| System Design labs | New paths/sims under `src/system-design/` (teaching beats + live viz) |
 | Engine / UX polish | Playback, inputs, accessibility, catalog ergonomics |
 | Tests & docs | Keep generators honest; leave the next author a map |
 
@@ -86,7 +89,8 @@ npm run preview           # serve the production build locally
 | `src/engine/` | Playback, step normalization, shared input parsing |
 | `src/visualizers/` | Structure drawings (arrays, trees, heaps, lists, etc.) |
 | `src/academy/` | Terminal Academy lessons, VFS shell, checkers |
-| `src/pages/` | Catalog, problem player, academy lesson page |
+| `src/system-design/` | System Design paths, labs, sims, and viz |
+| `src/pages/` | Catalog, problem player, academy / system-design pages |
 | `docs/reviews/` | Phase write-ups we use as stage gates |
 | `docs/media/` | Screenshots used in this README |
 

@@ -1,28 +1,42 @@
 import { Link } from 'react-router-dom'
 import './ModeSwitch.css'
 
-type Mode = 'algorithms' | 'terminal'
+export type AppMode = 'algorithms' | 'terminal' | 'system-design'
 
 type Props = {
-  mode: Mode
+  mode: AppMode
 }
 
+const MODES: Array<{ id: AppMode; label: string; to: string }> = [
+  { id: 'algorithms', label: 'Algorithms', to: '/' },
+  { id: 'terminal', label: 'Terminal', to: '/terminal' },
+  { id: 'system-design', label: 'System Design', to: '/system-design' },
+]
+
 /**
- * Quiet home-mode control - text link, not a chunky tab bar.
- * Keeps Daedalus hero stable while / and /terminal swap catalog body.
+ * Quiet three-way mode control. Text links, not a chunky tab bar.
  */
 export function ModeSwitch({ mode }: Props) {
-  if (mode === 'terminal') {
-    return (
-      <Link to="/" className="mode-switch" aria-label="Back to algorithm catalog">
-        ← Algorithms
-      </Link>
-    )
-  }
-
   return (
-    <Link to="/terminal" className="mode-switch" aria-label="Open terminal academy">
-      Terminal <span aria-hidden="true">›</span>
-    </Link>
+    <nav className="mode-switch" aria-label="Daedalus mode">
+      {MODES.map((item, index) => (
+        <span key={item.id} className="mode-switch__item">
+          {index > 0 ? (
+            <span className="mode-switch__sep" aria-hidden="true">
+              /
+            </span>
+          ) : null}
+          {item.id === mode ? (
+            <span className="mode-switch__current" aria-current="page">
+              {item.label}
+            </span>
+          ) : (
+            <Link to={item.to} className="mode-switch__link">
+              {item.label}
+            </Link>
+          )}
+        </span>
+      ))}
+    </nav>
   )
 }

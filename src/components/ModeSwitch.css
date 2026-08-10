@@ -1,11 +1,29 @@
 .mode-switch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.2rem;
   flex-shrink: 0;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.mode-switch__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.mode-switch__sep {
+  color: color-mix(in srgb, var(--muted) 70%, transparent);
+  margin: 0 0.1rem;
+}
+
+.mode-switch__link {
   color: var(--muted);
   text-decoration: none;
-  font-family: var(--font-display);
-  font-size: 0.78rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
   padding: 0.15rem 0;
   border-bottom: 1px solid transparent;
   transition:
@@ -13,7 +31,13 @@
     border-color 180ms ease;
 }
 
-.mode-switch:hover {
+.mode-switch__link:hover {
   color: var(--accent);
   border-bottom-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.mode-switch__current {
+  color: var(--accent);
+  padding: 0.15rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
 }

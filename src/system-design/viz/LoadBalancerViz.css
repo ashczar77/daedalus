@@ -1,0 +1,226 @@
+.lb-viz {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  width: 100%;
+  justify-items: center;
+}
+
+.lb-viz__scene {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 0.3rem;
+  background: color-mix(in srgb, var(--surface) 88%, #000);
+}
+
+.lb-viz__svg {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+
+.lb-viz__wire {
+  fill: none;
+  stroke: color-mix(in srgb, var(--line) 50%, transparent);
+  stroke-width: 1.2;
+}
+
+.lb-viz__measure {
+  fill: none;
+  stroke: none;
+  pointer-events: none;
+}
+
+.lb-viz__route-ghost {
+  fill: none;
+  stroke: color-mix(in srgb, var(--accent) 18%, transparent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Trail grows behind the rider (Tron light-cycle style). */
+.lb-viz__route-trail {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lb-viz__rider-core {
+  fill: var(--accent);
+  stroke: color-mix(in srgb, var(--accent) 30%, #fff);
+  stroke-width: 1.5;
+}
+
+.lb-viz__rider-glow {
+  fill: color-mix(in srgb, var(--accent) 28%, transparent);
+  stroke: none;
+  pointer-events: none;
+}
+
+.lb-viz__rider-label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  fill: #041018;
+  pointer-events: none;
+  transform: rotate(0deg);
+}
+
+.lb-viz__node {
+  fill: var(--surface-2);
+  stroke: var(--line);
+  stroke-width: 2;
+}
+
+.lb-viz__node--client.is-active {
+  fill: color-mix(in srgb, var(--accent) 22%, var(--lift));
+  stroke: var(--accent);
+}
+
+.lb-viz__node-label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--ink);
+  pointer-events: none;
+}
+
+.lb-viz__caption {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  fill: var(--muted);
+  pointer-events: none;
+}
+
+.lb-viz__lb {
+  fill: var(--surface-2);
+  stroke: var(--line);
+  stroke-width: 2;
+}
+
+.lb-viz__lb.is-active {
+  fill: color-mix(in srgb, var(--accent) 14%, var(--lift));
+  stroke: var(--accent);
+}
+
+.lb-viz__lb-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  fill: var(--accent);
+  pointer-events: none;
+}
+
+.lb-viz__lb-sub {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: var(--muted);
+  pointer-events: none;
+}
+
+.lb-viz__server {
+  fill: var(--surface-2);
+  stroke: var(--line);
+  stroke-width: 2;
+}
+
+.lb-viz__server.is-active {
+  fill: color-mix(in srgb, var(--accent) 16%, var(--lift));
+  stroke: var(--accent);
+}
+
+.lb-viz__server-name {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--ink);
+  pointer-events: none;
+}
+
+.lb-viz__server-meta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: var(--muted);
+  pointer-events: none;
+}
+
+.lb-viz__story {
+  margin: 0;
+  max-width: 40rem;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.lb-viz__story strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.lb-viz__story-muted {
+  color: var(--muted);
+}
+
+.lb-viz__label {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+}
+
+.lb-viz__ring {
+  display: grid;
+  justify-items: center;
+  gap: 0.3rem;
+}
+
+.lb-viz__ring-svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.lb-viz__ring-circle {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 2;
+}
+
+.lb-viz__ring-node {
+  fill: var(--surface-2);
+  stroke: var(--line);
+  stroke-width: 2;
+}
+
+.lb-viz__ring-node.is-focus {
+  fill: color-mix(in srgb, var(--accent) 22%, var(--lift));
+  stroke: var(--accent);
+}
+
+.lb-viz__ring-text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--ink);
+  pointer-events: none;
+}
+
+.lb-viz__ring-caption {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  text-align: center;
+  max-width: 28rem;
+}
