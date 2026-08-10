@@ -3,10 +3,13 @@ import { Link, useParams } from 'react-router-dom'
 import { ModeSwitch } from '../components/ModeSwitch'
 import { useCacheSim } from '../system-design/cache/sim/useCacheSim'
 import { CacheViz } from '../system-design/cache/viz/CacheViz'
+import { useCapSim } from '../system-design/cap/sim/useCapSim'
+import { CapViz } from '../system-design/cap/viz/CapViz'
 import { getSystemDesignLab, labsForPath, pathTitle } from '../system-design/registry'
 import { useLoadBalancerSim } from '../system-design/sim/useLoadBalancerSim'
 import type {
   CacheSimDefaults,
+  CapSimDefaults,
   LoadBalancerSimDefaults,
   SystemDesignLab,
 } from '../system-design/types'
@@ -26,6 +29,12 @@ const FALLBACK_CACHE: CacheSimDefaults = {
   maxArrivals: 12,
 }
 
+const FALLBACK_CAP: CapSimDefaults = {
+  algo: 'overview',
+  mode: 'cp',
+  replicaCount: 3,
+}
+
 /**
  * System Design lab: teaching beats, then a live simulation for that path.
  */
@@ -40,6 +49,10 @@ export function SystemDesignLabPage() {
         <Link to="/system-design">Back to System Design</Link>
       </div>
     )
+  }
+
+  if (lab.kind === 'cap') {
+    return <CapLabView lab={lab} />
   }
 
   if (lab.kind === 'cache') {
@@ -288,4 +301,66 @@ function CacheLabView({
       simStage={<CacheViz state={sim.state} travelMs={sim.travelMs} />}
     />
   )
+}
+
+function CapLabView({
+  lab,
+}: {
+  lab: Extract<SystemDesignLab, { kind: 'cap' }>
+}) {
+  const sim = useCapSim(lab.simDefaults ?? FALLBACK_CAP)
+  const blurb = capSimBlurb(lab.simDefaults.algo)
+
+  return (
+    <LabChrome
+      lab={lab}
+      simBlurb={blurb}
+      simControls={
+        <>
+          <button type="button" className="sd-lab__btn is-accent" onClick={sim.toggle}>
+            {sim.state.finished ? 'Replay' : sim.playing ? 'Pause' : 'Play'}
+          </button>
+          <button type="button" className="sd-lab__btn" onClick={sim.stepOnce}>
+            Step
+          </button>
+          <button type="button" className="sd-lab__btn" onClick={sim.reset}>
+            Reset
+          </button>
+          <button
+            type="button"
+            className="sd-lab__btn"
+            onClick={sim.cycleSpeed}
+            aria-label="Cycle speed"
+          >
+            {sim.speed}x
+          </button>
+          <span className="sd-lab__weight">
+            {sim.state.mode === 'cp' ? 'Prefer Consistency' : 'Prefer Availability'}
+          </span>
+          <span className="sd-lab__weight">
+            <span className="sd-lab__stat sd-lab__stat--hit">{sim.state.okCount} answered</span>
+            {' / '}
+            <span className="sd-lab__stat sd-lab__stat--miss">
+              {sim.state.refuseCount} errors
+            </span>
+          </span>
+        </>
+      }
+      simStage={<CapViz state={sim.state} travelMs={sim.travelMs} />}
+    />
+  )
+}
+
+function capSimBlurb(algo: CapSimDefaults['algo']): string {
+  switch (algo) {
+    case 'consistency':
+      return 'This lab highlights stored values. Watch Zone A and Zone B agree, then disagree.'
+    case 'availability':
+      return 'This lab highlights replies. Watch Answered versus Error when Zone B is cut off.'
+    case 'partition':
+      return 'This lab highlights the sync link. Watch cross-zone copy fail, then heal reconnect the zones.'
+    case 'overview':
+    default:
+      return 'This lab shows the full tradeoff: healthy sync, then Prefer Consistency versus Prefer Availability after the cut.'
+  }
 }

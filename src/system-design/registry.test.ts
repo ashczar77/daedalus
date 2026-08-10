@@ -30,9 +30,25 @@ describe('system design registry', () => {
     expect(labs.every((l) => l.kind === 'cache')).toBe(true)
   })
 
+  it('registers the CAP theorem path with four labs in order', () => {
+    expect(systemDesignPaths.map((p) => p.id)).toContain('cap-theorem')
+    const labs = labsForPath('cap-theorem')
+    expect(labs).toHaveLength(4)
+    expect(labs.map((l) => l.order)).toEqual([1, 2, 3, 4])
+    expect(labs.map((l) => l.id)).toEqual([
+      'cap-overview',
+      'cap-consistency',
+      'cap-availability',
+      'cap-partition',
+    ])
+    expect(labs.every((l) => l.teachingSteps.length >= 4)).toBe(true)
+    expect(labs.every((l) => l.kind === 'cap')).toBe(true)
+  })
+
   it('looks up labs by id', () => {
     expect(getSystemDesignLab('lb-round-robin')?.title).toBe('Round Robin')
     expect(getSystemDesignLab('cache-aside')?.title).toBe('Cache-Aside')
+    expect(getSystemDesignLab('cap-overview')?.title).toBe('CAP Theorem')
     expect(getSystemDesignLab('missing')).toBeUndefined()
   })
 })

@@ -59,6 +59,22 @@ export type CacheSimDefaults = {
   writeBehindFlushEvery?: number
 }
 
+/** Which CAP teaching angle the lab simulates. */
+export type CapAlgo = 'overview' | 'consistency' | 'availability' | 'partition'
+
+/** CP keeps agreement and may refuse; AP keeps answering and may diverge. */
+export type CapMode = 'cp' | 'ap'
+
+export type CapSimDefaults = {
+  algo: CapAlgo
+  /** Starting mode. Consistency defaults to cp; availability to ap. */
+  mode?: CapMode
+  /** Replica count (3 keeps majority/minority readable). */
+  replicaCount?: number
+  /** Stop after this many scripted ops. */
+  maxArrivals?: number
+}
+
 type LabBase = {
   id: string
   title: string
@@ -87,4 +103,8 @@ export type SystemDesignLab =
   | (LabBase & {
       kind: 'cache'
       simDefaults: CacheSimDefaults
+    })
+  | (LabBase & {
+      kind: 'cap'
+      simDefaults: CapSimDefaults
     })

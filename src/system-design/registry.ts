@@ -6,11 +6,16 @@ import { readThroughLab } from './labs/caching/read-through'
 import { ttlLab } from './labs/caching/ttl'
 import { writeBehindLab } from './labs/caching/write-behind'
 import { writeThroughLab } from './labs/caching/write-through'
+import { capAvailabilityLab } from './labs/cap-theorem/availability'
+import { capConsistencyLab } from './labs/cap-theorem/consistency'
+import { capOverviewLab } from './labs/cap-theorem/overview'
+import { capPartitionLab } from './labs/cap-theorem/partition'
 import { consistentHashLab } from './labs/consistent-hash'
 import { leastConnectionsLab } from './labs/least-connections'
 import { roundRobinLab } from './labs/round-robin'
 import { weightedRoundRobinLab } from './labs/weighted-round-robin'
 import { cachingPath } from './paths/caching'
+import { capTheoremPath } from './paths/cap-theorem'
 import { loadBalancingPath } from './paths/load-balancing'
 import type { SystemDesignLab, SystemDesignPath } from './types'
 
@@ -18,6 +23,7 @@ import type { SystemDesignLab, SystemDesignPath } from './types'
 export const systemDesignPaths: SystemDesignPath[] = [
   loadBalancingPath,
   cachingPath,
+  capTheoremPath,
 ].sort((a, b) => a.order - b.order)
 
 /** All labs; sorted by path order then lab order. */
@@ -34,6 +40,10 @@ export const systemDesignLabs: SystemDesignLab[] = [
   lfuLab,
   fifoLab,
   ttlLab,
+  capOverviewLab,
+  capConsistencyLab,
+  capAvailabilityLab,
+  capPartitionLab,
 ].sort((a, b) => {
   const pathA = systemDesignPaths.find((p) => p.id === a.pathId)?.order ?? 0
   const pathB = systemDesignPaths.find((p) => p.id === b.pathId)?.order ?? 0
