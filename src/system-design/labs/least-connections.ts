@@ -1,6 +1,7 @@
 import type { SystemDesignLab } from '../types'
 
 export const leastConnectionsLab: SystemDesignLab = {
+  kind: 'load-balancer',
   id: 'lb-least-connections',
   title: 'Least Connections',
   pathId: 'load-balancing',

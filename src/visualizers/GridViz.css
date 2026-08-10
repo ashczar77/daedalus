@@ -1,0 +1,99 @@
+.grid-viz {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.grid-viz__label {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.grid-viz__board {
+  display: grid;
+  gap: 0.35rem;
+  width: max-content;
+  max-width: 100%;
+  padding-top: 1.35rem;
+}
+
+.grid-viz__cell {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  background: color-mix(in srgb, var(--surface) 88%, var(--lift));
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
+}
+
+.grid-viz__cell.is-land {
+  background: color-mix(in srgb, var(--accent-2) 12%, var(--lift));
+}
+
+.grid-viz__cell.is-water {
+  background: color-mix(in srgb, var(--ink) 4%, var(--lift));
+  color: var(--muted);
+}
+
+.grid-viz__cell.is-current {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, var(--lift));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.grid-viz__cell.is-window {
+  border-color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 20%, var(--lift));
+}
+
+.grid-viz__cell.is-visited {
+  opacity: 0.55;
+}
+
+.grid-viz__cell.is-found {
+  border-color: var(--good);
+  background: color-mix(in srgb, var(--good) 18%, var(--lift));
+}
+
+.grid-viz__cell.is-discard {
+  opacity: 0.4;
+}
+
+.grid-viz__cell.has-ptr {
+  z-index: 1;
+}
+
+.grid-viz__ptrs {
+  position: absolute;
+  top: -1.15rem;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.grid-viz__val {
+  line-height: 1;
+}
+
+.grid-viz__caption {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}

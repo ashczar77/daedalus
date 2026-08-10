@@ -6,9 +6,11 @@ import { binaryTreeLevelOrderTraversal } from './0102-binary-tree-level-order-tr
 import { maximumDepthOfBinaryTree } from './0104-maximum-depth-of-binary-tree'
 import { balancedBinaryTree } from './0110-balanced-binary-tree'
 import { removeNthNodeFromEndOfList } from './0019-remove-nth-node-from-end-of-list'
+import { numberOfIslands } from './0200-number-of-islands'
 import { validParentheses } from './0020-valid-parentheses'
 import { mergeTwoSortedLists } from './0021-merge-two-sorted-lists'
 import { twoSum } from './0001-two-sum'
+import { validateBinarySearchTree } from './0098-validate-binary-search-tree'
 import { linkedListCycle } from './0141-linked-list-cycle'
 import { evaluateReversePolishNotation } from './0150-evaluate-reverse-polish-notation'
 import { twoSumII } from './0167-two-sum-ii'
@@ -19,6 +21,7 @@ import { kthLargestElementInAnArray } from './0215-kth-largest-element-in-an-arr
 import { containsDuplicate } from './0217-contains-duplicate'
 import { invertBinaryTree } from './0226-invert-binary-tree'
 import { validAnagram } from './0242-valid-anagram'
+import { longestRepeatingCharacterReplacement } from './0424-longest-repeating-character-replacement'
 import { diameterOfBinaryTree } from './0543-diameter-of-binary-tree'
 import { subtreeOfAnotherTree } from './0572-subtree-of-another-tree'
 import { binarySearch } from './0704-binary-search'
@@ -40,6 +43,7 @@ export const problems: ProblemPack[] = [
   validAnagram,
   validPalindrome,
   longestSubstringWithoutRepeating,
+  longestRepeatingCharacterReplacement,
   twoSumII,
   containerWithMostWater,
   bestTimeToBuyAndSellStock,
@@ -51,10 +55,12 @@ export const problems: ProblemPack[] = [
   kthLargestElementInAnArray,
   mergeTwoSortedLists,
   linkedListCycle,
+  numberOfIslands,
   invertBinaryTree,
   maximumDepthOfBinaryTree,
   balancedBinaryTree,
   sameTree,
+  validateBinarySearchTree,
   binaryTreeLevelOrderTraversal,
   diameterOfBinaryTree,
   subtreeOfAnotherTree,

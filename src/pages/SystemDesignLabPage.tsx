@@ -1,37 +1,37 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ModeSwitch } from '../components/ModeSwitch'
+import { useCacheSim } from '../system-design/cache/sim/useCacheSim'
+import { CacheViz } from '../system-design/cache/viz/CacheViz'
 import { getSystemDesignLab, labsForPath, pathTitle } from '../system-design/registry'
 import { useLoadBalancerSim } from '../system-design/sim/useLoadBalancerSim'
-import type { LoadBalancerSimDefaults } from '../system-design/types'
+import type {
+  CacheSimDefaults,
+  LoadBalancerSimDefaults,
+  SystemDesignLab,
+} from '../system-design/types'
 import { LoadBalancerViz } from '../system-design/viz/LoadBalancerViz'
 import './SystemDesignLabPage.css'
 
-const FALLBACK_SIM: LoadBalancerSimDefaults = {
+const FALLBACK_LB: LoadBalancerSimDefaults = {
   algo: 'round-robin',
   serverCount: 3,
   requestDurationTicks: 8,
   arrivalEveryTicks: 2,
 }
 
+const FALLBACK_CACHE: CacheSimDefaults = {
+  algo: 'cache-aside',
+  capacity: 4,
+  maxArrivals: 12,
+}
+
 /**
- * System Design lab: teaching beats, then a live load-balancer simulation.
+ * System Design lab: teaching beats, then a live simulation for that path.
  */
 export function SystemDesignLabPage() {
   const { labId = '' } = useParams()
   const lab = getSystemDesignLab(labId)
-  const [beatIndex, setBeatIndex] = useState(0)
-  const simDefaults = lab?.simDefaults ?? FALLBACK_SIM
-  const sim = useLoadBalancerSim(simDefaults)
-
-  useEffect(() => {
-    setBeatIndex(0)
-  }, [lab?.id])
-
-  const pathLabs = useMemo(
-    () => (lab ? labsForPath(lab.pathId) : []),
-    [lab],
-  )
 
   if (!lab) {
     return (
@@ -41,6 +41,31 @@ export function SystemDesignLabPage() {
       </div>
     )
   }
+
+  if (lab.kind === 'cache') {
+    return <CacheLabView lab={lab} />
+  }
+
+  return <LoadBalancerLabView lab={lab} />
+}
+
+function LabChrome({
+  lab,
+  simControls,
+  simStage,
+  simBlurb,
+}: {
+  lab: SystemDesignLab
+  simControls: ReactNode
+  simStage: ReactNode
+  simBlurb: string
+}) {
+  const [beatIndex, setBeatIndex] = useState(0)
+  const pathLabs = useMemo(() => labsForPath(lab.pathId), [lab.pathId])
+
+  useEffect(() => {
+    setBeatIndex(0)
+  }, [lab.id])
 
   const beat = lab.teachingSteps[beatIndex] ?? lab.teachingSteps[0]!
   const atStart = beatIndex <= 0
@@ -103,10 +128,58 @@ export function SystemDesignLabPage() {
           <h2>
             <span className="sd-lab__prompt">&gt;</span> Live simulation
           </h2>
-          <p>Each algorithm shows its decision rule. Watch the request trail follow that choice.</p>
+          <p>{simBlurb}</p>
         </div>
 
-        <div className="sd-lab__controls">
+        <div className="sd-lab__controls">{simControls}</div>
+
+        <div className="sd-lab__stage">{simStage}</div>
+      </section>
+
+      <section className="sd-lab__tradeoffs" aria-label="Tradeoffs">
+        <h2>
+          <span className="sd-lab__prompt">&gt;</span> When to use
+        </h2>
+        <ul>
+          {lab.tradeoffs.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="sd-lab__walk" aria-label="Walkthrough">
+        <h2>
+          <span className="sd-lab__prompt">&gt;</span> Recap
+        </h2>
+        <p>
+          <strong>Problem.</strong> {lab.walkthrough.statement}
+        </p>
+        <p>
+          <strong>Key idea.</strong> {lab.walkthrough.keyIdea}
+        </p>
+        <ol>
+          {lab.walkthrough.approach.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+      </section>
+    </div>
+  )
+}
+
+function LoadBalancerLabView({
+  lab,
+}: {
+  lab: Extract<SystemDesignLab, { kind: 'load-balancer' }>
+}) {
+  const sim = useLoadBalancerSim(lab.simDefaults ?? FALLBACK_LB)
+
+  return (
+    <LabChrome
+      lab={lab}
+      simBlurb="Each algorithm shows its decision rule. Watch the request trail follow that choice."
+      simControls={
+        <>
           <button type="button" className="sd-lab__btn is-accent" onClick={sim.toggle}>
             {sim.state.finished ? 'Replay' : sim.playing ? 'Pause' : 'Play'}
           </button>
@@ -165,40 +238,54 @@ export function SystemDesignLabPage() {
               </button>
             </>
           ) : null}
-        </div>
+        </>
+      }
+      simStage={<LoadBalancerViz state={sim.state} travelMs={sim.travelMs} />}
+    />
+  )
+}
 
-        <div className="sd-lab__stage">
-          <LoadBalancerViz state={sim.state} travelMs={sim.travelMs} />
-        </div>
-      </section>
+function CacheLabView({
+  lab,
+}: {
+  lab: Extract<SystemDesignLab, { kind: 'cache' }>
+}) {
+  const sim = useCacheSim(lab.simDefaults ?? FALLBACK_CACHE)
 
-      <section className="sd-lab__tradeoffs" aria-label="Tradeoffs">
-        <h2>
-          <span className="sd-lab__prompt">&gt;</span> When to use
-        </h2>
-        <ul>
-          {lab.tradeoffs.map((line) => (
-            <li key={line}>{line}</li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="sd-lab__walk" aria-label="Walkthrough">
-        <h2>
-          <span className="sd-lab__prompt">&gt;</span> Recap
-        </h2>
-        <p>
-          <strong>Problem.</strong> {lab.walkthrough.statement}
-        </p>
-        <p>
-          <strong>Key idea.</strong> {lab.walkthrough.keyIdea}
-        </p>
-        <ol>
-          {lab.walkthrough.approach.map((step) => (
-            <li key={step}>{step}</li>
-          ))}
-        </ol>
-      </section>
-    </div>
+  return (
+    <LabChrome
+      lab={lab}
+      simBlurb="Each strategy shows a different path or eviction rule. Watch the trail and the cache slots."
+      simControls={
+        <>
+          <button type="button" className="sd-lab__btn is-accent" onClick={sim.toggle}>
+            {sim.state.finished ? 'Replay' : sim.playing ? 'Pause' : 'Play'}
+          </button>
+          <button type="button" className="sd-lab__btn" onClick={sim.stepOnce}>
+            Step
+          </button>
+          <button type="button" className="sd-lab__btn" onClick={sim.reset}>
+            Reset
+          </button>
+          <button
+            type="button"
+            className="sd-lab__btn"
+            onClick={sim.cycleSpeed}
+            aria-label="Cycle speed"
+          >
+            {sim.speed}x
+          </button>
+          <span className="sd-lab__weight">
+            capacity {sim.state.capacity}
+          </span>
+          <span className="sd-lab__weight">
+            <span className="sd-lab__stat sd-lab__stat--hit">{sim.state.hits} hit</span>
+            {' / '}
+            <span className="sd-lab__stat sd-lab__stat--miss">{sim.state.misses} miss</span>
+          </span>
+        </>
+      }
+      simStage={<CacheViz state={sim.state} travelMs={sim.travelMs} />}
+    />
   )
 }

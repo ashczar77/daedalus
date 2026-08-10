@@ -110,6 +110,18 @@ function expandObject(
     ]
   }
 
+  if (object.kind === 'grid') {
+    const rows = object.cells.map((row) => row.join('')).join(' / ')
+    return [
+      {
+        key: object.id,
+        id: object.id,
+        kind: 'grid',
+        detail: object.label ? `${object.label}: ${rows || 'empty'}` : rows || 'empty',
+      },
+    ]
+  }
+
   return [
     {
       key: object.id,
@@ -139,7 +151,8 @@ function buildAliases(objects: HeapObject[]): Map<string, string> {
       object.kind === 'hashmap' ||
       object.kind === 'stack' ||
       object.kind === 'queue' ||
-      object.kind === 'heap'
+      object.kind === 'heap' ||
+      object.kind === 'grid'
     ) {
       aliases.set(object.id, object.id)
     }

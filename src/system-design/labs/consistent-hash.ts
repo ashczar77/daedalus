@@ -1,6 +1,7 @@
 import type { SystemDesignLab } from '../types'
 
 export const consistentHashLab: SystemDesignLab = {
+  kind: 'load-balancer',
   id: 'lb-consistent-hash',
   title: 'Consistent Hashing',
   pathId: 'load-balancing',

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { HeapObject } from '../engine/types'
 import { ArrayViz } from '../visualizers/ArrayViz'
+import { GridViz } from '../visualizers/GridViz'
 import { HashMapViz } from '../visualizers/HashMapViz'
 import { LinkedListViz } from '../visualizers/LinkedListViz'
 import { HeapViz } from '../visualizers/HeapViz'
@@ -188,6 +189,21 @@ function StructureView({ object }: { object: HeapObject }) {
           dangerIds: object.dangerIds,
           discardIds: object.discardIds,
           linkFocus: object.linkFocus,
+          label: object.label,
+          caption: object.caption,
+        }}
+      />
+    )
+  }
+
+  if (object.kind === 'grid') {
+    return (
+      <GridViz
+        scene={{
+          type: 'grid',
+          cells: object.cells,
+          highlights: object.highlights,
+          pointers: object.pointers,
           label: object.label,
           caption: object.caption,
         }}

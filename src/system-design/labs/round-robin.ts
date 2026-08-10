@@ -1,6 +1,7 @@
 import type { SystemDesignLab } from '../types'
 
 export const roundRobinLab: SystemDesignLab = {
+  kind: 'load-balancer',
   id: 'lb-round-robin',
   title: 'Round Robin',
   pathId: 'load-balancing',

@@ -188,14 +188,26 @@
   padding: 0.65rem 0.15rem 0.15rem;
 }
 
-.sd-lab__tradeoffs ul,
-.sd-lab__walk ol {
+.sd-lab__tradeoffs ul {
   margin: 0;
   padding-left: 1.15rem;
   display: grid;
   gap: 0.35rem;
   color: var(--ink-soft);
   line-height: 1.45;
+}
+
+.sd-lab__walk ol {
+  margin: 0;
+  padding-left: 1.75rem;
+  display: grid;
+  gap: 0.35rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.sd-lab__walk ol li {
+  padding-left: 0.25rem;
 }
 
 .sd-lab__walk p {
@@ -206,4 +218,14 @@
 
 .sd-lab__walk strong {
   color: var(--ink);
+}
+
+.sd-lab__stat--hit {
+  color: var(--good);
+  font-weight: 700;
+}
+
+.sd-lab__stat--miss {
+  color: var(--danger);
+  font-weight: 700;
 }

@@ -1,5 +1,6 @@
 import type { Scene } from '../engine/types'
 import { ArrayViz } from './ArrayViz'
+import { GridViz } from './GridViz'
 import { HashMapViz } from './HashMapViz'
 import { HeapViz } from './HeapViz'
 import { LinkedListViz } from './LinkedListViz'
@@ -35,5 +36,6 @@ export function SceneRenderer({ scene }: Props) {
   if (scene.type === 'queue') return <QueueViz scene={scene} />
   if (scene.type === 'heap') return <HeapViz scene={scene} />
   if (scene.type === 'linkedList') return <LinkedListViz scene={scene} />
+  if (scene.type === 'grid') return <GridViz scene={scene} />
   return <TreeViz scene={scene} />
 }

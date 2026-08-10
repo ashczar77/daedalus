@@ -165,6 +165,21 @@ function sceneNodeToHeap(scene: Scene, id: string): HeapObject[] {
     ]
   }
 
+  if (scene.type === 'grid') {
+    return [
+      {
+        id,
+        kind: 'grid',
+        label: scene.label,
+        cells: scene.cells,
+        highlights: scene.highlights,
+        pointers: scene.pointers,
+        caption: scene.caption,
+        focused: Boolean(scene.highlights?.length || scene.pointers),
+      },
+    ]
+  }
+
   return [
     {
       id,

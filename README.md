@@ -20,7 +20,7 @@ In the old stories, Daedalus was the craftsman who built the Labyrinth: clever e
 
 ![Terminal lesson](docs/media/terminal-lesson.png)
 
-**System Design.** Open `/system-design` for concept labs: short teaching beats, then a live simulation. The first path is Load Balancing (round robin, weighted round robin, least connections, consistent hashing). Labs are listed in a suggested order and all start unlocked.
+**System Design.** Open `/system-design` for concept labs: short teaching beats, then a live simulation. Paths include Load Balancing (round robin, weighted round robin, least connections, consistent hashing) and Caching (cache-aside, read-through, write-through, write-behind, plus LRU, LFU, FIFO, and TTL). Labs are listed in a suggested order and all start unlocked.
 
 ## Contributing
 
@@ -45,7 +45,7 @@ Engineers are welcome, especially if you care about clear teaching, not just "an
 4. Reuse an existing visualizer when you can; add a scene kind only when the structure is new.
 5. Run `npm test` and `npm run build`. Trace validation and the suite gate merges.
 
-Authoring checklist (inputs, fixtures, limits): [`docs/reviews/phase-4.md`](docs/reviews/phase-4.md). Mirror a recent pack (heap, queue, linked list) if you want a template.
+Authoring checklist (inputs, fixtures, limits): [`docs/authoring-packs.md`](docs/authoring-packs.md). Mirror a recent pack (heap, queue, linked list) if you want a template.
 
 **PR tips**
 
@@ -91,7 +91,8 @@ npm run preview           # serve the production build locally
 | `src/academy/` | Terminal Academy lessons, VFS shell, checkers |
 | `src/system-design/` | System Design paths, labs, sims, and viz |
 | `src/pages/` | Catalog, problem player, academy / system-design pages |
-| `docs/reviews/` | Phase write-ups we use as stage gates |
+| `docs/authoring-packs.md` | Checklist for adding problem packs |
+| `docs/reviews/` | Local phase write-ups only (gitignored, not on GitHub) |
 | `docs/media/` | Screenshots used in this README |
 
 ## Notes and limits

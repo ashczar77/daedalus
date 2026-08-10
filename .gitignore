@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Local review / planning notes (keep off GitHub)
+docs/reviews/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -36,11 +36,30 @@ export type LoadBalancerSimDefaults = {
   maxServers?: number
 }
 
-/**
- * One System Design lab: short teaching beats + live sim defaults.
- * All labs are unlocked; `order` is the suggested path sequence.
- */
-export type SystemDesignLab = {
+/** Which caching strategy the lab simulates. */
+export type CacheAlgo =
+  | 'cache-aside'
+  | 'read-through'
+  | 'write-through'
+  | 'write-behind'
+  | 'lru'
+  | 'lfu'
+  | 'fifo'
+  | 'ttl'
+
+export type CacheSimDefaults = {
+  algo: CacheAlgo
+  /** Max entries the cache can hold. */
+  capacity: number
+  /** Stop after this many scripted ops. */
+  maxArrivals?: number
+  /** TTL lab: entries expire after this many sim ticks. */
+  ttlTicks?: number
+  /** Write-behind: flush pending writes every N completed ops. */
+  writeBehindFlushEvery?: number
+}
+
+type LabBase = {
   id: string
   title: string
   pathId: string
@@ -48,7 +67,6 @@ export type SystemDesignLab = {
   summary: string
   insight: string
   teachingSteps: TeachingBeat[]
-  simDefaults: LoadBalancerSimDefaults
   tradeoffs: string[]
   walkthrough: {
     statement: string
@@ -56,3 +74,17 @@ export type SystemDesignLab = {
     approach: string[]
   }
 }
+
+/**
+ * One System Design lab: short teaching beats + live sim defaults.
+ * All labs are unlocked; `order` is the suggested path sequence.
+ */
+export type SystemDesignLab =
+  | (LabBase & {
+      kind: 'load-balancer'
+      simDefaults: LoadBalancerSimDefaults
+    })
+  | (LabBase & {
+      kind: 'cache'
+      simDefaults: CacheSimDefaults
+    })

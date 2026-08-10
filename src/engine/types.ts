@@ -147,6 +147,20 @@ export type TreeScene = {
   viz?: TreeVizState
 }
 
+/**
+ * Snapshot of a 2D char/number grid (e.g. Number of Islands).
+ * `cells[r][c]` is the displayed value; highlights use flat roles per cell.
+ */
+export type GridScene = {
+  type: 'grid'
+  cells: Array<Array<string | number>>
+  highlights?: Array<{ row: number; col: number; role: HighlightRole }>
+  /** Optional named cursors such as scan/dfs → [row, col] */
+  pointers?: Record<string, [number, number]>
+  label?: string
+  caption?: string
+}
+
 /** Optional drawings that make recursive returns visible on the tree. */
 export type TreeVizState = {
   /** nodeId → depth already returned from that subtree (renders as d=N) */
@@ -176,6 +190,7 @@ export type Scene =
   | HeapScene
   | LinkedListScene
   | TreeScene
+  | GridScene
   | { type: 'group'; children: Scene[] }
 
 /** 1-based line numbers to highlight in each language's source. */
@@ -263,6 +278,13 @@ export type HeapObject =
       rootId: string | null
       focusIds?: string[]
       viz?: TreeVizState
+    })
+  | (HeapObjectBase & {
+      kind: 'grid'
+      cells: Array<Array<string | number>>
+      highlights?: Array<{ row: number; col: number; role: HighlightRole }>
+      pointers?: Record<string, [number, number]>
+      caption?: string
     })
 
 /**
