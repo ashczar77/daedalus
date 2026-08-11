@@ -66,7 +66,7 @@ export type NetworkScriptOp =
     }
   | {
       type: 'grpc'
-      action: 'rest-call' | 'rpc-call'
+      action: 'rpc-call' | 'rpc-return'
       label: string
       note?: string
     }

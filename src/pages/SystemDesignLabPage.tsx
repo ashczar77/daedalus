@@ -431,7 +431,7 @@ function networkSimBlurb(algo: NetworkSimDefaults['algo']): string {
     case 'http2':
       return 'TCP opens first (brief). Then compare one HTTP/1.1 lane with parallel HTTP/2 stream lanes.'
     case 'grpc':
-      return 'Compare a REST JSON call with a typed gRPC stub call.'
+      return 'Watch a remote call: arguments go out, the function runs on the server, the return value comes back.'
     case 'realtime':
       return 'Hold a long poll, then switch to WebSocket push on an open channel.'
     case 'gateway':

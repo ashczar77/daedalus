@@ -229,21 +229,27 @@ export function buildNetworkScript(algo: NetworkAlgo): NetworkScriptOp[] {
       return [
         {
           type: 'grpc',
-          action: 'rest-call',
-          label: 'GET /api/users/42',
-          note: 'REST: text JSON over HTTP.',
+          action: 'rpc-call',
+          label: 'GetUser(42)',
+          note: 'Your code calls GetUser(42). Arguments leave this machine for the server.',
+        },
+        {
+          type: 'grpc',
+          action: 'rpc-return',
+          label: 'User { id: 42 }',
+          note: 'The server ran GetUser and sends the return value back. That is the "procedure call" finishing.',
         },
         {
           type: 'grpc',
           action: 'rpc-call',
-          label: 'UserService.GetUser(42)',
-          note: 'gRPC: typed stub + compact binary frame.',
+          label: 'GetUser(7)',
+          note: 'Another call. Same idea: run this function over there with a new argument.',
         },
         {
           type: 'grpc',
-          action: 'rpc-call',
-          label: 'UserService.GetUser(7)',
-          note: 'Same stub, second call.',
+          action: 'rpc-return',
+          label: 'User { id: 7 }',
+          note: 'Return value comes home. Your code keeps going as if GetUser were local.',
         },
       ]
     case 'realtime':
@@ -326,7 +332,7 @@ export function captionForIdle(algo: NetworkAlgo): string {
     case 'http2':
       return 'Idle. Press Play: reuse one TCP pipe, see HTTP/1.1 queue on one lane, then HTTP/2 streams on parallel lanes.'
     case 'grpc':
-      return 'Idle. Press Play to compare a REST JSON call with a gRPC stub call.'
+      return 'Idle. Press Play: call a function on another machine, then watch the return value come back.'
     case 'realtime':
       return 'Idle. Press Play to compare long polling with a WebSocket push channel.'
     case 'gateway':

@@ -484,3 +484,44 @@
 .network-viz__hs-marker.is-back {
   fill: #4f8fbf;
 }
+
+.network-viz__machine-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  fill: var(--ink-soft);
+}
+
+.network-viz__rpc-lane {
+  fill: none;
+  stroke: color-mix(in srgb, var(--accent) 45%, var(--line));
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  opacity: 0.35;
+}
+
+.network-viz__rpc-lane.is-back {
+  stroke: color-mix(in srgb, #4f8fbf 55%, var(--line));
+}
+
+.network-viz__rpc-lane.is-active {
+  opacity: 1;
+  stroke-width: 3.5;
+}
+
+.network-viz__rpc-lane-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--ink-soft);
+}
+
+.network-viz__rpc-lane-label.is-active {
+  fill: var(--accent);
+  font-weight: 600;
+}
+
+.network-viz__rpc-lane-label.is-back.is-active {
+  fill: #4f8fbf;
+}

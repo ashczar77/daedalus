@@ -527,18 +527,23 @@ function applyGrpc(
   state: NetworkSimState,
   op: Extract<NetworkScriptOp, { type: 'grpc' }>,
 ): NetworkSimState {
-  const isRpc = op.action === 'rpc-call'
+  const isReturn = op.action === 'rpc-return'
   const flight: NetworkFlight = {
     id: nextFlightId(),
-    kind: 'request',
+    kind: isReturn ? 'response' : 'request',
     label: op.label,
-    from: 'Client',
-    to: isRpc ? 'gRPC stub' : 'REST API',
-    reason: op.note ?? (isRpc ? 'Typed RPC call.' : 'REST JSON call.'),
+    from: isReturn ? 'Server' : 'Client',
+    to: isReturn ? 'Client' : 'Server',
+    reason:
+      op.note ??
+      (isReturn
+        ? 'Return value comes back to the caller.'
+        : 'Arguments go to the other machine to run the function.'),
     outcome: 'ok',
   }
   return withFlight(state, flight, {
     lastPath: op.label,
+    lastMethod: isReturn ? 'return' : 'call',
     okCount: state.okCount + 1,
   })
 }

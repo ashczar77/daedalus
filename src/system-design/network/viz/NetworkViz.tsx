@@ -857,17 +857,30 @@ function Http2Stage({ state, travelMs }: Props) {
 }
 
 function GrpcStage({ state, travelMs }: Props) {
-  const rpc = state.flight?.to === 'gRPC stub'
+  const flight = state.flight
+  const isReturn = flight?.kind === 'response' || flight?.from === 'Server'
+  const calling = flight != null && !isReturn
+  const returning = flight != null && isReturn
+  const clientX = 180
+  const serverX = 740
+  const midY = 210
+  const phaseChip = returning ? 'return value' : calling ? 'arguments out' : 'ready'
+  const footer = returning
+    ? 'Return value comes home. Your code continues as if the function were local.'
+    : calling
+      ? 'Arguments cross the network. The server will run the function.'
+      : 'Remote Procedure Call: run this function on another machine and give me the return value.'
+
   return (
     <NetworkShell
       state={state}
       badge="gRPC"
-      idle="Compare a verbose REST call with a typed gRPC stub call."
-      focusHint="REST JSON vs RPC frame"
+      idle="Remote Procedure Call: run this function on another machine and give me the return value."
+      focusHint="call out · run there · return back"
       status={
         <>
-          {chip(rpc ? 'binary RPC' : 'JSON HTTP', rpc ? 'ok' : 'neutral')}
-          {chip(state.lastPath ?? 'call')}
+          {chip(phaseChip, returning || calling ? 'ok' : 'neutral')}
+          {chip(flight?.label ?? 'GetUser(id)')}
         </>
       }
     >
@@ -877,37 +890,111 @@ function GrpcStage({ state, travelMs }: Props) {
           viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
           preserveAspectRatio="xMidYMid meet"
           role="img"
-          aria-label="gRPC visualization"
+          aria-label="gRPC remote procedure call visualization"
         >
-          <rect x={40} y={40} width={840} height={340} rx={12} className="network-viz__zone" />
-          <ActorCard x={160} y={210} w={130} h={88} title="Client" sub="app code" />
+          <rect x={40} y={36} width={840} height={350} rx={12} className="network-viz__zone" />
+
+          <text x={460} y={62} textAnchor="middle" className="network-viz__hs-title">
+            Remote Procedure Call
+          </text>
+          <text x={460} y={84} textAnchor="middle" className="network-viz__list-text">
+            run this function on another machine and give me the return value
+          </text>
+
+          <text x={clientX} y={118} textAnchor="middle" className="network-viz__machine-label">
+            your machine
+          </text>
+          <text x={serverX} y={118} textAnchor="middle" className="network-viz__machine-label">
+            other machine
+          </text>
+
           <ActorCard
-            x={460}
-            y={140}
-            w={180}
-            h={90}
-            title="REST"
-            sub="text JSON"
-            value={state.flight?.kind === 'request' && !rpc ? state.flight.label : '—'}
-            focus={!rpc && !!state.flight}
+            x={clientX}
+            y={midY}
+            w={160}
+            h={110}
+            title="Client code"
+            sub="looks like a local call"
+            value={calling ? `call ${flight.label}` : returning ? 'got result' : 'stub.GetUser(id)'}
+            focus={flight?.from === 'Client' || flight?.to === 'Client'}
           />
           <ActorCard
+            x={serverX}
+            y={midY}
+            w={160}
+            h={110}
+            title="Server"
+            sub="runs the function"
+            value={
+              calling
+                ? `running ${flight.label}`
+                : returning
+                  ? `return ${flight.label}`
+                  : 'function GetUser(id)'
+            }
+            focus={flight?.from === 'Server' || flight?.to === 'Server'}
+          />
+
+          <line
+            x1={clientX + 90}
+            y1={midY - 28}
+            x2={serverX - 90}
+            y2={midY - 28}
+            className={`network-viz__rpc-lane is-out${calling ? ' is-active' : ''}`}
+          />
+          <text
             x={460}
-            y={280}
-            w={180}
-            h={90}
-            title="gRPC stub"
-            sub="compact frame"
-            value={rpc ? state.flight?.label ?? '—' : '—'}
-            focus={rpc}
+            y={midY - 38}
+            textAnchor="middle"
+            className={`network-viz__rpc-lane-label${calling ? ' is-active' : ''}`}
+          >
+            1 · send arguments{calling ? ` · ${flight.label}` : ''}
+          </text>
+
+          <line
+            x1={serverX - 90}
+            y1={midY + 36}
+            x2={clientX + 90}
+            y2={midY + 36}
+            className={`network-viz__rpc-lane is-back${returning ? ' is-active' : ''}`}
           />
-          <ActorCard x={760} y={210} w={130} h={88} title="Service" sub="handler" />
-          <FlightOrb
-            flight={state.flight}
-            travelMs={travelMs}
-            from={{ x: 230, y: 210 }}
-            to={{ x: 680, y: 210 }}
-          />
+          <text
+            x={460}
+            y={midY + 56}
+            textAnchor="middle"
+            className={`network-viz__rpc-lane-label is-back${returning ? ' is-active' : ''}`}
+          >
+            2 · return value{returning ? ` · ${flight.label}` : ''}
+          </text>
+
+          <text x={460} y={320} textAnchor="middle" className="network-viz__list-text">
+            {calling
+              ? 'Server side: execute GetUser with the args you sent.'
+              : returning
+                ? 'Client side: receive the return value and keep going.'
+                : 'gRPC packages this call/return pattern (often over HTTP/2).'}
+          </text>
+          <text x={460} y={348} textAnchor="middle" className="network-viz__list-text">
+            {footer}
+          </text>
+
+          {flight ? (
+            <FlightOrb
+              flight={flight}
+              travelMs={travelMs}
+              from={
+                isReturn
+                  ? { x: serverX - 90, y: midY + 36 }
+                  : { x: clientX + 90, y: midY - 28 }
+              }
+              to={
+                isReturn
+                  ? { x: clientX + 90, y: midY + 36 }
+                  : { x: serverX - 90, y: midY - 28 }
+              }
+              toneClass={isReturn ? ' is-reply' : ' is-request'}
+            />
+          ) : null}
         </svg>
       </div>
     </NetworkShell>

@@ -7,51 +7,51 @@ export const grpcLab: SystemDesignLab = {
   pathId: 'networking-apis',
   order: 5,
   summary:
-    'gRPC calls a typed stub method over HTTP/2 with compact binary frames instead of hand-written JSON paths.',
+    'gRPC is a way for one service to call a method on another service, like a local function call, but over the network.',
   insight:
-    'The stub is the contract: UserService.GetUser(id) instead of crafting GET /api/users/:id and parsing JSON by hand.',
+    'You call GetUser(42). The other machine runs that function and sends the return value back. That round trip is the remote procedure call.',
   teachingSteps: [
     {
       narrative:
-        'A typical REST call sends text JSON over HTTP: method, path, and a JSON body you serialize yourself.',
-      why: 'It is flexible and easy to inspect, but every client reimplements the same shapes.',
+        'gRPC stands for gRPC Remote Procedure Calls (the name repeats itself on purpose). Remote Procedure Call means: run this function on another machine and give me the return value.',
+      why: 'Your code still looks like GetUser(42). Under the hood, the call crosses the network, runs over there, and the result comes home.',
     },
     {
       narrative:
-        'gRPC generates a stub from a service definition. You call UserService.GetUser(42); the library frames the RPC.',
-      why: 'Types and method names live in one schema. Clients and servers share that schema.',
+        'Contrast with REST: you usually pick an HTTP path yourself (GET /api/users/42) and parse a JSON body. That is fine for browsers and public APIs. gRPC is aimed at programs calling each other with shared method names.',
+      why: 'REST talks in resources and HTTP. gRPC talks in functions and return values.',
     },
     {
       narrative:
-        'Unary RPC is one request, one response (like a function call). Framing is compact binary (simplified here), not pretty-printed JSON.',
-      why: 'Smaller payloads and a fixed shape help service-to-service traffic at scale.',
+        'You describe the service once (method names, argument types, return types). Tools generate a stub: a small helper in your language. You call stub.GetUser(42). The stub sends the arguments and waits for the result.',
+      why: 'Both sides agree on GetUser(id) → User in code. You are not freehanding a new URL string and JSON shape for every call.',
     },
     {
       narrative:
-        'The same stub handles the next call. You pass another id; you do not rebuild the URL string.',
-      why: 'Repeatability is the point of codegen: less path/string drift between services.',
+        'This lab shows unary RPC: one call out, one return value back, like a normal function. (gRPC can also stream many messages; we keep one-in, one-out here.)',
+      why: 'Unary is the clearest picture of "remote procedure call."',
     },
     {
       narrative:
-        'Press Play: compare GET /api/users/42 (JSON-over-HTTP) with UserService.GetUser via a stub and compact frame.',
-      why: 'Side-by-side labels show path+JSON versus typed RPC framing.',
+        'Press Play. Watch GetUser(42) leave your machine, run on the server, then return User { id: 42 }. Then the same pattern with id 7.',
+      why: 'Follow the arrow: arguments go out, return value comes back. That is what RPC is.',
     },
   ],
   simDefaults: {
     algo: 'grpc',
   },
   tradeoffs: [
-    'Pros: typed stubs, compact framing, natural fit on HTTP/2 streams for internal RPCs.',
-    'Cons: harder to curl and debug in a browser; public APIs often stay JSON/REST for that reason.',
-    'Use when: service-to-service calls with a shared schema; prefer REST/JSON when humans and browsers are first-class clients.',
+    'Pros: feels like a normal function call; clear method names and types; strong fit for service-to-service traffic.',
+    'Cons: harder to try in a browser or with a simple curl; public human-facing APIs often stay REST+JSON.',
+    'Use when: backend services share a schema and call each other often. Prefer REST when browsers and people are the main clients.',
   ],
   walkthrough: {
-    statement: 'Compare a REST JSON call with a unary gRPC stub call.',
-    keyIdea: 'REST builds path + JSON; gRPC calls a generated method over a compact frame.',
+    statement: 'See a remote procedure call: arguments go out, the function runs elsewhere, the return value comes back.',
+    keyIdea: 'RPC = run this function on another machine and give me the return value.',
     approach: [
-      'Send GET /api/users/42 as text JSON over HTTP.',
-      'Call UserService.GetUser(42) through the stub.',
-      'Call GetUser(7) again on the same stub.',
+      'Call GetUser(42): arguments travel to the server.',
+      'Server runs GetUser and returns User { id: 42 }.',
+      'Repeat with GetUser(7) and its return value.',
     ],
   },
 }
