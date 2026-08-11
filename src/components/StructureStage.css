@@ -73,9 +73,10 @@
   overflow: auto;
   overscroll-behavior: contain;
   display: grid;
-  align-content: start;
+  /* Center short demos in the band; fall back to start when content overflows. */
+  align-content: safe center;
   justify-items: center;
-  padding-top: 0.35rem;
+  padding: 0.5rem 0;
 }
 
 .structure-stage__canvas {
@@ -85,7 +86,7 @@
   justify-items: center;
   min-width: 0;
   width: 100%;
-  padding: 0.5rem 0;
+  padding: 0.25rem 0;
   /* Scales layout + SVG + text together (Chromium / Safari / modern Firefox). */
   zoom: var(--viz-scale, 1);
 }
@@ -122,6 +123,6 @@
   .structure-stage__canvas {
     zoom: unset;
     transform: scale(var(--viz-scale, 1));
-    transform-origin: top center;
+    transform-origin: center center;
   }
 }

@@ -105,7 +105,8 @@ function resultHeap(result: string[], justAdded: boolean, focused = false): Heap
     id: 'result',
     kind: 'array',
     label: `result · ${result.length} subset${result.length === 1 ? '' : 's'}`,
-    values: result.length === 0 ? ['—'] : result,
+    // Snapshot the list: later pushes must not rewrite earlier steps.
+    values: result.length === 0 ? ['—'] : [...result],
     highlights: result.length === 0 ? [] : highlights,
     focused,
   }

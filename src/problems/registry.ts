@@ -1,5 +1,6 @@
 import type { ProblemPack } from '../engine/types'
 import { longestSubstringWithoutRepeating } from './0003-longest-substring-without-repeating-characters'
+import { permutations } from './0046-permutations'
 import { containerWithMostWater } from './0011-container-with-most-water'
 import { sameTree } from './0100-same-tree'
 import { binaryTreeLevelOrderTraversal } from './0102-binary-tree-level-order-traversal'
@@ -10,8 +11,10 @@ import { numberOfIslands } from './0200-number-of-islands'
 import { validParentheses } from './0020-valid-parentheses'
 import { mergeTwoSortedLists } from './0021-merge-two-sorted-lists'
 import { twoSum } from './0001-two-sum'
+import { lowestCommonAncestorOfABst } from './0235-lowest-common-ancestor-of-a-bst'
 import { validateBinarySearchTree } from './0098-validate-binary-search-tree'
 import { subsets } from './0078-subsets'
+import { topKFrequentElements } from './0347-top-k-frequent-elements'
 import { linkedListCycle } from './0141-linked-list-cycle'
 import { evaluateReversePolishNotation } from './0150-evaluate-reverse-polish-notation'
 import { twoSumII } from './0167-two-sum-ii'
@@ -25,8 +28,11 @@ import { validAnagram } from './0242-valid-anagram'
 import { longestRepeatingCharacterReplacement } from './0424-longest-repeating-character-replacement'
 import { diameterOfBinaryTree } from './0543-diameter-of-binary-tree'
 import { subtreeOfAnotherTree } from './0572-subtree-of-another-tree'
+import { maxAreaOfIsland } from './0695-max-area-of-island'
 import { binarySearch } from './0704-binary-search'
 import { dailyTemperatures } from './0739-daily-temperatures'
+import { middleOfTheLinkedList } from './0876-middle-of-the-linked-list'
+import { maxConsecutiveOnesIII } from './1004-max-consecutive-ones-iii'
 import { bubbleSort } from './sort-bubble-sort'
 import { heapSort } from './sort-heap-sort'
 import { insertionSort } from './sort-insertion-sort'
@@ -45,6 +51,7 @@ export const problems: ProblemPack[] = [
   validPalindrome,
   longestSubstringWithoutRepeating,
   longestRepeatingCharacterReplacement,
+  maxConsecutiveOnesIII,
   twoSumII,
   containerWithMostWater,
   bestTimeToBuyAndSellStock,
@@ -52,17 +59,22 @@ export const problems: ProblemPack[] = [
   evaluateReversePolishNotation,
   dailyTemperatures,
   subsets,
+  permutations,
   reverseLinkedList,
   removeNthNodeFromEndOfList,
+  middleOfTheLinkedList,
   kthLargestElementInAnArray,
+  topKFrequentElements,
   mergeTwoSortedLists,
   linkedListCycle,
   numberOfIslands,
+  maxAreaOfIsland,
   invertBinaryTree,
   maximumDepthOfBinaryTree,
   balancedBinaryTree,
   sameTree,
   validateBinarySearchTree,
+  lowestCommonAncestorOfABst,
   binaryTreeLevelOrderTraversal,
   diameterOfBinaryTree,
   subtreeOfAnotherTree,
