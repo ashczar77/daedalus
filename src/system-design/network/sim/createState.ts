@@ -105,12 +105,78 @@ export function buildNetworkScript(algo: NetworkAlgo): NetworkScriptOp[] {
       ]
     case 'rest-design':
       return [
-        { type: 'rest', action: 'post', note: 'First POST creates order-1.' },
-        { type: 'rest', action: 'post-retry', note: 'Blind POST retry creates order-2 (duplicate).' },
-        { type: 'rest', action: 'put-retry', note: 'PUT retry with same id stays one resource.' },
-        { type: 'rest', action: 'page', note: 'First page returns a cursor for the next page.' },
-        { type: 'rest', action: 'page', note: 'Next page uses the cursor.' },
-        { type: 'rest', action: 'version', note: 'Client calls /v2/... after a version bump.' },
+        {
+          type: 'rest',
+          phase: 'request',
+          action: 'post',
+          note: 'Client POSTs /orders to create a new order.',
+        },
+        {
+          type: 'rest',
+          phase: 'response',
+          action: 'post',
+          note: 'Server replies 201 and creates order-1.',
+        },
+        {
+          type: 'rest',
+          phase: 'request',
+          action: 'post-retry',
+          note: 'Client times out and POSTs the same create again (blind retry).',
+        },
+        {
+          type: 'rest',
+          phase: 'response',
+          action: 'post-retry',
+          note: 'Server treats it as a new create: order-2 appears (duplicate).',
+        },
+        {
+          type: 'rest',
+          phase: 'request',
+          action: 'put-retry',
+          note: 'Client PUTs /orders/9 (same id) after a timeout.',
+        },
+        {
+          type: 'rest',
+          phase: 'response',
+          action: 'put-retry',
+          note: 'Server keeps a single order-9. Same PUT again is safe.',
+        },
+        {
+          type: 'rest',
+          phase: 'request',
+          action: 'page',
+          note: 'Client asks for the first page of /items.',
+        },
+        {
+          type: 'rest',
+          phase: 'response',
+          action: 'page',
+          note: 'Server returns items plus a cursor for the next page.',
+        },
+        {
+          type: 'rest',
+          phase: 'request',
+          action: 'page',
+          note: 'Client sends the cursor back to get the next page.',
+        },
+        {
+          type: 'rest',
+          phase: 'response',
+          action: 'page',
+          note: 'Server returns the next page (no more cursor = end).',
+        },
+        {
+          type: 'rest',
+          phase: 'request',
+          action: 'version',
+          note: 'A newer client calls /v2/users after the API shape changed.',
+        },
+        {
+          type: 'rest',
+          phase: 'response',
+          action: 'version',
+          note: 'Server answers on /v2. Old clients can stay on /v1.',
+        },
       ]
     case 'http2':
       return [
@@ -223,7 +289,7 @@ export function captionForIdle(algo: NetworkAlgo): string {
     case 'http-basics':
       return 'Idle. Press Play to walk HTTP methods and status families.'
     case 'rest-design':
-      return 'Idle. Press Play to compare POST retries, PUT retries, pagination, and versioning.'
+      return 'Idle. Press Play to see REST request/response pairs: POST vs PUT retries, then paging and /v2.'
     case 'http2':
       return 'Idle. Press Play to contrast HTTP/1.1 queuing with HTTP/2 multiplexed streams.'
     case 'grpc':

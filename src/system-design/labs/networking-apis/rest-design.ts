@@ -7,52 +7,54 @@ export const restDesignLab: SystemDesignLab = {
   pathId: 'networking-apis',
   order: 2,
   summary:
-    'Design HTTP APIs so retries, paging, and version bumps stay safe and predictable.',
+    'REST is a simple way to design HTTP APIs around resources, so clients and servers share clear rules for reads, writes, retries, and change over time.',
   insight:
-    'Idempotent writes (PUT with a stable id) survive retries. Blind POST retries can create duplicates.',
+    'Use stable resource URLs and careful write rules. Blind POST retries can create duplicates; PUT to a known id usually does not.',
   teachingSteps: [
     {
       narrative:
-        'REST maps resources to URLs and uses HTTP methods as verbs: GET to read, POST to create, PUT to replace.',
-      why: 'Clients and servers share one mental model: nouns in the path, verbs in the method.',
+        'REST stands for Representational State Transfer. In plain terms, it is a style for building APIs on top of HTTP: you name resources with URLs (like /orders/9), and you use HTTP methods to act on them (GET to read, POST to create, PUT to replace).',
+      why: 'Teams use REST because browsers, mobile apps, and backend services already speak HTTP. One shared pattern beats inventing a new call style for every feature.',
     },
     {
       narrative:
-        'POST create is not idempotent by default. If the client times out and retries, a second POST can create a second resource.',
-      why: 'That duplicate is the classic "I clicked submit twice" bug at the API layer.',
+        'A resource is the thing the API manages (a user, an order, a list of items). The path names the resource. The method says what you want to do to it. That pairing is the contract between client and server.',
+      why: 'When everyone agrees on nouns (paths) and verbs (methods), docs, tests, and debugging stay simpler.',
     },
     {
       narrative:
-        'PUT (or POST with an idempotency key) targets a known id. Retrying the same PUT leaves one resource.',
-      why: 'Safe retries need a stable identity so the server can treat repeats as the same write.',
+        'Idempotent means "doing the same request again has the same end result." POST create is usually not idempotent: a timeout and a blind retry can create a second order. PUT to a known id is idempotent: retrying still leaves one resource.',
+      why: 'Networks drop replies. Clients retry. Your write rules must say what a repeat means, or you get duplicates.',
     },
     {
       narrative:
-        'Large collections use cursor pagination: page one returns a cursor; page two sends that cursor back. Version the path (/v1, /v2) when the contract changes.',
-      why: 'Cursors avoid fragile offset math. Versions let old clients keep working while new clients move forward.',
+        'Large lists use cursor pagination: the first response includes a cursor (a bookmark). The next request sends that cursor back to get the following page. When the API shape must change, version the path (/v1, /v2) so old clients keep working.',
+      why: 'Cursors avoid fragile "skip 20 rows" math as data moves. Versions let you ship breaking changes without cutting off older apps overnight.',
     },
     {
       narrative:
-        'Press Play: watch a blind POST retry spawn a duplicate, a PUT retry stay one id, then cursor pages and a /v2 call.',
-      why: 'Compare created ids after POST vs PUT, then follow the cursor and the version bump.',
+        'Press Play. Watch each request go out (teal), then the response come back (blue). Compare the duplicate after a POST retry with the single id after a PUT retry, then follow the cursor and the /v2 call.',
+      why: 'The resource list under the diagram shows what the server actually stored after each write.',
     },
   ],
   simDefaults: {
     algo: 'rest-design',
   },
   tradeoffs: [
-    'Pros: clear resource URLs; idempotent writes make retries safer; cursors scale better than raw offsets.',
-    'Cons: versioning and idempotency keys add design work; poorly chosen POST semantics invite duplicates.',
-    'Use when: public HTTP APIs where clients retry, page large lists, and need a migration path for breaking changes.',
+    'Pros: easy to learn on HTTP; clear resource URLs; idempotent writes make retries safer; path versions support gradual upgrades.',
+    'Cons: you must design write rules and versioning on purpose; a careless POST create invites duplicates.',
+    'Use when: you want a public or internal HTTP API that many clients can call without a special protocol.',
   ],
   walkthrough: {
-    statement: 'Compare POST vs PUT retries, then page with a cursor and bump the API version.',
-    keyIdea: 'Idempotent writes tolerate retries; cursors and path versions keep the contract stable as it grows.',
+    statement:
+      'See why REST uses HTTP resources, then compare unsafe POST retries with safe PUT retries, paging, and versioning.',
+    keyIdea:
+      'REST = resources on URLs + HTTP methods. Idempotent writes tolerate retries; cursors and /vN keep the contract usable as it grows.',
     approach: [
-      'POST once to create order-1.',
-      'Retry POST blindly and see order-2 (duplicate).',
-      'Retry PUT with the same id and keep one resource.',
-      'Fetch page one (cursor), page two (use cursor), then call /v2.',
+      'POST once → order-1.',
+      'Blind POST retry → order-2 (duplicate).',
+      'PUT /orders/9 again → still one order-9.',
+      'Page with a cursor, then call /v2.',
     ],
   },
 }

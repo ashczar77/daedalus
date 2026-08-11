@@ -84,19 +84,41 @@ function applyRest(
   state: NetworkSimState,
   op: Extract<NetworkScriptOp, { type: 'rest' }>,
 ): NetworkSimState {
+  const meta = restActionMeta(op.action, state)
+
+  if (op.phase === 'request') {
+    const flight: NetworkFlight = {
+      id: nextFlightId(),
+      kind: 'request',
+      label: `${meta.method} ${meta.path}`,
+      from: 'Client',
+      to: 'API',
+      method: meta.method,
+      path: meta.path,
+      reason: op.note ?? `Client sends ${meta.method} ${meta.path}.`,
+      outcome: 'pending',
+    }
+    return withFlight(state, flight, {
+      lastMethod: meta.method,
+      lastPath: meta.path,
+      lastStatus: null,
+    })
+  }
+
+  // Response phase: apply resource-side effects, then fly API → Client.
   switch (op.action) {
     case 'post': {
       const ids = [...state.createdIds, 'order-1']
       const flight: NetworkFlight = {
         id: nextFlightId(),
         kind: 'response',
-        label: 'POST /orders → 201 order-1',
-        from: 'Client',
-        to: 'API',
+        label: '201 ← POST /orders (order-1)',
+        from: 'API',
+        to: 'Client',
         method: 'POST',
         path: '/orders',
         status: 201,
-        reason: op.note ?? 'POST creates order-1.',
+        reason: op.note ?? 'Server replies 201 and creates order-1.',
         outcome: 'ok',
       }
       return withFlight(state, flight, {
@@ -112,9 +134,9 @@ function applyRest(
       const flight: NetworkFlight = {
         id: nextFlightId(),
         kind: 'refuse',
-        label: 'POST retry → order-2 duplicate',
-        from: 'Client',
-        to: 'API',
+        label: '201 ← POST retry (order-2 duplicate)',
+        from: 'API',
+        to: 'Client',
         method: 'POST',
         path: '/orders',
         status: 201,
@@ -136,9 +158,9 @@ function applyRest(
       const flight: NetworkFlight = {
         id: nextFlightId(),
         kind: 'response',
-        label: 'PUT /orders/9 (retry safe)',
-        from: 'Client',
-        to: 'API',
+        label: '200 ← PUT /orders/9',
+        from: 'API',
+        to: 'Client',
         method: 'PUT',
         path: '/orders/9',
         status: 200,
@@ -162,10 +184,10 @@ function applyRest(
         kind: 'response',
         label:
           state.cursor == null
-            ? 'GET /items?limit=2 → cursor cur-2'
-            : 'GET /items?cursor=cur-2 → end',
-        from: 'Client',
-        to: 'API',
+            ? '200 ← page 1 + cursor'
+            : '200 ← page 2 (end)',
+        from: 'API',
+        to: 'Client',
         method: 'GET',
         path: '/items',
         status: 200,
@@ -184,13 +206,15 @@ function applyRest(
       const flight: NetworkFlight = {
         id: nextFlightId(),
         kind: 'response',
-        label: 'GET /v2/users → 200',
-        from: 'Client',
-        to: 'API',
+        label: '200 ← GET /v2/users',
+        from: 'API',
+        to: 'Client',
         method: 'GET',
         path: '/v2/users',
         status: 200,
-        reason: op.note ?? 'Versioning keeps old clients on /v1 while /v2 ships changes.',
+        reason:
+          op.note ??
+          'Versioning keeps old clients on /v1 while /v2 ships changes.',
         outcome: 'ok',
       }
       return withFlight(state, flight, {
@@ -203,6 +227,30 @@ function applyRest(
     }
     default: {
       const _exhaustive: never = op.action
+      return _exhaustive
+    }
+  }
+}
+
+function restActionMeta(
+  action: Extract<NetworkScriptOp, { type: 'rest' }>['action'],
+  state: NetworkSimState,
+): { method: string; path: string } {
+  switch (action) {
+    case 'post':
+    case 'post-retry':
+      return { method: 'POST', path: '/orders' }
+    case 'put-retry':
+      return { method: 'PUT', path: '/orders/9' }
+    case 'page':
+      return {
+        method: 'GET',
+        path: state.cursor == null ? '/items?limit=2' : '/items?cursor=cur-2',
+      }
+    case 'version':
+      return { method: 'GET', path: '/v2/users' }
+    default: {
+      const _exhaustive: never = action
       return _exhaustive
     }
   }

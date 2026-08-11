@@ -425,7 +425,7 @@ function networkSimBlurb(algo: NetworkSimDefaults['algo']): string {
     case 'http-basics':
       return 'Watch methods and status codes: request goes out, then the response comes back.'
     case 'rest-design':
-      return 'Compare unsafe POST retries with idempotent PUT, then pagination and versioning.'
+      return 'Compare POST vs PUT retries, paging, and versioning. Request goes out, then response returns.'
     case 'http2':
       return 'See HTTP/1.1 queue behind one request, then HTTP/2 streams share the pipe.'
     case 'grpc':

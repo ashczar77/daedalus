@@ -47,6 +47,7 @@ export type NetworkScriptOp =
     }
   | {
       type: 'rest'
+      phase: 'request' | 'response'
       action: 'post' | 'put-retry' | 'post-retry' | 'page' | 'version'
       note?: string
     }

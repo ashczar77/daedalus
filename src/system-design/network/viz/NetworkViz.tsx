@@ -215,8 +215,11 @@ function HttpRestStage({ state, travelMs }: Props) {
   const rest = state.algo === 'rest-design'
   const clientPoint = { x: 260, y: 200 }
   const apiPoint = { x: 650, y: 200 }
+  const fromApi = state.flight?.from === 'API'
   const reply =
-    state.flight?.kind === 'response' || state.flight?.kind === 'refuse'
+    fromApi ||
+    state.flight?.kind === 'response' ||
+    state.flight?.kind === 'refuse'
   const flightFrom = reply ? apiPoint : clientPoint
   const flightTo = reply ? clientPoint : apiPoint
   const phaseLabel =
@@ -232,10 +235,10 @@ function HttpRestStage({ state, travelMs }: Props) {
       badge={rest ? 'REST' : 'HTTP'}
       idle={
         rest
-          ? 'Watch idempotent retries, pagination cursors, and versioned paths.'
+          ? 'Watch each request go out (teal), then the response come back (blue).'
           : 'Watch the request go out (teal), then the response come back (blue).'
       }
-      focusHint={rest ? 'Contracts' : 'Request out, response back'}
+      focusHint={rest ? 'Resources + safe retries' : 'Request out, response back'}
       status={
         <>
           {chip(phaseLabel, reply ? 'ok' : 'neutral')}
