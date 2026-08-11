@@ -5,7 +5,7 @@ export const gatewayLab: SystemDesignLab = {
   kind: 'network',
   title: 'API Gateway',
   pathId: 'networking-apis',
-  order: 6,
+  order: 7,
   summary:
     'A gateway sits in front of services: check auth, match the path, forward to the right backend.',
   insight:

@@ -20,6 +20,7 @@ import { rateLimitLab } from './labs/networking-apis/rate-limit'
 import { realtimeLab } from './labs/networking-apis/realtime'
 import { restDesignLab } from './labs/networking-apis/rest-design'
 import { retriesLab } from './labs/networking-apis/retries'
+import { tcpLab } from './labs/networking-apis/tcp'
 import { consistentHashLab } from './labs/consistent-hash'
 import { leastConnectionsLab } from './labs/least-connections'
 import { roundRobinLab } from './labs/round-robin'
@@ -58,6 +59,7 @@ export const systemDesignLabs: SystemDesignLab[] = [
   capPartitionLab,
   httpBasicsLab,
   restDesignLab,
+  tcpLab,
   http2Lab,
   grpcLab,
   realtimeLab,

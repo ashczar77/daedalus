@@ -238,6 +238,87 @@
   fill: #4f8fbf;
 }
 
+.network-viz__card--tcp {
+  border-style: dashed;
+}
+
+.network-viz__tcp {
+  fill: color-mix(in srgb, var(--lift) 35%, transparent);
+  stroke: color-mix(in srgb, var(--line) 70%, transparent);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 5;
+}
+
+.network-viz__tcp.is-open {
+  fill: color-mix(in srgb, var(--accent) 8%, var(--lift));
+  stroke: color-mix(in srgb, var(--accent) 40%, var(--line));
+  stroke-dasharray: none;
+}
+
+.network-viz__stream-lane {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.35;
+}
+
+.network-viz__stream-lane.is-active {
+  opacity: 1;
+  stroke-width: 4;
+}
+
+.network-viz__stream-lane.is-http1 {
+  stroke: var(--accent);
+}
+
+.network-viz__stream-lane.is-stream-a {
+  stroke: var(--accent);
+}
+
+.network-viz__stream-lane.is-stream-b {
+  stroke: #4f8fbf;
+}
+
+.network-viz__stream-lane.is-stream-c {
+  stroke: #c48a3a;
+}
+
+.network-viz__stream-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.network-viz__stream-label.is-http1,
+.network-viz__stream-label.is-stream-a {
+  fill: var(--accent);
+}
+
+.network-viz__stream-label.is-stream-b {
+  fill: #4f8fbf;
+}
+
+.network-viz__stream-label.is-stream-c {
+  fill: #c48a3a;
+}
+
+.network-viz__orb.is-stream-a,
+.network-viz__trail.is-stream-a {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+
+.network-viz__orb.is-stream-b,
+.network-viz__trail.is-stream-b {
+  fill: #4f8fbf;
+  stroke: #4f8fbf;
+}
+
+.network-viz__orb.is-stream-c,
+.network-viz__trail.is-stream-c {
+  fill: #c48a3a;
+  stroke: #c48a3a;
+}
+
 .network-viz__stream {
   fill: none;
   stroke: var(--accent);
@@ -310,4 +391,96 @@
   font-family: var(--font-mono);
   font-size: 11px;
   fill: var(--ink-soft);
+}
+
+.network-viz__hs-title {
+  font-family: var(--font-display, var(--font-sans));
+  font-size: 14px;
+  font-weight: 600;
+  fill: var(--ink);
+}
+
+.network-viz__lifeline {
+  fill: none;
+  stroke: color-mix(in srgb, var(--accent) 55%, var(--line));
+  stroke-width: 4;
+  stroke-linecap: round;
+  opacity: 0.85;
+}
+
+.network-viz__hs-arrow {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.network-viz__hs-arrow.is-back {
+  stroke: #4f8fbf;
+}
+
+.network-viz__hs-arrow.is-data {
+  stroke-dasharray: 6 4;
+  opacity: 0.9;
+}
+
+.network-viz__hs-arrow.is-close {
+  stroke: var(--muted);
+  stroke-dasharray: 4 4;
+}
+
+.network-viz__hs-row.is-done .network-viz__hs-arrow {
+  opacity: 0.55;
+}
+
+.network-viz__hs-row.is-active .network-viz__hs-arrow {
+  opacity: 1;
+  stroke-width: 3.2;
+}
+
+.network-viz__hs-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--ink);
+}
+
+.network-viz__hs-row.is-done .network-viz__hs-label {
+  fill: var(--ink-soft);
+  font-weight: 500;
+}
+
+.network-viz__hs-step {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--accent);
+}
+
+.network-viz__hs-placeholder {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: color-mix(in srgb, var(--ink-soft) 70%, transparent);
+}
+
+.network-viz__hs-established {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--accent);
+  letter-spacing: 0.02em;
+}
+
+.network-viz__hs-legend {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  fill: var(--ink-soft);
+}
+
+.network-viz__hs-marker {
+  fill: var(--accent);
+}
+
+.network-viz__hs-marker.is-back {
+  fill: #4f8fbf;
 }

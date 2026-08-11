@@ -426,8 +426,10 @@ function networkSimBlurb(algo: NetworkSimDefaults['algo']): string {
       return 'Watch methods and status codes: request goes out, then the response comes back.'
     case 'rest-design':
       return 'Compare POST vs PUT retries, paging, and versioning. Request goes out, then response returns.'
+    case 'tcp':
+      return 'Walk SYN → SYN-ACK → ACK. Connection opens only after the third packet.'
     case 'http2':
-      return 'See HTTP/1.1 queue behind one request, then HTTP/2 streams share the pipe.'
+      return 'TCP opens first (brief). Then compare one HTTP/1.1 lane with parallel HTTP/2 stream lanes.'
     case 'grpc':
       return 'Compare a REST JSON call with a typed gRPC stub call.'
     case 'realtime':
@@ -460,6 +462,10 @@ function networkStatusLabel(state: {
   poolBInUse: number
   poolBCap: number
   protocol: string
+  tcpOpen: boolean
+  tcpHandshake: Array<'syn' | 'syn-ack' | 'ack'>
+  tcpDelivered: string[]
+  tcpGap: string | null
   channel: string
   apiVersion: string
 }): string {
@@ -473,7 +479,15 @@ function networkStatusLabel(state: {
     case 'bulkhead':
       return `A ${state.poolAInUse}/${state.poolACap} · B ${state.poolBInUse}/${state.poolBCap}`
     case 'http2':
-      return state.protocol
+      return state.tcpOpen
+        ? `${state.protocol === 'http2' ? 'HTTP/2' : 'HTTP/1.1'} on TCP`
+        : 'TCP closed'
+    case 'tcp':
+      return state.tcpHandshake.includes('ack')
+        ? state.tcpOpen
+          ? 'established'
+          : 'closed'
+        : `handshake ${state.tcpHandshake.length}/3`
     case 'realtime':
       return state.channel
     case 'rest-design':

@@ -256,40 +256,205 @@ function restActionMeta(
   }
 }
 
+function applyTcp(
+  state: NetworkSimState,
+  op: Extract<NetworkScriptOp, { type: 'tcp' }>,
+): NetworkSimState {
+  const label = op.label ?? 'seg'
+  switch (op.action) {
+    case 'syn': {
+      const flight: NetworkFlight = {
+        id: nextFlightId(),
+        kind: 'request',
+        label: 'SYN',
+        from: 'Client',
+        to: 'Server',
+        reason:
+          op.note ??
+          'Client starts the handshake: SYN with SEQ. Client (its starting sequence number).',
+        outcome: 'pending',
+      }
+      return withFlight(state, flight, {
+        tcpOpen: false,
+        tcpHandshake: ['syn'],
+        tcpDelivered: [],
+        tcpGap: null,
+      })
+    }
+    case 'syn-ack': {
+      const flight: NetworkFlight = {
+        id: nextFlightId(),
+        kind: 'response',
+        label: 'SYN-ACK',
+        from: 'Server',
+        to: 'Client',
+        reason:
+          op.note ??
+          'Server answers SYN-ACK: ACK = Client+1, plus SEQ. Server for its own stream.',
+        outcome: 'ok',
+      }
+      return withFlight(state, flight, {
+        tcpOpen: false,
+        tcpHandshake: ['syn', 'syn-ack'],
+      })
+    }
+    case 'ack': {
+      const flight: NetworkFlight = {
+        id: nextFlightId(),
+        kind: 'request',
+        label: 'ACK',
+        from: 'Client',
+        to: 'Server',
+        reason:
+          op.note ??
+          'Client finishes with ACK = Server+1. Both sides agree: the connection is open.',
+        outcome: 'ok',
+      }
+      return withFlight(state, flight, {
+        tcpOpen: true,
+        tcpHandshake: ['syn', 'syn-ack', 'ack'],
+        okCount: state.okCount + 1,
+      })
+    }
+    case 'send': {
+      const delivered =
+        label === 'data' && !state.tcpDelivered.includes(label)
+          ? [...state.tcpDelivered, label]
+          : state.tcpDelivered
+      const flight: NetworkFlight = {
+        id: nextFlightId(),
+        kind: 'request',
+        label: `Send ${label}`,
+        from: 'Client',
+        to: 'Server',
+        reason: op.note ?? `Client puts ${label} on the TCP pipe.`,
+        outcome: 'ok',
+      }
+      return withFlight(state, flight, {
+        tcpOpen: true,
+        tcpDelivered: delivered,
+        okCount: state.okCount + 1,
+      })
+    }
+    case 'deliver': {
+      const delivered = state.tcpDelivered.includes(label)
+        ? state.tcpDelivered
+        : [...state.tcpDelivered, label]
+      const flight: NetworkFlight = {
+        id: nextFlightId(),
+        kind: 'response',
+        label: `Deliver ${label}`,
+        from: 'Server',
+        to: 'Client',
+        reason: op.note ?? `Server accepts ${label} in order.`,
+        outcome: 'ok',
+      }
+      return withFlight(state, flight, {
+        tcpDelivered: delivered,
+        tcpGap: state.tcpGap === label ? null : state.tcpGap,
+        okCount: state.okCount + 1,
+      })
+    }
+    case 'loss': {
+      const flight: NetworkFlight = {
+        id: nextFlightId(),
+        kind: 'refuse',
+        label: `Lost ${label}`,
+        from: 'Client',
+        to: 'Server',
+        reason: op.note ?? `${label} never arrives. TCP will need to recover.`,
+        outcome: 'error',
+      }
+      return withFlight(state, flight, {
+        tcpGap: label,
+        errorCount: state.errorCount + 1,
+      })
+    }
+    case 'retransmit': {
+      const flight: NetworkFlight = {
+        id: nextFlightId(),
+        kind: 'retry',
+        label: `Resend ${label}`,
+        from: 'Client',
+        to: 'Server',
+        reason: op.note ?? `TCP resends ${label} to fill the gap.`,
+        outcome: 'pending',
+      }
+      return withFlight(state, flight, { tcpGap: label })
+    }
+    case 'close': {
+      const flight: NetworkFlight = {
+        id: nextFlightId(),
+        kind: 'info',
+        label: 'TCP close',
+        from: 'Client',
+        to: 'Server',
+        reason:
+          op.note ??
+          'Connection closes. While it was open, higher protocols like HTTP could ride this pipe.',
+        outcome: 'info',
+      }
+      return withFlight(state, flight, { tcpOpen: false })
+    }
+    default: {
+      const _exhaustive: never = op.action
+      return _exhaustive
+    }
+  }
+}
+
 function applyProtocol(
   state: NetworkSimState,
   op: Extract<NetworkScriptOp, { type: 'protocol' }>,
 ): NetworkSimState {
   const label = op.label ?? `S${op.streamId ?? '?'}`
   switch (op.action) {
+    case 'tcp-open': {
+      const flight: NetworkFlight = {
+        id: nextFlightId(),
+        kind: 'info',
+        label: 'TCP open',
+        from: 'Client',
+        to: 'Server',
+        reason:
+          'TCP opens first: one reliable, ordered byte pipe. HTTP rides on top of this connection.',
+        outcome: 'info',
+      }
+      return withFlight(state, flight, {
+        tcpOpen: true,
+        protocol: 'http1',
+      })
+    }
     case 'switch': {
       const flight: NetworkFlight = {
         id: nextFlightId(),
         kind: 'info',
         label: 'Switch to HTTP/2',
         from: 'Client',
-        to: 'API',
-        reason: 'Same connection now carries multiplexed streams.',
+        to: 'Server',
+        reason:
+          'Same TCP connection, new HTTP rules: many streams share the pipe at once (multiplexing).',
         outcome: 'info',
       }
       return withFlight(state, flight, {
         protocol: 'http2',
         queued: [],
         activeStreams: [],
+        tcpOpen: true,
       })
     }
     case 'enqueue': {
       const queued = [...state.queued, label]
       const flight: NetworkFlight = {
         id: nextFlightId(),
-        kind: 'request',
+        kind: 'info',
         label: `Queue ${label}`,
         from: 'Client',
-        to: 'API',
-        reason: `HTTP/1.1: request ${label} waits behind earlier requests on this connection.`,
+        to: 'Queue',
+        reason: `HTTP/1.1: ${label} joins the wait list on this TCP connection.`,
         outcome: 'pending',
       }
-      return withFlight(state, flight, { queued, protocol: 'http1' })
+      return withFlight(state, flight, { queued, protocol: 'http1', tcpOpen: true })
     }
     case 'start': {
       if (op.mode === 'http1') {
@@ -299,15 +464,16 @@ function applyProtocol(
           kind: 'stream',
           label: `Send ${label}`,
           from: 'Client',
-          to: 'API',
+          to: 'Server',
           streamId: op.streamId,
-          reason: `HTTP/1.1 sends ${label} alone. Others stay queued (head-of-line).`,
+          reason: `HTTP/1.1 sends ${label} alone on the TCP pipe. Others stay queued (head-of-line).`,
           outcome: 'pending',
         }
         return withFlight(state, flight, {
           queued,
           activeStreams: [label],
           protocol: 'http1',
+          tcpOpen: true,
         })
       }
       const activeStreams = state.activeStreams.includes(label)
@@ -318,14 +484,15 @@ function applyProtocol(
         kind: 'stream',
         label: `Stream ${label}`,
         from: 'Client',
-        to: 'API',
+        to: 'Server',
         streamId: op.streamId,
-        reason: `HTTP/2 starts stream ${label} without waiting for the others to finish.`,
+        reason: `HTTP/2 opens stream ${label} on its own lane inside the same TCP connection.`,
         outcome: 'ok',
       }
       return withFlight(state, flight, {
         activeStreams,
         protocol: 'http2',
+        tcpOpen: true,
         okCount: state.okCount + 1,
       })
     }
@@ -335,13 +502,13 @@ function applyProtocol(
         id: nextFlightId(),
         kind: 'response',
         label: `Done ${label}`,
-        from: 'API',
+        from: 'Server',
         to: 'Client',
         streamId: op.streamId,
         reason:
           state.protocol === 'http1'
-            ? `HTTP/1.1 finished ${label}. Next queued request may start.`
-            : `HTTP/2 finished stream ${label}. Sibling streams keep running.`,
+            ? `HTTP/1.1 finished ${label}. The next queued request may use the TCP pipe.`
+            : `HTTP/2 finished stream ${label}. Other streams keep their own lanes.`,
         outcome: 'ok',
       }
       return withFlight(state, flight, {
@@ -828,6 +995,8 @@ function applyOp(state: NetworkSimState, op: NetworkScriptOp): NetworkSimState {
       return applyHttp(state, op)
     case 'rest':
       return applyRest(state, op)
+    case 'tcp':
+      return applyTcp(state, op)
     case 'protocol':
       return applyProtocol(state, op)
     case 'grpc':

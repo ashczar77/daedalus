@@ -5,7 +5,7 @@ export const grpcLab: SystemDesignLab = {
   kind: 'network',
   title: 'gRPC',
   pathId: 'networking-apis',
-  order: 4,
+  order: 5,
   summary:
     'gRPC calls a typed stub method over HTTP/2 with compact binary frames instead of hand-written JSON paths.',
   insight:

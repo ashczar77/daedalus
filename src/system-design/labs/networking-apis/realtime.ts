@@ -5,7 +5,7 @@ export const realtimeLab: SystemDesignLab = {
   kind: 'network',
   title: 'Long Polling vs WebSockets',
   pathId: 'networking-apis',
-  order: 5,
+  order: 6,
   summary:
     'Long polling holds an HTTP request until an event (or timeout). WebSockets keep a duplex channel open for push.',
   insight:

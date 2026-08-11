@@ -5,7 +5,7 @@ export const circuitBreakerLab: SystemDesignLab = {
   kind: 'network',
   title: 'Circuit Breaker',
   pathId: 'networking-apis',
-  order: 9,
+  order: 10,
   summary:
     'After enough failures, stop calling the dependency (open). Probe later (half-open); success closes the circuit.',
   insight:

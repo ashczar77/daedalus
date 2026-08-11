@@ -25,6 +25,8 @@ export function NetworkViz({ state, travelMs }: Props) {
     case 'http-basics':
     case 'rest-design':
       return <HttpRestStage state={state} travelMs={travelMs} />
+    case 'tcp':
+      return <TcpStage state={state} travelMs={travelMs} />
     case 'http2':
       return <Http2Stage state={state} travelMs={travelMs} />
     case 'grpc':
@@ -150,11 +152,13 @@ function FlightOrb({
   travelMs,
   from,
   to,
+  toneClass: toneClassOverride,
 }: {
   flight: NetworkFlight | null
   travelMs: number
   from: { x: number; y: number }
   to: { x: number; y: number }
+  toneClass?: string
 }) {
   const [progress, setProgress] = useState(0)
 
@@ -180,15 +184,17 @@ function FlightOrb({
   const y = from.y + (to.y - from.y) * progress
   const warn = flight.outcome === 'error'
   const reply = flight.kind === 'response' || flight.kind === 'refuse'
-  const toneClass = warn
-    ? ' is-warn'
-    : reply
-      ? ' is-reply'
-      : flight.outcome === 'info'
-        ? ' is-info'
-        : flight.kind === 'request'
-          ? ' is-request'
-          : ''
+  const toneClass =
+    toneClassOverride ??
+    (warn
+      ? ' is-warn'
+      : reply
+        ? ' is-reply'
+        : flight.outcome === 'info'
+          ? ' is-info'
+          : flight.kind === 'request'
+            ? ' is-request'
+            : '')
   return (
     <g>
       <line
@@ -335,16 +341,380 @@ function HttpRestStage({ state, travelMs }: Props) {
   )
 }
 
-function Http2Stage({ state, travelMs }: Props) {
+function streamLaneY(
+  protocol: 'http1' | 'http2',
+  streamId?: number,
+  label?: string,
+): number {
+  if (protocol === 'http1') return 200
+  const id =
+    streamId ??
+    (label?.includes('A') ? 1 : label?.includes('B') ? 2 : label?.includes('C') ? 3 : 2)
+  if (id === 1) return 155
+  if (id === 3) return 245
+  return 200
+}
+
+function streamTone(streamId?: number, label?: string): 'a' | 'b' | 'c' | 'http1' {
+  const id =
+    streamId ??
+    (label?.includes('A') ? 1 : label?.includes('B') ? 2 : label?.includes('C') ? 3 : 0)
+  if (id === 1) return 'a'
+  if (id === 2) return 'b'
+  if (id === 3) return 'c'
+  return 'http1'
+}
+
+function TcpStage({ state, travelMs }: Props) {
+  const clientX = 220
+  const serverX = 700
+  const lifeTop = 88
+  const lifeBottom = 360
+  const flight = state.flight
+  const done = state.tcpHandshake
+  const activeLabel = flight?.label ?? null
+
+  const rows: Array<{
+    id: 'syn' | 'syn-ack' | 'ack' | 'data' | 'close'
+    y: number
+    fromClient: boolean
+    title: string
+    detail: string
+    done: boolean
+    active: boolean
+  }> = [
+    {
+      id: 'syn',
+      y: 130,
+      fromClient: true,
+      title: 'SYN',
+      detail: 'SEQ. Client',
+      done: done.includes('syn'),
+      active: activeLabel === 'SYN',
+    },
+    {
+      id: 'syn-ack',
+      y: 190,
+      fromClient: false,
+      title: 'SYN-ACK',
+      detail: 'SEQ. Client + 1 · SEQ. Server',
+      done: done.includes('syn-ack'),
+      active: activeLabel === 'SYN-ACK',
+    },
+    {
+      id: 'ack',
+      y: 250,
+      fromClient: true,
+      title: 'ACK',
+      detail: 'SEQ. Server + 1 · SEQ. Client + 1',
+      done: done.includes('ack'),
+      active: activeLabel === 'ACK',
+    },
+  ]
+
+  const dataActive = activeLabel === 'Send data'
+  const closeActive = activeLabel === 'TCP close'
+  const showData = state.tcpDelivered.includes('data') || dataActive
+  const showClose =
+    closeActive || (!state.tcpOpen && done.includes('ack') && state.tcpDelivered.includes('data'))
+
+  const phaseLabel = !done.length
+    ? 'not started'
+    : !done.includes('ack')
+      ? `handshake ${done.length}/3`
+      : state.tcpOpen
+        ? 'established'
+        : 'closed'
+
+  const footer = !done.length
+    ? 'Three packets must agree before either side treats the connection as open.'
+    : !done.includes('syn-ack')
+      ? 'SYN is out. The server has not answered yet.'
+      : !done.includes('ack')
+        ? 'Server offered its sequence number. Client must ACK it.'
+        : state.tcpOpen
+          ? showData
+            ? 'Connection open. First application bytes can ride with or after the final ACK.'
+            : 'Three-way handshake complete. Both sides share one reliable ordered pipe.'
+          : 'Connection closed. A later call starts a new handshake.'
+
   return (
     <NetworkShell
       state={state}
-      badge={state.protocol === 'http1' ? 'HTTP/1.1' : 'HTTP/2'}
-      idle="HTTP/1.1 queues on one connection. HTTP/2 multiplexes streams."
-      focusHint="Head-of-line vs multiplex"
+      badge="TCP"
+      idle="Three-way handshake: SYN, then SYN-ACK, then ACK. Only after that is the connection open."
+      focusHint="sequence · SYN → SYN-ACK → ACK"
       status={
         <>
-          {chip(state.protocol === 'http1' ? 'serial' : 'multiplex', 'ok')}
+          {chip(phaseLabel, done.includes('ack') && state.tcpOpen ? 'ok' : 'warn')}
+          {chip(done.includes('syn') ? 'SYN ✓' : 'SYN', done.includes('syn') ? 'ok' : 'neutral')}
+          {chip(
+            done.includes('syn-ack') ? 'SYN-ACK ✓' : 'SYN-ACK',
+            done.includes('syn-ack') ? 'ok' : 'neutral',
+          )}
+          {chip(done.includes('ack') ? 'ACK ✓' : 'ACK', done.includes('ack') ? 'ok' : 'neutral')}
+        </>
+      }
+    >
+      <div className="network-viz__viewport">
+        <svg
+          className="network-viz__canvas"
+          viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+          preserveAspectRatio="xMidYMid meet"
+          role="img"
+          aria-label="TCP three-way handshake sequence"
+        >
+          <rect x={40} y={36} width={840} height={350} rx={12} className="network-viz__zone" />
+
+          <text x={460} y={62} textAnchor="middle" className="network-viz__hs-title">
+            TCP connection establishment (three-way handshake)
+          </text>
+
+          <ActorCard
+            x={clientX}
+            y={lifeTop}
+            w={120}
+            h={56}
+            title="Client"
+            sub="initiator"
+            focus={flight?.from === 'Client' || flight?.to === 'Client'}
+          />
+          <ActorCard
+            x={serverX}
+            y={lifeTop}
+            w={120}
+            h={56}
+            title="Server"
+            sub="listener"
+            focus={flight?.from === 'Server' || flight?.to === 'Server'}
+          />
+
+          <line
+            x1={clientX}
+            y1={lifeTop + 32}
+            x2={clientX}
+            y2={lifeBottom}
+            className="network-viz__lifeline"
+          />
+          <line
+            x1={serverX}
+            y1={lifeTop + 32}
+            x2={serverX}
+            y2={lifeBottom}
+            className="network-viz__lifeline"
+          />
+
+          {rows.map((row) => {
+            const visible = row.done || row.active
+            if (!visible) {
+              return (
+                <g key={row.id} className="network-viz__hs-row is-pending">
+                  <text
+                    x={460}
+                    y={row.y}
+                    textAnchor="middle"
+                    className="network-viz__hs-placeholder"
+                  >
+                    {row.id === 'syn'
+                      ? '1 · waiting for SYN'
+                      : row.id === 'syn-ack'
+                        ? '2 · waiting for SYN-ACK'
+                        : '3 · waiting for ACK'}
+                  </text>
+                </g>
+              )
+            }
+            const x1 = row.fromClient ? clientX : serverX
+            const x2 = row.fromClient ? serverX : clientX
+            const y1 = row.fromClient ? row.y - 10 : row.y + 10
+            const y2 = row.fromClient ? row.y + 10 : row.y - 10
+            return (
+              <g
+                key={row.id}
+                className={`network-viz__hs-row${row.active ? ' is-active' : ''}${
+                  row.done && !row.active ? ' is-done' : ''
+                }`}
+              >
+                <line
+                  x1={x1}
+                  y1={y1}
+                  x2={x2}
+                  y2={y2}
+                  className={`network-viz__hs-arrow${row.fromClient ? ' is-out' : ' is-back'}`}
+                  markerEnd={
+                    row.fromClient ? 'url(#tcp-arrowhead-out)' : 'url(#tcp-arrowhead-back)'
+                  }
+                />
+                <text
+                  x={460}
+                  y={(y1 + y2) / 2 - 8}
+                  textAnchor="middle"
+                  className="network-viz__hs-label"
+                >
+                  {row.title} | {row.detail}
+                </text>
+                <text
+                  x={row.fromClient ? clientX - 18 : serverX + 18}
+                  y={(y1 + y2) / 2 + 4}
+                  textAnchor={row.fromClient ? 'end' : 'start'}
+                  className="network-viz__hs-step"
+                >
+                  {row.id === 'syn' ? '1' : row.id === 'syn-ack' ? '2' : '3'}
+                </text>
+              </g>
+            )
+          })}
+
+          {done.includes('ack') ? (
+            <text x={460} y={286} textAnchor="middle" className="network-viz__hs-established">
+              {state.tcpOpen ? 'connection established' : 'was established · now closing'}
+            </text>
+          ) : null}
+
+          {showData ? (
+            <g className={`network-viz__hs-row${dataActive ? ' is-active' : ' is-done'}`}>
+              <line
+                x1={clientX}
+                y1={302}
+                x2={serverX}
+                y2={322}
+                className="network-viz__hs-arrow is-out is-data"
+                markerEnd="url(#tcp-arrowhead-out)"
+              />
+              <text x={460} y={300} textAnchor="middle" className="network-viz__hs-label">
+                optional: first data
+              </text>
+            </g>
+          ) : null}
+
+          {showClose ? (
+            <g className={`network-viz__hs-row${closeActive ? ' is-active' : ' is-done'}`}>
+              <line
+                x1={clientX}
+                y1={338}
+                x2={serverX}
+                y2={354}
+                className="network-viz__hs-arrow is-out is-close"
+                markerEnd="url(#tcp-arrowhead-out)"
+              />
+              <text x={460} y={336} textAnchor="middle" className="network-viz__hs-label">
+                close
+              </text>
+            </g>
+          ) : null}
+
+          <text x={460} y={378} textAnchor="middle" className="network-viz__list-text">
+            {footer}
+          </text>
+          <text x={780} y={378} textAnchor="end" className="network-viz__hs-legend">
+            SEQ. = sequence number
+          </text>
+
+          <defs>
+            <marker
+              id="tcp-arrowhead-out"
+              markerWidth="8"
+              markerHeight="8"
+              refX="6"
+              refY="3"
+              orient="auto"
+            >
+              <path d="M0,0 L6,3 L0,6 Z" className="network-viz__hs-marker is-out" />
+            </marker>
+            <marker
+              id="tcp-arrowhead-back"
+              markerWidth="8"
+              markerHeight="8"
+              refX="6"
+              refY="3"
+              orient="auto"
+            >
+              <path d="M0,0 L6,3 L0,6 Z" className="network-viz__hs-marker is-back" />
+            </marker>
+          </defs>
+
+          {flight != null &&
+          (activeLabel === 'SYN' ||
+            activeLabel === 'SYN-ACK' ||
+            activeLabel === 'ACK' ||
+            dataActive ||
+            closeActive) ? (
+            <FlightOrb
+              flight={flight}
+              travelMs={travelMs}
+              from={{
+                x: flight.from === 'Server' ? serverX : clientX,
+                y:
+                  activeLabel === 'SYN'
+                    ? 120
+                    : activeLabel === 'SYN-ACK'
+                      ? 200
+                      : activeLabel === 'ACK'
+                        ? 240
+                        : dataActive
+                          ? 302
+                          : 338,
+              }}
+              to={{
+                x: flight.to === 'Server' ? serverX : clientX,
+                y:
+                  activeLabel === 'SYN'
+                    ? 140
+                    : activeLabel === 'SYN-ACK'
+                      ? 180
+                      : activeLabel === 'ACK'
+                        ? 260
+                        : dataActive
+                          ? 322
+                          : 354,
+              }}
+              toneClass={
+                flight.outcome === 'error'
+                  ? ' is-warn'
+                  : flight.kind === 'response'
+                    ? ' is-reply'
+                    : flight.outcome === 'info'
+                      ? ' is-info'
+                      : ' is-request'
+              }
+            />
+          ) : null}
+        </svg>
+      </div>
+    </NetworkShell>
+  )
+}
+
+function Http2Stage({ state, travelMs }: Props) {
+  const http2 = state.protocol === 'http2'
+  const clientX = 130
+  const serverX = 790
+  const pipeLeft = 220
+  const pipeRight = 700
+  const flight = state.flight
+  const crossing =
+    flight != null &&
+    flight.to !== 'Queue' &&
+    (flight.to === 'Server' ||
+      flight.from === 'Server' ||
+      flight.label === 'TCP open' ||
+      flight.label === 'Switch to HTTP/2')
+  const laneY = streamLaneY(state.protocol, flight?.streamId, flight?.label)
+  const fromServer = flight?.from === 'Server'
+  const tone = http2
+    ? streamTone(flight?.streamId, flight?.label)
+    : 'http1'
+
+  return (
+    <NetworkShell
+      state={state}
+      badge={http2 ? 'HTTP/2' : state.tcpOpen ? 'HTTP/1.1' : 'TCP'}
+      idle="TCP is the pipe. HTTP/1.1 uses one lane. HTTP/2 runs parallel stream lanes inside the same pipe."
+      focusHint="TCP pipe · serial vs multiplex"
+      status={
+        <>
+          {chip(state.tcpOpen ? 'TCP open' : 'TCP closed', state.tcpOpen ? 'ok' : 'warn')}
+          {chip(http2 ? 'multiplex' : 'serial', 'ok')}
           {chip(`queue: ${state.queued.join(',') || '—'}`)}
           {chip(`active: ${state.activeStreams.join(',') || '—'}`)}
         </>
@@ -358,54 +728,128 @@ function Http2Stage({ state, travelMs }: Props) {
           role="img"
           aria-label="HTTP version visualization"
         >
-          <rect x={40} y={40} width={840} height={340} rx={12} className="network-viz__zone" />
-          <text x={460} y={68} textAnchor="middle" className="network-viz__title">
-            One TCP connection
-          </text>
-          <ActorCard x={150} y={200} w={120} h={80} title="Client" />
-          <ActorCard x={770} y={200} w={120} h={80} title="Server" />
-          <line
-            x1={220}
-            y1={200}
-            x2={700}
-            y2={200}
-            className={`network-viz__pipe${state.protocol === 'http2' ? ' is-live' : ''}`}
+          <rect x={40} y={36} width={840} height={350} rx={12} className="network-viz__zone" />
+
+          <ActorCard
+            x={clientX}
+            y={200}
+            w={120}
+            h={88}
+            title="Client"
+            sub="your app"
+            focus={flight?.from === 'Client' || flight?.to === 'Client'}
           />
-          {state.protocol === 'http2'
-            ? state.activeStreams.map((label, index) => {
-                const y = 150 + index * 36
+          <ActorCard
+            x={serverX}
+            y={200}
+            w={120}
+            h={88}
+            title="Server"
+            sub="origin"
+            focus={flight?.from === 'Server' || flight?.to === 'Server'}
+          />
+
+          {/* TCP foundation: the shared reliable pipe both HTTP versions ride. */}
+          <rect
+            x={250}
+            y={118}
+            width={420}
+            height={164}
+            rx={14}
+            className={`network-viz__tcp${state.tcpOpen ? ' is-open' : ''}`}
+          />
+          <foreignObject x={320} y={58} width={280} height={56}>
+            <div
+              className={`network-viz__card network-viz__card--tcp${state.tcpOpen ? ' is-focus' : ''}`}
+            >
+              <span className="network-viz__card-label">TCP connection</span>
+              <span className="network-viz__card-sub">
+                {state.tcpOpen
+                  ? 'reliable ordered byte pipe (open)'
+                  : 'not open yet'}
+              </span>
+            </div>
+          </foreignObject>
+
+          {http2 ? (
+            <>
+              {(['A', 'B', 'C'] as const).map((label, index) => {
+                const y = 155 + index * 45
+                const active = state.activeStreams.includes(label)
+                const toneClass = ` is-stream-${label.toLowerCase()}`
                 return (
                   <g key={label}>
-                    <path
-                      d={`M 230 ${y} C 400 ${y - 20}, 520 ${y + 20}, 690 ${y}`}
-                      className="network-viz__stream"
+                    <line
+                      x1={pipeLeft}
+                      y1={y}
+                      x2={pipeRight}
+                      y2={y}
+                      className={`network-viz__stream-lane${toneClass}${active ? ' is-active' : ''}`}
                     />
-                    <text x={460} y={y - 8} textAnchor="middle" className="network-viz__list-text">
+                    <text
+                      x={460}
+                      y={y - 8}
+                      textAnchor="middle"
+                      className={`network-viz__stream-label${toneClass}`}
+                    >
                       stream {label}
+                      {active ? ' · live' : ''}
                     </text>
                   </g>
                 )
-              })
-            : state.activeStreams[0]
-              ? (
-                  <text x={460} y={180} textAnchor="middle" className="network-viz__list-text">
-                    sending {state.activeStreams[0]}
-                  </text>
-                )
-              : (
-                  <text x={460} y={180} textAnchor="middle" className="network-viz__list-text">
-                    waiting…
-                  </text>
-                )}
+              })}
+            </>
+          ) : (
+            <>
+              <line
+                x1={pipeLeft}
+                y1={200}
+                x2={pipeRight}
+                y2={200}
+                className={`network-viz__stream-lane is-http1${
+                  state.activeStreams.length ? ' is-active' : ''
+                }`}
+              />
+              <text x={460} y={188} textAnchor="middle" className="network-viz__stream-label is-http1">
+                {state.tcpOpen
+                  ? state.activeStreams[0]
+                    ? `HTTP/1.1 lane · sending ${state.activeStreams[0]}`
+                    : 'HTTP/1.1 lane · one request at a time'
+                  : 'HTTP waits for TCP'}
+              </text>
+            </>
+          )}
+
           <text x={460} y={330} textAnchor="middle" className="network-viz__list-text">
-            queued: {state.queued.join(', ') || '(empty)'}
+            HTTP/1.1 queue: {state.queued.join(', ') || '(empty)'}
           </text>
-          <FlightOrb
-            flight={state.flight}
-            travelMs={travelMs}
-            from={{ x: 220, y: 200 }}
-            to={{ x: 700, y: 200 }}
-          />
+          <text x={460} y={352} textAnchor="middle" className="network-viz__list-text">
+            {http2
+              ? 'HTTP/2: each letter rides its own colored lane inside the same TCP pipe'
+              : 'HTTP/1.1: everyone shares one lane (head-of-line wait)'}
+          </text>
+
+          {crossing ? (
+            <FlightOrb
+              flight={flight}
+              travelMs={travelMs}
+              from={{
+                x: fromServer ? pipeRight : pipeLeft,
+                y: flight?.label === 'TCP open' || flight?.label === 'Switch to HTTP/2' ? 200 : laneY,
+              }}
+              to={{
+                x: fromServer ? pipeLeft : pipeRight,
+                y: flight?.label === 'TCP open' || flight?.label === 'Switch to HTTP/2' ? 200 : laneY,
+              }}
+              toneClass={
+                flight?.outcome === 'error'
+                  ? ' is-warn'
+                  : tone === 'http1'
+                    ? ' is-request'
+                    : ` is-stream-${tone}`
+              }
+            />
+          ) : null}
         </svg>
       </div>
     </NetworkShell>

@@ -52,9 +52,15 @@ export type NetworkScriptOp =
       note?: string
     }
   | {
+      type: 'tcp'
+      action: 'syn' | 'syn-ack' | 'ack' | 'send' | 'deliver' | 'loss' | 'retransmit' | 'close'
+      label?: string
+      note?: string
+    }
+  | {
       type: 'protocol'
       mode: ProtocolMode
-      action: 'enqueue' | 'start' | 'finish' | 'switch'
+      action: 'tcp-open' | 'enqueue' | 'start' | 'finish' | 'switch'
       streamId?: number
       label?: string
     }
@@ -120,6 +126,14 @@ export type NetworkSimState = {
   apiVersion: string
 
   protocol: ProtocolMode
+  /** True after the three-way handshake finishes (ACK). */
+  tcpOpen: boolean
+  /** Handshake steps completed so far (TCP lab sequence diagram). */
+  tcpHandshake: Array<'syn' | 'syn-ack' | 'ack'>
+  /** Bytes/segments delivered in order so far (TCP lab). */
+  tcpDelivered: string[]
+  /** Segment currently missing / being fixed (TCP lab). */
+  tcpGap: string | null
   /** In-flight HTTP/2 stream labels. */
   activeStreams: string[]
   /** HTTP/1.1 waiting queue. */

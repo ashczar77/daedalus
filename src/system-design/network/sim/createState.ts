@@ -178,14 +178,45 @@ export function buildNetworkScript(algo: NetworkAlgo): NetworkScriptOp[] {
           note: 'Server answers on /v2. Old clients can stay on /v1.',
         },
       ]
+    case 'tcp':
+      return [
+        {
+          type: 'tcp',
+          action: 'syn',
+          note: 'Step 1: client sends SYN with its starting sequence number (SEQ. Client).',
+        },
+        {
+          type: 'tcp',
+          action: 'syn-ack',
+          note: 'Step 2: server replies SYN-ACK (ACK = Client+1) and its own SEQ. Server.',
+        },
+        {
+          type: 'tcp',
+          action: 'ack',
+          note: 'Step 3: client sends ACK (ACK = Server+1). The connection is now open.',
+        },
+        {
+          type: 'tcp',
+          action: 'send',
+          label: 'data',
+          note: 'Optional: the final ACK can already carry the first application bytes.',
+        },
+        {
+          type: 'tcp',
+          action: 'close',
+          note: 'Connection closes. Later labs put HTTP on this same kind of pipe.',
+        },
+      ]
     case 'http2':
       return [
+        { type: 'protocol', mode: 'http1', action: 'tcp-open' },
         { type: 'protocol', mode: 'http1', action: 'enqueue', label: 'A' },
         { type: 'protocol', mode: 'http1', action: 'enqueue', label: 'B' },
         { type: 'protocol', mode: 'http1', action: 'enqueue', label: 'C' },
         { type: 'protocol', mode: 'http1', action: 'start', streamId: 1, label: 'A' },
         { type: 'protocol', mode: 'http1', action: 'finish', streamId: 1, label: 'A' },
         { type: 'protocol', mode: 'http1', action: 'start', streamId: 2, label: 'B' },
+        { type: 'protocol', mode: 'http1', action: 'finish', streamId: 2, label: 'B' },
         { type: 'protocol', mode: 'http2', action: 'switch' },
         { type: 'protocol', mode: 'http2', action: 'start', streamId: 1, label: 'A' },
         { type: 'protocol', mode: 'http2', action: 'start', streamId: 2, label: 'B' },
@@ -290,8 +321,10 @@ export function captionForIdle(algo: NetworkAlgo): string {
       return 'Idle. Press Play to walk HTTP methods and status families.'
     case 'rest-design':
       return 'Idle. Press Play to see REST request/response pairs: POST vs PUT retries, then paging and /v2.'
+    case 'tcp':
+      return 'Idle. Press Play to walk the three-way handshake: SYN, SYN-ACK, then ACK.'
     case 'http2':
-      return 'Idle. Press Play to contrast HTTP/1.1 queuing with HTTP/2 multiplexed streams.'
+      return 'Idle. Press Play: reuse one TCP pipe, see HTTP/1.1 queue on one lane, then HTTP/2 streams on parallel lanes.'
     case 'grpc':
       return 'Idle. Press Play to compare a REST JSON call with a gRPC stub call.'
     case 'realtime':
@@ -343,6 +376,10 @@ export function createNetworkState(defaults: NetworkSimDefaults): NetworkSimStat
     cursor: null,
     apiVersion: 'v1',
     protocol: algo === 'http2' ? 'http1' : 'http2',
+    tcpOpen: false,
+    tcpHandshake: [],
+    tcpDelivered: [],
+    tcpGap: null,
     activeStreams: [],
     queued: [],
     channel: 'idle',

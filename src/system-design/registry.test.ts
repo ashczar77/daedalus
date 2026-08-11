@@ -45,14 +45,15 @@ describe('system design registry', () => {
     expect(labs.every((l) => l.kind === 'cap')).toBe(true)
   })
 
-  it('registers the Networking & APIs path with ten labs in order', () => {
+  it('registers the Networking & APIs path with eleven labs in order', () => {
     expect(systemDesignPaths.map((p) => p.id)).toContain('networking-apis')
     const labs = labsForPath('networking-apis')
-    expect(labs).toHaveLength(10)
-    expect(labs.map((l) => l.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    expect(labs).toHaveLength(11)
+    expect(labs.map((l) => l.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
     expect(labs.map((l) => l.id)).toEqual([
       'net-http-basics',
       'net-rest-design',
+      'net-tcp',
       'net-http2',
       'net-grpc',
       'net-realtime',

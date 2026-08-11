@@ -5,7 +5,7 @@ export const retriesLab: SystemDesignLab = {
   kind: 'network',
   title: 'Timeouts & Retries',
   pathId: 'networking-apis',
-  order: 8,
+  order: 9,
   summary:
     'A slow dependency can hang a caller. Bound the wait with a timeout, then retry with backoff and jitter.',
   insight:

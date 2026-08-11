@@ -5,7 +5,7 @@ export const bulkheadLab: SystemDesignLab = {
   kind: 'network',
   title: 'Bulkhead',
   pathId: 'networking-apis',
-  order: 10,
+  order: 11,
   summary:
     'Separate resource pools so overload in one area cannot consume every slot the other area needs.',
   insight:

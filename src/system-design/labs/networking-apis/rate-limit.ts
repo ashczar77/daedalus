@@ -5,7 +5,7 @@ export const rateLimitLab: SystemDesignLab = {
   kind: 'network',
   title: 'Rate Limiting',
   pathId: 'networking-apis',
-  order: 7,
+  order: 8,
   summary:
     'A token bucket spends one token per allowed request. When empty, the next call gets 429.',
   insight:

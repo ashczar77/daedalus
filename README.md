@@ -20,7 +20,7 @@ In the old stories, Daedalus was the craftsman who built the Labyrinth: clever e
 
 ![Terminal lesson](docs/media/terminal-lesson.png)
 
-**System Design.** Open `/system-design` for concept labs: short teaching beats, then a live simulation. Paths include Load Balancing (round robin, weighted round robin, least connections, consistent hashing), Caching (cache-aside, read-through, write-through, write-behind, plus LRU, LFU, FIFO, and TTL), CAP Theorem (overview plus Consistency, Availability, and Partition tolerance), and Networking & APIs (HTTP/REST, HTTP/2, gRPC, realtime, gateway, rate limiting, retries, circuit breaker, and bulkhead). Labs are listed in a suggested order and all start unlocked.
+**System Design.** Open `/system-design` for concept labs: short teaching beats, then a live simulation. Paths include Load Balancing (round robin, weighted round robin, least connections, consistent hashing), Caching (cache-aside, read-through, write-through, write-behind, plus LRU, LFU, FIFO, and TTL), CAP Theorem (overview plus Consistency, Availability, and Partition tolerance), and Networking & APIs (HTTP/REST, TCP, HTTP/2, gRPC, realtime, gateway, rate limiting, retries, circuit breaker, and bulkhead). Labs are listed in a suggested order and all start unlocked.
 
 ## Contributing
 

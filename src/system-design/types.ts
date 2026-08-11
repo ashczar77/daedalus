@@ -79,6 +79,7 @@ export type CapSimDefaults = {
 export type NetworkAlgo =
   | 'http-basics'
   | 'rest-design'
+  | 'tcp'
   | 'http2'
   | 'grpc'
   | 'realtime'
