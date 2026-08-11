@@ -5,12 +5,15 @@ import { useCacheSim } from '../system-design/cache/sim/useCacheSim'
 import { CacheViz } from '../system-design/cache/viz/CacheViz'
 import { useCapSim } from '../system-design/cap/sim/useCapSim'
 import { CapViz } from '../system-design/cap/viz/CapViz'
+import { useNetworkSim } from '../system-design/network/sim/useNetworkSim'
+import { NetworkViz } from '../system-design/network/viz/NetworkViz'
 import { getSystemDesignLab, labsForPath, pathTitle } from '../system-design/registry'
 import { useLoadBalancerSim } from '../system-design/sim/useLoadBalancerSim'
 import type {
   CacheSimDefaults,
   CapSimDefaults,
   LoadBalancerSimDefaults,
+  NetworkSimDefaults,
   SystemDesignLab,
 } from '../system-design/types'
 import { LoadBalancerViz } from '../system-design/viz/LoadBalancerViz'
@@ -35,6 +38,10 @@ const FALLBACK_CAP: CapSimDefaults = {
   replicaCount: 3,
 }
 
+const FALLBACK_NETWORK: NetworkSimDefaults = {
+  algo: 'http-basics',
+}
+
 /**
  * System Design lab: teaching beats, then a live simulation for that path.
  */
@@ -53,6 +60,10 @@ export function SystemDesignLabPage() {
 
   if (lab.kind === 'cap') {
     return <CapLabView lab={lab} />
+  }
+
+  if (lab.kind === 'network') {
+    return <NetworkLabView lab={lab} />
   }
 
   if (lab.kind === 'cache') {
@@ -351,6 +362,50 @@ function CapLabView({
   )
 }
 
+function NetworkLabView({
+  lab,
+}: {
+  lab: Extract<SystemDesignLab, { kind: 'network' }>
+}) {
+  const sim = useNetworkSim(lab.simDefaults ?? FALLBACK_NETWORK)
+  const blurb = networkSimBlurb(lab.simDefaults.algo)
+
+  return (
+    <LabChrome
+      lab={lab}
+      simBlurb={blurb}
+      simControls={
+        <>
+          <button type="button" className="sd-lab__btn is-accent" onClick={sim.toggle}>
+            {sim.state.finished ? 'Replay' : sim.playing ? 'Pause' : 'Play'}
+          </button>
+          <button type="button" className="sd-lab__btn" onClick={sim.stepOnce}>
+            Step
+          </button>
+          <button type="button" className="sd-lab__btn" onClick={sim.reset}>
+            Reset
+          </button>
+          <button
+            type="button"
+            className="sd-lab__btn"
+            onClick={sim.cycleSpeed}
+            aria-label="Cycle speed"
+          >
+            {sim.speed}x
+          </button>
+          <span className="sd-lab__weight">{networkStatusLabel(sim.state)}</span>
+          <span className="sd-lab__weight">
+            <span className="sd-lab__stat sd-lab__stat--hit">{sim.state.okCount} ok</span>
+            {' / '}
+            <span className="sd-lab__stat sd-lab__stat--miss">{sim.state.errorCount} err</span>
+          </span>
+        </>
+      }
+      simStage={<NetworkViz state={sim.state} travelMs={sim.travelMs} />}
+    />
+  )
+}
+
 function capSimBlurb(algo: CapSimDefaults['algo']): string {
   switch (algo) {
     case 'consistency':
@@ -362,5 +417,68 @@ function capSimBlurb(algo: CapSimDefaults['algo']): string {
     case 'overview':
     default:
       return 'This lab shows the full tradeoff: healthy sync, then Prefer Consistency versus Prefer Availability after the cut.'
+  }
+}
+
+function networkSimBlurb(algo: NetworkSimDefaults['algo']): string {
+  switch (algo) {
+    case 'http-basics':
+      return 'Watch methods and status codes: request goes out, then the response comes back.'
+    case 'rest-design':
+      return 'Compare unsafe POST retries with idempotent PUT, then pagination and versioning.'
+    case 'http2':
+      return 'See HTTP/1.1 queue behind one request, then HTTP/2 streams share the pipe.'
+    case 'grpc':
+      return 'Compare a REST JSON call with a typed gRPC stub call.'
+    case 'realtime':
+      return 'Hold a long poll, then switch to WebSocket push on an open channel.'
+    case 'gateway':
+      return 'Auth at the edge, then route /orders and /users to different services.'
+    case 'rate-limit':
+      return 'Drain the token bucket until 429, refill, then allow again.'
+    case 'retries':
+      return 'Timeouts stop slow calls; backoff spaces retries until success.'
+    case 'circuit-breaker':
+      return 'Failures open the breaker, reject fast, probe, then close.'
+    case 'bulkhead':
+      return 'Fill pool A to capacity while pool B keeps accepting work.'
+    default: {
+      const _exhaustive: never = algo
+      return _exhaustive
+    }
+  }
+}
+
+function networkStatusLabel(state: {
+  algo: NetworkSimDefaults['algo']
+  tokens: number
+  tokenCapacity: number
+  breaker: string
+  attempt: number
+  poolAInUse: number
+  poolACap: number
+  poolBInUse: number
+  poolBCap: number
+  protocol: string
+  channel: string
+  apiVersion: string
+}): string {
+  switch (state.algo) {
+    case 'rate-limit':
+      return `tokens ${state.tokens}/${state.tokenCapacity}`
+    case 'circuit-breaker':
+      return `breaker ${state.breaker}`
+    case 'retries':
+      return `attempt ${state.attempt || 0}`
+    case 'bulkhead':
+      return `A ${state.poolAInUse}/${state.poolACap} · B ${state.poolBInUse}/${state.poolBCap}`
+    case 'http2':
+      return state.protocol
+    case 'realtime':
+      return state.channel
+    case 'rest-design':
+      return `api ${state.apiVersion}`
+    default:
+      return 'live demo'
   }
 }

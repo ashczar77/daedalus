@@ -1,0 +1,313 @@
+.network-viz {
+  display: grid;
+  gap: 0.65rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.network-viz__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.network-viz__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.network-viz__badge {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+  border-radius: 0.2rem;
+  padding: 0.2rem 0.55rem;
+}
+
+.network-viz__focus-hint {
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+.network-viz__zoom {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.network-viz__zoom-btn {
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--lift) 70%, var(--surface));
+  color: var(--ink-soft);
+  border-radius: 0.35rem;
+  padding: 0.15rem 0.5rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.network-viz__zoom-btn:hover:not(:disabled) {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+}
+
+.network-viz__zoom-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.network-viz__hint,
+.network-viz__caption {
+  margin: 0;
+  min-height: 2.7em;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  color: var(--ink-soft);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.network-viz__status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  min-height: 2rem;
+  align-items: center;
+}
+
+.network-viz__chip {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 88%, var(--lift));
+  color: var(--ink-soft);
+}
+
+.network-viz__chip.is-ok {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  color: var(--accent);
+}
+
+.network-viz__chip.is-warn {
+  border-color: color-mix(in srgb, var(--warn) 45%, var(--line));
+  color: var(--warn);
+}
+
+.network-viz__viewport {
+  width: 100%;
+  min-width: 0;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 0.3rem;
+  background: color-mix(in srgb, var(--surface) 88%, #000);
+  display: grid;
+  justify-items: center;
+  padding: 0.55rem 0.45rem;
+  max-height: min(36rem, 72vh);
+}
+
+.network-viz__canvas {
+  display: block;
+  width: min(100%, 920px);
+  height: auto;
+  zoom: var(--viz-scale, 1);
+}
+
+@supports not (zoom: 1) {
+  .network-viz__canvas {
+    zoom: unset;
+    transform: scale(var(--viz-scale, 1));
+    transform-origin: top center;
+  }
+}
+
+.network-viz__card {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0.45rem 0.55rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.12rem;
+  text-align: center;
+  overflow: hidden;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface-2) 80%, var(--lift));
+  color: var(--ink);
+  font-family: var(--font-mono);
+  line-height: 1.2;
+}
+
+.network-viz__card.is-focus {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--line));
+  border-width: 2px;
+}
+
+.network-viz__card.is-warn {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 10%, var(--surface));
+}
+
+.network-viz__card-label {
+  display: block;
+  max-width: 100%;
+  font-size: 11px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.network-viz__card-sub {
+  display: block;
+  max-width: 100%;
+  font-size: 9px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.network-viz__card-value {
+  display: block;
+  max-width: 100%;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
+
+.network-viz__zone {
+  fill: color-mix(in srgb, var(--lift) 28%, transparent);
+  stroke: color-mix(in srgb, var(--line) 80%, transparent);
+  stroke-width: 1.5;
+}
+
+.network-viz__title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  fill: var(--ink-soft);
+}
+
+.network-viz__pipe {
+  fill: none;
+  stroke: color-mix(in srgb, var(--line) 80%, var(--muted));
+  stroke-width: 3;
+}
+
+.network-viz__pipe.is-live {
+  stroke: color-mix(in srgb, var(--accent) 55%, var(--line));
+}
+
+.network-viz__pipe--request {
+  stroke: color-mix(in srgb, var(--accent) 55%, var(--line));
+  stroke-width: 2.5;
+  opacity: 0.55;
+}
+
+.network-viz__pipe--reply {
+  stroke: color-mix(in srgb, #4f8fbf 60%, var(--line));
+  stroke-width: 2.5;
+  opacity: 0.55;
+}
+
+.network-viz__lane {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.network-viz__lane.is-request {
+  fill: var(--accent);
+}
+
+.network-viz__lane.is-reply {
+  fill: #4f8fbf;
+}
+
+.network-viz__stream {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  opacity: 0.85;
+}
+
+.network-viz__bucket {
+  fill: color-mix(in srgb, var(--surface-2) 70%, var(--lift));
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+
+.network-viz__bucket-fill {
+  fill: color-mix(in srgb, var(--accent) 55%, var(--lift));
+}
+
+.network-viz__meter-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--ink-soft);
+}
+
+.network-viz__orb {
+  fill: var(--accent);
+  stroke: color-mix(in srgb, var(--accent) 40%, white);
+  stroke-width: 1.5;
+}
+
+.network-viz__orb.is-request {
+  fill: var(--accent);
+  stroke: color-mix(in srgb, var(--accent) 40%, white);
+}
+
+.network-viz__orb.is-reply {
+  fill: #4f8fbf;
+  stroke: color-mix(in srgb, #4f8fbf 45%, white);
+}
+
+.network-viz__orb.is-warn {
+  fill: var(--warn);
+  stroke: color-mix(in srgb, var(--warn) 40%, white);
+}
+
+.network-viz__orb.is-info {
+  fill: color-mix(in srgb, var(--muted) 70%, var(--accent));
+}
+
+.network-viz__trail {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  opacity: 0.9;
+}
+
+.network-viz__trail.is-request {
+  stroke: var(--accent);
+}
+
+.network-viz__trail.is-reply {
+  stroke: #4f8fbf;
+}
+
+.network-viz__trail.is-warn {
+  stroke: var(--warn);
+  stroke-dasharray: 5 4;
+}
+
+.network-viz__list-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--ink-soft);
+}

@@ -75,6 +75,31 @@ export type CapSimDefaults = {
   maxArrivals?: number
 }
 
+/** Which Networking & APIs lab angle the sim plays. */
+export type NetworkAlgo =
+  | 'http-basics'
+  | 'rest-design'
+  | 'http2'
+  | 'grpc'
+  | 'realtime'
+  | 'gateway'
+  | 'rate-limit'
+  | 'retries'
+  | 'circuit-breaker'
+  | 'bulkhead'
+
+export type NetworkSimDefaults = {
+  algo: NetworkAlgo
+  /** Stop after this many scripted ops. */
+  maxArrivals?: number
+  /** Rate-limit lab: bucket size. */
+  tokenCapacity?: number
+  /** Circuit breaker: failures before opening. */
+  failureThreshold?: number
+  /** Bulkhead: per-pool in-flight caps. */
+  poolCapacity?: number
+}
+
 type LabBase = {
   id: string
   title: string
@@ -107,4 +132,8 @@ export type SystemDesignLab =
   | (LabBase & {
       kind: 'cap'
       simDefaults: CapSimDefaults
+    })
+  | (LabBase & {
+      kind: 'network'
+      simDefaults: NetworkSimDefaults
     })
