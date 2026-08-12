@@ -254,13 +254,64 @@ export function buildNetworkScript(algo: NetworkAlgo): NetworkScriptOp[] {
       ]
     case 'realtime':
       return [
-        { type: 'realtime', mode: 'long-poll', action: 'hold' },
-        { type: 'realtime', mode: 'long-poll', action: 'reply', event: 'msg-1' },
-        { type: 'realtime', mode: 'long-poll', action: 'hold' },
-        { type: 'realtime', mode: 'websocket', action: 'open' },
-        { type: 'realtime', mode: 'websocket', action: 'push', event: 'msg-2' },
-        { type: 'realtime', mode: 'websocket', action: 'push', event: 'msg-3' },
-        { type: 'realtime', mode: 'websocket', action: 'close' },
+        {
+          type: 'realtime',
+          mode: 'long-poll',
+          action: 'hold',
+          note: 'Long poll: client asks and waits. The server holds the request until there is news.',
+        },
+        {
+          type: 'realtime',
+          mode: 'websocket',
+          action: 'open',
+          note: 'WebSocket: open one connection and keep it open.',
+        },
+        {
+          type: 'realtime',
+          mode: 'long-poll',
+          action: 'reply',
+          event: 'news-1',
+          note: 'News arrives. Long poll finally answers. That HTTP request is now done.',
+        },
+        {
+          type: 'realtime',
+          mode: 'websocket',
+          action: 'push',
+          event: 'news-1',
+          note: 'Same news on the WebSocket. The connection stays open.',
+        },
+        {
+          type: 'realtime',
+          mode: 'long-poll',
+          action: 'hold',
+          note: 'Long poll must ask again to wait for the next update.',
+        },
+        {
+          type: 'realtime',
+          mode: 'websocket',
+          action: 'push',
+          event: 'news-2',
+          note: 'Second update on the same WebSocket. No new open needed.',
+        },
+        {
+          type: 'realtime',
+          mode: 'long-poll',
+          action: 'reply',
+          event: 'news-2',
+          note: 'Long poll answers news-2. Request ends again; client will need another hold.',
+        },
+        {
+          type: 'realtime',
+          mode: 'long-poll',
+          action: 'hold',
+          note: 'Long poll starts waiting a third time. WebSocket is still open on the right.',
+        },
+        {
+          type: 'realtime',
+          mode: 'websocket',
+          action: 'close',
+          note: 'WebSocket closes when you are done. Later news would need a new open.',
+        },
       ]
     case 'gateway':
       return [
@@ -334,7 +385,7 @@ export function captionForIdle(algo: NetworkAlgo): string {
     case 'grpc':
       return 'Idle. Press Play: call a function on another machine, then watch the return value come back.'
     case 'realtime':
-      return 'Idle. Press Play to compare long polling with a WebSocket push channel.'
+      return 'Idle. Press Play to compare long polling and WebSockets side by side.'
     case 'gateway':
       return 'Idle. Press Play to watch auth checks and path-based routing.'
     case 'rate-limit':
@@ -390,7 +441,9 @@ export function createNetworkState(defaults: NetworkSimDefaults): NetworkSimStat
     queued: [],
     channel: 'idle',
     heldRequest: false,
-    pushEvents: [],
+    lpEvents: [],
+    wsOpen: false,
+    wsEvents: [],
     authOk: true,
     routeTarget: null,
     tokens: tokenCapacity,

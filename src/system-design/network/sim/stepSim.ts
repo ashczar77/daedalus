@@ -557,10 +557,12 @@ function applyRealtime(
       const flight: NetworkFlight = {
         id: nextFlightId(),
         kind: 'request',
-        label: 'Long poll hold',
+        label: 'Ask & wait',
         from: 'Client',
         to: 'API',
-        reason: 'Long poll: client opens a request and waits until the server has news.',
+        reason:
+          op.note ??
+          'Long poll: client sends a request and waits. The server holds it until there is news.',
         outcome: 'pending',
       }
       return withFlight(state, flight, {
@@ -569,20 +571,22 @@ function applyRealtime(
       })
     }
     case 'reply': {
-      const events = op.event ? [...state.pushEvents, op.event] : state.pushEvents
+      const events = op.event ? [...state.lpEvents, op.event] : state.lpEvents
       const flight: NetworkFlight = {
         id: nextFlightId(),
         kind: 'response',
-        label: `Long poll reply ${op.event ?? ''}`.trim(),
+        label: op.event ? `Reply ${op.event}` : 'Reply',
         from: 'API',
         to: 'Client',
-        reason: 'Server finally answers. Client must open a new long poll for the next event.',
+        reason:
+          op.note ??
+          'Server answers with the news. This HTTP request is done. Client must ask again for the next update.',
         outcome: 'ok',
       }
       return withFlight(state, flight, {
         channel: 'long-poll',
         heldRequest: false,
-        pushEvents: events,
+        lpEvents: events,
         okCount: state.okCount + 1,
       })
     }
@@ -590,31 +594,34 @@ function applyRealtime(
       const flight: NetworkFlight = {
         id: nextFlightId(),
         kind: 'info',
-        label: 'WebSocket open',
+        label: 'Open socket',
         from: 'Client',
         to: 'API',
-        reason: 'WebSocket: one persistent duplex channel stays open.',
+        reason: op.note ?? 'WebSocket: open one connection and keep it open.',
         outcome: 'info',
       }
       return withFlight(state, flight, {
         channel: 'websocket',
-        heldRequest: false,
+        wsOpen: true,
       })
     }
     case 'push': {
-      const events = op.event ? [...state.pushEvents, op.event] : state.pushEvents
+      const events = op.event ? [...state.wsEvents, op.event] : state.wsEvents
       const flight: NetworkFlight = {
         id: nextFlightId(),
         kind: 'push',
-        label: `Push ${op.event ?? 'event'}`,
+        label: op.event ? `Push ${op.event}` : 'Push',
         from: 'API',
         to: 'Client',
-        reason: 'Server pushes on the open socket. No new HTTP request needed.',
+        reason:
+          op.note ??
+          'Server sends an update on the open WebSocket. No new HTTP request needed.',
         outcome: 'ok',
       }
       return withFlight(state, flight, {
         channel: 'websocket',
-        pushEvents: events,
+        wsOpen: true,
+        wsEvents: events,
         okCount: state.okCount + 1,
       })
     }
@@ -622,15 +629,17 @@ function applyRealtime(
       const flight: NetworkFlight = {
         id: nextFlightId(),
         kind: 'info',
-        label: 'WebSocket close',
+        label: 'Close socket',
         from: 'Client',
         to: 'API',
-        reason: 'Channel closed. Later events need a new connection (or a reconnect strategy).',
+        reason:
+          op.note ??
+          'WebSocket closed. Later updates need a new open (or a reconnect plan).',
         outcome: 'info',
       }
       return withFlight(state, flight, {
-        channel: 'idle',
-        heldRequest: false,
+        channel: 'websocket',
+        wsOpen: false,
       })
     }
     default: {

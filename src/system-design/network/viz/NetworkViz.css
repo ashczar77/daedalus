@@ -525,3 +525,28 @@
 .network-viz__rpc-lane-label.is-back.is-active {
   fill: #4f8fbf;
 }
+
+.network-viz__compare-panel {
+  fill: color-mix(in srgb, var(--lift) 55%, transparent);
+  stroke: color-mix(in srgb, var(--line) 80%, transparent);
+  stroke-width: 1.5;
+}
+
+.network-viz__compare-panel.is-active {
+  fill: color-mix(in srgb, var(--accent) 8%, var(--lift));
+  stroke: color-mix(in srgb, var(--accent) 45%, var(--line));
+}
+
+.network-viz__compare-title {
+  font-family: var(--font-display, var(--font-sans));
+  font-size: 15px;
+  font-weight: 600;
+  fill: var(--ink);
+}
+
+.network-viz__compare-events {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--ink);
+}

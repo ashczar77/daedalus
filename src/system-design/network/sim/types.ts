@@ -75,6 +75,7 @@ export type NetworkScriptOp =
       mode: RealtimeMode
       action: 'hold' | 'reply' | 'open' | 'push' | 'close'
       event?: string
+      note?: string
     }
   | {
       type: 'gateway'
@@ -140,8 +141,14 @@ export type NetworkSimState = {
   queued: string[]
 
   channel: RealtimeMode
+  /** Long-poll lane: client is waiting on an open HTTP request. */
   heldRequest: boolean
-  pushEvents: string[]
+  /** Long-poll lane: news delivered so far. */
+  lpEvents: string[]
+  /** WebSocket lane: connection is open. */
+  wsOpen: boolean
+  /** WebSocket lane: news pushed so far. */
+  wsEvents: string[]
 
   authOk: boolean
   routeTarget: string | null

@@ -433,7 +433,7 @@ function networkSimBlurb(algo: NetworkSimDefaults['algo']): string {
     case 'grpc':
       return 'Watch a remote call: arguments go out, the function runs on the server, the return value comes back.'
     case 'realtime':
-      return 'Hold a long poll, then switch to WebSocket push on an open channel.'
+      return 'Compare long polling and WebSockets side by side on the same news.'
     case 'gateway':
       return 'Auth at the edge, then route /orders and /users to different services.'
     case 'rate-limit':
@@ -467,6 +467,8 @@ function networkStatusLabel(state: {
   tcpDelivered: string[]
   tcpGap: string | null
   channel: string
+  heldRequest: boolean
+  wsOpen: boolean
   apiVersion: string
 }): string {
   switch (state.algo) {
@@ -489,7 +491,13 @@ function networkStatusLabel(state: {
           : 'closed'
         : `handshake ${state.tcpHandshake.length}/3`
     case 'realtime':
-      return state.channel
+      return state.wsOpen
+        ? state.heldRequest
+          ? 'LP wait · WS open'
+          : 'WS open'
+        : state.heldRequest
+          ? 'LP waiting'
+          : 'both idle'
     case 'rest-design':
       return `api ${state.apiVersion}`
     default:

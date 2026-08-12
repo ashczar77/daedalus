@@ -1002,17 +1002,44 @@ function GrpcStage({ state, travelMs }: Props) {
 }
 
 function RealtimeStage({ state, travelMs }: Props) {
+  const flight = state.flight
+  const onLp = state.channel === 'long-poll'
+  const onWs = state.channel === 'websocket'
+  const fromApi = flight?.from === 'API'
+  const laneY = 200
+  const lpClientX = 140
+  const lpServerX = 365
+  const wsClientX = 555
+  const wsServerX = 780
+
+  const lpStatus = state.heldRequest
+    ? 'waiting for news…'
+    : state.lpEvents.length
+      ? 'must ask again after each reply'
+      : 'idle'
+  const wsStatus = state.wsOpen
+    ? 'connection still open'
+    : state.wsEvents.length
+      ? 'closed'
+      : 'not open yet'
+
+  const flightOnLp = onLp && flight != null
+  const flightOnWs = onWs && flight != null
+
   return (
     <NetworkShell
       state={state}
-      badge={state.channel === 'websocket' ? 'WebSocket' : 'Long poll'}
-      idle="Long poll holds a request. WebSocket keeps a duplex channel."
-      focusHint="Hold-and-reply vs push"
+      badge="Live updates"
+      idle="Left: long polling (ask, wait, ask again). Right: WebSocket (open once, many updates)."
+      focusHint="side by side · same news"
       status={
         <>
-          {chip(state.channel)}
-          {chip(state.heldRequest ? 'holding' : 'idle', state.heldRequest ? 'warn' : 'neutral')}
-          {chip(`events: ${state.pushEvents.join(', ') || '—'}`)}
+          {chip(onLp ? 'long poll step' : onWs ? 'websocket step' : 'ready')}
+          {chip(
+            state.heldRequest ? 'LP waiting' : 'LP idle',
+            state.heldRequest ? 'warn' : 'neutral',
+          )}
+          {chip(state.wsOpen ? 'WS open' : 'WS closed', state.wsOpen ? 'ok' : 'neutral')}
         </>
       }
     >
@@ -1022,49 +1049,155 @@ function RealtimeStage({ state, travelMs }: Props) {
           viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
           preserveAspectRatio="xMidYMid meet"
           role="img"
-          aria-label="Realtime visualization"
+          aria-label="Long polling versus WebSocket side by side"
         >
-          <rect x={40} y={40} width={840} height={340} rx={12} className="network-viz__zone" />
+          <rect x={40} y={36} width={840} height={350} rx={12} className="network-viz__zone" />
+
+          <text x={460} y={60} textAnchor="middle" className="network-viz__hs-title">
+            Same news, two ways to listen
+          </text>
+
+          <rect
+            x={55}
+            y={78}
+            width={395}
+            height={280}
+            rx={12}
+            className={`network-viz__compare-panel${onLp ? ' is-active' : ''}`}
+          />
+          <text x={252} y={102} textAnchor="middle" className="network-viz__compare-title">
+            Long polling
+          </text>
+          <text x={252} y={120} textAnchor="middle" className="network-viz__list-text">
+            ask → wait → answer → ask again
+          </text>
+
           <ActorCard
-            x={180}
-            y={210}
-            w={140}
-            h={90}
+            x={lpClientX}
+            y={laneY}
+            w={110}
+            h={72}
             title="Client"
+            sub="browser / app"
             value={state.heldRequest ? 'waiting…' : 'ready'}
-            focus={state.heldRequest}
+            focus={flightOnLp && !fromApi}
           />
           <ActorCard
-            x={740}
-            y={210}
-            w={140}
-            h={90}
-            title="API"
-            sub={state.channel}
-            value={state.pushEvents[state.pushEvents.length - 1] ?? '—'}
-            focus={state.flight?.from === 'API'}
+            x={lpServerX}
+            y={laneY}
+            w={110}
+            h={72}
+            title="Server"
+            sub="holds request"
+            value={state.heldRequest ? 'holding' : '—'}
+            focus={flightOnLp && fromApi}
           />
           <line
-            x1={260}
-            y1={210}
-            x2={660}
-            y2={210}
-            className={`network-viz__pipe${state.channel !== 'idle' ? ' is-live' : ''}`}
+            x1={lpClientX + 58}
+            y1={laneY}
+            x2={lpServerX - 58}
+            y2={laneY}
+            className={`network-viz__rpc-lane is-out${state.heldRequest || flightOnLp ? ' is-active' : ''}`}
           />
-          <FlightOrb
-            flight={state.flight}
-            travelMs={travelMs}
-            from={
-              state.flight?.from === 'API'
-                ? { x: 660, y: 210 }
-                : { x: 260, y: 210 }
-            }
-            to={
-              state.flight?.from === 'API'
-                ? { x: 260, y: 210 }
-                : { x: 660, y: 210 }
-            }
+          <text x={252} y={268} textAnchor="middle" className="network-viz__list-text">
+            {lpStatus}
+          </text>
+          <text x={252} y={292} textAnchor="middle" className="network-viz__compare-events">
+            got: {state.lpEvents.join(', ') || '(none yet)'}
+          </text>
+          <text x={252} y={330} textAnchor="middle" className="network-viz__list-text">
+            After each answer, the HTTP request is done.
+          </text>
+
+          <rect
+            x={470}
+            y={78}
+            width={395}
+            height={280}
+            rx={12}
+            className={`network-viz__compare-panel${onWs ? ' is-active' : ''}`}
           />
+          <text x={667} y={102} textAnchor="middle" className="network-viz__compare-title">
+            WebSocket
+          </text>
+          <text x={667} y={120} textAnchor="middle" className="network-viz__list-text">
+            open once → many updates
+          </text>
+
+          <ActorCard
+            x={wsClientX}
+            y={laneY}
+            w={110}
+            h={72}
+            title="Client"
+            sub="browser / app"
+            value={state.wsOpen ? 'listening' : 'offline'}
+            focus={flightOnWs && !fromApi}
+          />
+          <ActorCard
+            x={wsServerX}
+            y={laneY}
+            w={110}
+            h={72}
+            title="Server"
+            sub="can push anytime"
+            value={state.wsOpen ? 'connected' : '—'}
+            focus={flightOnWs && fromApi}
+          />
+          <line
+            x1={wsClientX + 58}
+            y1={laneY}
+            x2={wsServerX - 58}
+            y2={laneY}
+            className={`network-viz__rpc-lane is-back${state.wsOpen || flightOnWs ? ' is-active' : ''}`}
+          />
+          <text x={667} y={268} textAnchor="middle" className="network-viz__list-text">
+            {wsStatus}
+          </text>
+          <text x={667} y={292} textAnchor="middle" className="network-viz__compare-events">
+            got: {state.wsEvents.join(', ') || '(none yet)'}
+          </text>
+          <text x={667} y={330} textAnchor="middle" className="network-viz__list-text">
+            Same connection carries news-1 and news-2.
+          </text>
+
+          {flightOnLp ? (
+            <FlightOrb
+              flight={flight}
+              travelMs={travelMs}
+              from={{
+                x: fromApi ? lpServerX - 58 : lpClientX + 58,
+                y: laneY,
+              }}
+              to={{
+                x: fromApi ? lpClientX + 58 : lpServerX - 58,
+                y: laneY,
+              }}
+              toneClass={fromApi ? ' is-reply' : ' is-request'}
+            />
+          ) : null}
+
+          {flightOnWs ? (
+            <FlightOrb
+              flight={flight}
+              travelMs={travelMs}
+              from={{
+                x: fromApi ? wsServerX - 58 : wsClientX + 58,
+                y: laneY,
+              }}
+              to={{
+                x: fromApi ? wsClientX + 58 : wsServerX - 58,
+                y: laneY,
+              }}
+              toneClass={
+                flight.outcome === 'info'
+                  ? ' is-info'
+                  : fromApi
+                    ? ' is-reply'
+                    : ' is-request'
+              }
+            />
+          ) : null}
         </svg>
       </div>
     </NetworkShell>
