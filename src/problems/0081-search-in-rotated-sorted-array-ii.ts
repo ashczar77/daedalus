@@ -16,7 +16,7 @@ import { placeholderBenchmark } from './benchmarkPlaceholders'
 
 type Input = { nums: number[]; target: number }
 
-const nums = [2, 5, 6, 0, 0, 1, 2]
+const nums = [2, 2, 2, 0, 1, 2]
 const target = 0
 
 const L = {
@@ -491,7 +491,7 @@ const input = defineInput<Input>({
       key: 'nums',
       label: 'nums',
       widget: 'text',
-      placeholder: '2, 5, 6, 0, 0, 1, 2',
+      placeholder: '2, 2, 2, 0, 1, 2',
       hint: 'Rotated sorted array; duplicates allowed (max 16)',
     },
     { key: 'target', label: 'target', widget: 'text', placeholder: '0' },

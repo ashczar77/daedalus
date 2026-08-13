@@ -96,11 +96,12 @@
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
-  gap: 1.25rem;
+  gap: clamp(1.1rem, 3vw, 1.6rem);
   align-items: center;
   justify-content: flex-start;
   width: max-content;
   max-width: 100%;
+  margin-inline: auto;
 }
 
 .structure-stage__item {

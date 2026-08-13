@@ -72,8 +72,11 @@ function historyHeap(
   return {
     id: 'history',
     kind: 'array',
-    label: `history[${key}] (ts,value)`,
-    values: list.map((e) => `${e.timestamp}:${e.value}`),
+    label:
+      key.length === 0
+        ? 'history (pick a key)'
+        : `history["${key}"] (timestamp:value)`,
+    values: list.length === 0 ? ['(empty)'] : list.map((e) => `${e.timestamp}:${e.value}`),
     ...(opts.left !== undefined ||
     opts.mid !== undefined ||
     opts.right !== undefined
@@ -85,7 +88,7 @@ function historyHeap(
           },
         }
       : {}),
-    ...(opts.highlights ? { highlights: opts.highlights } : {}),
+    ...(opts.highlights && list.length > 0 ? { highlights: opts.highlights } : {}),
     focused: true,
   }
 }
@@ -253,17 +256,18 @@ function generateSteps(ops: Op[]): Step[] {
 
   steps.push({
     id: id++,
-    narrative: 'Construct TimeMap. Allocate an empty HashMap on the heap.',
-    why: 'Each key owns a list of (timestamp, value) pairs appended in increasing time order.',
+    narrative:
+      'Construct TimeMap. Start with an empty store map and no history lists yet.',
+    why: 'Each key will own a list of (timestamp, value) pairs, appended in increasing time order.',
     codeFocus: L.ctor,
     callStack: [
       {
         name: 'TimeMap',
         active: true,
-        locals: { store: { ref: 'store' } },
+        locals: { store: { ref: 'store' }, history: { ref: 'history' } },
       },
     ],
-    heap: [storeHeap(store)],
+    heap: [storeHeap(store), historyHeap('', [])],
   })
 
   for (const op of ops) {
@@ -319,9 +323,7 @@ function generateSteps(ops: Op[]): Step[] {
       ],
       heap: [
         storeHeap(store, [op.key]),
-        ...(list.length > 0
-          ? [historyHeap(op.key, list)]
-          : []),
+        historyHeap(op.key, list),
       ],
     })
 
@@ -342,7 +344,7 @@ function generateSteps(ops: Op[]): Step[] {
             },
           },
         ],
-        heap: [storeHeap(store, [op.key])],
+        heap: [storeHeap(store, [op.key]), historyHeap(op.key, [])],
       })
       continue
     }

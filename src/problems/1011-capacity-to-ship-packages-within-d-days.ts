@@ -32,32 +32,81 @@ const L = {
   canShip: { java: 27, kotlin: 27, python: 20 },
 } as const
 
-function daysNeeded(weights: number[], capacity: number): number {
-  let dayCount = 1
+/** Greedy day loads for a candidate capacity (one entry per shipping day). */
+function simulateDayLoads(weights: number[], capacity: number): number[] {
+  const dayLoads: number[] = []
   let load = 0
   for (const w of weights) {
     if (load + w > capacity) {
-      dayCount++
+      dayLoads.push(load)
       load = 0
     }
     load += w
   }
-  return dayCount
+  dayLoads.push(load)
+  return dayLoads
 }
 
 function weightsHeap(
   weights: number[],
   highlights: ArrayHighlight[],
   focused = true,
+  label = 'int[] weights',
 ): HeapObject {
   return {
     id: 'weights',
     kind: 'array',
-    label: 'int[] weights',
+    label,
     values: [...weights],
     highlights,
     focused,
   }
+}
+
+function dayLoadsHeap(
+  dayLoads: number[],
+  opts: { focusDay?: number; focused?: boolean } = {},
+): HeapObject {
+  const { focusDay, focused = true } = opts
+  const highlights: ArrayHighlight[] = []
+  if (dayLoads.length > 0) {
+    if (focusDay != null && focusDay >= 1 && focusDay <= dayLoads.length) {
+      highlights.push({ index: focusDay - 1, role: 'current' })
+    } else {
+      for (let i = 0; i < dayLoads.length; i++) {
+        highlights.push({ index: i, role: 'window' })
+      }
+    }
+  }
+  return {
+    id: 'dayLoads',
+    kind: 'array',
+    label: 'int[] dayLoads (load per day)',
+    values: [...dayLoads],
+    highlights,
+    focused,
+  }
+}
+
+function walkHighlights(
+  n: number,
+  currentIdx: number,
+  boardedDay: number[],
+  currentDay: number,
+): ArrayHighlight[] {
+  const out: ArrayHighlight[] = []
+  for (let i = 0; i < n; i++) {
+    if (i === currentIdx) out.push({ index: i, role: 'current' })
+    else if (i < currentIdx) {
+      out.push({
+        index: i,
+        role: boardedDay[i] === currentDay ? 'window' : 'visited',
+      })
+    } else {
+      out.push({ index: i, role: 'compare' })
+    }
+  }
+  return out
 }
 
 function feasibilityHighlights(
@@ -138,8 +187,8 @@ function generateSteps({ weights, days }: Input): Step[] {
 
     steps.push({
       id: id++,
-      narrative: `Try capacity mid = ${mid}.`,
-      why: 'mid is a candidate answer (capacity), not an index into weights.',
+      narrative: `Try capacity mid = ${mid}. Simulate how many days this ship needs.`,
+      why: 'mid is a candidate capacity (answer), not an index into weights.',
       codeFocus: L.mid,
       callStack: [
         {
@@ -155,15 +204,40 @@ function generateSteps({ weights, days }: Input): Step[] {
           },
         },
       ],
-      heap: [weightsHeap(weights, feasibilityHighlights(n, null))],
+      heap: [
+        weightsHeap(
+          weights,
+          feasibilityHighlights(n, null),
+          true,
+          `weights @ capacity ${mid}`,
+        ),
+        dayLoadsHeap([], { focused: true }),
+      ],
     })
+
+    const parentLocals = {
+      weights: { ref: 'weights' as const },
+      days,
+      left,
+      mid,
+      right,
+      capacity: mid,
+    }
+
+    let dayLoads: number[]
+    let needed: number
 
     if (!walkedFirst) {
       walkedFirst = true
+      let day = 1
+      let load = 0
+      dayLoads = [0]
+      const boardedDay: number[] = Array.from({ length: n }, () => 0)
+
       steps.push({
         id: id++,
-        narrative: `First check simulates days greedily: fill today's load until the next package would overflow capacity ${mid}, then start a new day.`,
-        why: 'Order is fixed; the only choice is how much capacity lets you finish in ≤ days.',
+        narrative: `Start day 1 with load 0. Fill greedily until the next package would exceed capacity ${mid}.`,
+        why: 'Order is fixed; capacity only controls when a new day must start.',
         codeFocus: L.canShip,
         callStack: [
           {
@@ -173,29 +247,154 @@ function generateSteps({ weights, days }: Input): Step[] {
               weights: { ref: 'weights' },
               days,
               capacity: mid,
-              dayCount: 1,
-              load: 0,
+              day,
+              load,
+              daysNeeded: day,
+              dayLoads: { ref: 'dayLoads' },
             },
           },
-          {
-            name: 'shipWithinDays',
-            active: false,
-            locals: { weights: { ref: 'weights' }, days, left, mid, right },
-          },
+          { name: 'shipWithinDays', active: false, locals: parentLocals },
         ],
-        heap: [weightsHeap(weights, feasibilityHighlights(n, null))],
+        heap: [
+          weightsHeap(
+            weights,
+            feasibilityHighlights(n, null),
+            true,
+            `weights @ capacity ${mid}`,
+          ),
+          dayLoadsHeap(dayLoads, { focusDay: day }),
+        ],
+      })
+
+      for (let i = 0; i < n; i++) {
+        const w = weights[i]!
+
+        if (load + w > mid) {
+          steps.push({
+            id: id++,
+            narrative: `Package ${w} at i=${i}: load ${load} + ${w} > capacity ${mid}. Start day ${day + 1}.`,
+            why: 'Today is full. Close the current day load and open a fresh day at load 0.',
+            codeFocus: L.canShip,
+            callStack: [
+              {
+                name: 'canShip',
+                active: true,
+                locals: {
+                  weights: { ref: 'weights' },
+                  days,
+                  capacity: mid,
+                  day,
+                  load,
+                  package: w,
+                  i,
+                  daysNeeded: day,
+                  dayLoads: { ref: 'dayLoads' },
+                },
+              },
+              { name: 'shipWithinDays', active: false, locals: parentLocals },
+            ],
+            heap: [
+              weightsHeap(
+                weights,
+                walkHighlights(n, i, boardedDay, day),
+                true,
+                `weights @ capacity ${mid}`,
+              ),
+              dayLoadsHeap(dayLoads, { focusDay: day }),
+            ],
+          })
+
+          day++
+          load = 0
+          dayLoads = [...dayLoads, 0]
+        }
+
+        load += w
+        dayLoads = [...dayLoads]
+        dayLoads[day - 1] = load
+        boardedDay[i] = day
+
+        steps.push({
+          id: id++,
+          narrative: `Board package ${w} on day ${day}: load ${load - w} + ${w} = ${load}. dayLoads = [${dayLoads.join(', ')}].`,
+          why: `Package stays on day ${day}. days budget is still ${days}.`,
+          codeFocus: L.canShip,
+          callStack: [
+            {
+              name: 'canShip',
+              active: true,
+              locals: {
+                weights: { ref: 'weights' },
+                days,
+                capacity: mid,
+                day,
+                load,
+                package: w,
+                i,
+                daysNeeded: day,
+                dayLoads: { ref: 'dayLoads' },
+              },
+            },
+            { name: 'shipWithinDays', active: false, locals: parentLocals },
+          ],
+          heap: [
+            weightsHeap(
+              weights,
+              walkHighlights(n, i, boardedDay, day),
+              true,
+              `weights @ capacity ${mid}`,
+            ),
+            dayLoadsHeap(dayLoads, { focusDay: day }),
+          ],
+        })
+      }
+
+      needed = day
+    } else {
+      dayLoads = simulateDayLoads(weights, mid)
+      needed = dayLoads.length
+
+      steps.push({
+        id: id++,
+        narrative: `Capacity ${mid} summary: dayLoads = [${dayLoads.join(', ')}] → daysNeeded = ${needed}.`,
+        why: 'Same greedy fill as the first walk; later probes show the finished dayLoads snapshot.',
+        codeFocus: L.canShip,
+        callStack: [
+          {
+            name: 'canShip',
+            active: true,
+            locals: {
+              weights: { ref: 'weights' },
+              days,
+              capacity: mid,
+              day: needed,
+              load: dayLoads[dayLoads.length - 1] ?? 0,
+              daysNeeded: needed,
+              dayLoads: { ref: 'dayLoads' },
+            },
+          },
+          { name: 'shipWithinDays', active: false, locals: parentLocals },
+        ],
+        heap: [
+          weightsHeap(
+            weights,
+            feasibilityHighlights(n, null),
+            true,
+            `weights @ capacity ${mid}`,
+          ),
+          dayLoadsHeap(dayLoads),
+        ],
       })
     }
 
-    const needed = daysNeeded(weights, mid)
     const feasible = needed <= days
 
     steps.push({
       id: id++,
-      narrative: `With capacity ${mid}, daysNeeded = ${needed}. ${
+      narrative: `End check: daysNeeded = ${needed}, days budget = ${days}. ${
         feasible
-          ? `${needed} ≤ days=${days}: feasible.`
-          : `${needed} > days=${days}: capacity too small (infeasible).`
+          ? `${needed} ≤ ${days}: capacity ${mid} is feasible.`
+          : `${needed} > ${days}: capacity ${mid} is too small.`
       }`,
       why: feasible
         ? 'Feasible mid means every larger capacity also works; search the lower half including mid.'
@@ -214,10 +413,19 @@ function generateSteps({ weights, days }: Input): Step[] {
             capacity: mid,
             daysNeeded: needed,
             feasible,
+            dayLoads: { ref: 'dayLoads' },
           },
         },
       ],
-      heap: [weightsHeap(weights, feasibilityHighlights(n, feasible))],
+      heap: [
+        weightsHeap(
+          weights,
+          feasibilityHighlights(n, feasible),
+          true,
+          `weights @ capacity ${mid}`,
+        ),
+        dayLoadsHeap(dayLoads, { focused: true }),
+      ],
     })
 
     if (feasible) {
@@ -234,7 +442,10 @@ function generateSteps({ weights, days }: Input): Step[] {
             locals: { weights: { ref: 'weights' }, days, left, right },
           },
         ],
-        heap: [weightsHeap(weights, feasibilityHighlights(n, true))],
+        heap: [
+          weightsHeap(weights, feasibilityHighlights(n, true)),
+          dayLoadsHeap(dayLoads, { focused: false }),
+        ],
       })
     } else {
       left = mid + 1
@@ -250,7 +461,10 @@ function generateSteps({ weights, days }: Input): Step[] {
             locals: { weights: { ref: 'weights' }, days, left, right },
           },
         ],
-        heap: [weightsHeap(weights, feasibilityHighlights(n, false))],
+        heap: [
+          weightsHeap(weights, feasibilityHighlights(n, false)),
+          dayLoadsHeap(dayLoads, { focused: false }),
+        ],
       })
     }
   }

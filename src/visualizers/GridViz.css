@@ -1,13 +1,19 @@
 .grid-viz {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 0.65rem;
   min-width: 0;
+  width: max-content;
+  max-width: 100%;
+  margin-inline: auto;
 }
 
 .grid-viz__label {
   margin: 0;
-  font-size: 0.8rem;
+  width: 100%;
+  text-align: center;
+  font-size: clamp(0.72rem, 2.2vw, 0.8rem);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
@@ -15,10 +21,11 @@
 
 .grid-viz__board {
   display: grid;
-  gap: 0.35rem;
+  gap: clamp(0.28rem, 1.2vw, 0.4rem);
   width: max-content;
   max-width: 100%;
-  padding-top: 1.35rem;
+  /* Room for stacked pointer badges above the first row. */
+  padding-top: clamp(1.7rem, 5vw, 2.4rem);
 }
 
 .grid-viz__cell {
@@ -31,6 +38,7 @@
   background: color-mix(in srgb, var(--surface) 88%, var(--lift));
   font-variant-numeric: tabular-nums;
   font-weight: 600;
+  font-size: clamp(0.72rem, 2.4vw, 0.95rem);
   transition:
     background 160ms ease,
     border-color 160ms ease,
@@ -71,29 +79,126 @@
   opacity: 0.4;
 }
 
-.grid-viz__cell.has-ptr {
-  z-index: 1;
+.grid-viz__cell.is-compare {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 14%, var(--lift));
 }
 
-.grid-viz__ptrs {
+.grid-viz__cell.has-ptr {
+  z-index: 2;
+}
+
+.grid-viz__cell.has-ptr.is-discard {
+  opacity: 1;
+}
+
+.grid-viz__cell.has-ptr--left {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.grid-viz__cell.has-ptr--right {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-2) 22%, transparent);
+}
+
+.grid-viz__cell.has-ptr--mid,
+.grid-viz__cell.has-ptr--tip {
+  border-color: var(--warn);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--warn) 22%, transparent);
+}
+
+.grid-viz__ptr-stack {
   position: absolute;
-  top: -1.15rem;
   left: 50%;
+  bottom: calc(100% + 0.18rem);
   transform: translateX(-50%);
-  white-space: nowrap;
-  font-size: 0.65rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--accent);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.12rem;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.grid-viz__ptr-badge {
+  display: inline-block;
+  padding: 0.05rem 0.28rem;
+  border-radius: 0.2rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.52rem, 1.8vw, 0.62rem);
   font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  color: var(--bg);
+  white-space: nowrap;
+}
+
+.grid-viz__ptr-badge.is-left {
+  background: var(--accent);
+}
+
+.grid-viz__ptr-badge.is-right {
+  background: var(--accent-2);
+}
+
+.grid-viz__ptr-badge.is-mid,
+.grid-viz__ptr-badge.is-tip {
+  background: var(--warn);
+}
+
+.grid-viz__ptr-badge.is-default {
+  background: var(--ink-soft);
 }
 
 .grid-viz__val {
   line-height: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.grid-viz__pointers {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem 0.85rem;
+  max-width: 100%;
+}
+
+.grid-viz__pointer {
+  font-family: var(--font-mono);
+  font-size: clamp(0.72rem, 2vw, 0.8rem);
+  color: var(--ink-soft);
+}
+
+.grid-viz__pointer strong {
+  font-weight: 700;
+}
+
+.grid-viz__pointer.is-left strong {
+  color: var(--accent);
+}
+
+.grid-viz__pointer.is-right strong {
+  color: var(--accent-2);
+}
+
+.grid-viz__pointer.is-mid strong,
+.grid-viz__pointer.is-tip strong {
+  color: var(--warn);
 }
 
 .grid-viz__caption {
   margin: 0;
-  font-size: 0.85rem;
+  max-width: 36rem;
+  text-align: center;
+  font-size: clamp(0.78rem, 2.2vw, 0.88rem);
   color: var(--muted);
+  line-height: 1.35;
+}
+
+@media (max-width: 560px) {
+  .grid-viz__board {
+    padding-top: 2.1rem;
+  }
 }

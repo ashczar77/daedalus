@@ -16,7 +16,7 @@ export function HashMapViz({ scene }: Props) {
     <div className="hash-viz">
       {scene.label ? <p className="hash-viz__label">{scene.label}</p> : null}
       {scene.entries.length === 0 ? (
-        <p className="hash-viz__empty">empty</p>
+        <p className="hash-viz__empty">(no keys yet)</p>
       ) : (
         <div className="hash-viz__grid" role="list">
           {scene.entries.map(([key, value]) => {

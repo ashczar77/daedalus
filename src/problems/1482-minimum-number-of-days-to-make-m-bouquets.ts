@@ -34,12 +34,7 @@ const L = {
   canMake: { java: 29, kotlin: 29, python: 22 },
 } as const
 
-function canMake(
-  bloomDay: number[],
-  m: number,
-  k: number,
-  day: number,
-): { ok: boolean; bouquets: number } {
+function countBouquets(bloomDay: number[], day: number, k: number): number {
   let bouquets = 0
   let run = 0
   for (const d of bloomDay) {
@@ -53,19 +48,19 @@ function canMake(
       run = 0
     }
   }
-  return { ok: bouquets >= m, bouquets }
+  return bouquets
 }
 
+/** Bloomed (open) flowers use `window`; closed use `discard`; scan cursor uses `current`. */
 function bloomHighlights(
   bloomDay: number[],
-  day: number | null,
-  feasible: boolean | null,
+  day: number,
+  current: number | null = null,
+  bloomRole: 'window' | 'found' | 'compare' = 'window',
 ): ArrayHighlight[] {
   return bloomDay.map((d, i): ArrayHighlight => {
-    if (day === null) return { index: i, role: 'compare' }
-    if (d <= day) {
-      return { index: i, role: feasible === false ? 'compare' : 'window' }
-    }
+    if (current !== null && i === current) return { index: i, role: 'current' }
+    if (d <= day) return { index: i, role: bloomRole }
     return { index: i, role: 'discard' }
   })
 }
@@ -73,15 +68,59 @@ function bloomHighlights(
 function bloomHeap(
   bloomDay: number[],
   highlights: ArrayHighlight[],
+  day: number | null = null,
   focused = true,
 ): HeapObject {
   return {
     id: 'bloomDay',
     kind: 'array',
-    label: 'int[] bloomDay',
+    label:
+      day === null
+        ? 'int[] bloomDay'
+        : `bloomDay @ day ${day} (open = bloomDay[i] <= day)`,
     values: [...bloomDay],
     highlights,
     focused,
+  }
+}
+
+/** Growing bouquet markers: B1, B2, ... as each run of k adjacent blooms completes. */
+function bouquetsHeap(
+  markers: string[],
+  justAdded = false,
+  focused = false,
+): HeapObject {
+  const empty = markers.length === 0
+  return {
+    id: 'bouquetMarkers',
+    kind: 'array',
+    label: empty
+      ? 'bouquets · none yet'
+      : `bouquets · ${markers.length} made`,
+    values: empty ? ['(none)'] : [...markers],
+    highlights: empty
+      ? []
+      : markers.map((_, i) => ({
+          index: i,
+          role:
+            justAdded && i === markers.length - 1
+              ? ('found' as const)
+              : ('sorted' as const),
+        })),
+    focused: focused || justAdded,
+  }
+}
+
+function minDaysLocals(
+  m: number,
+  k: number,
+  extra: Record<string, unknown> = {},
+): Record<string, unknown> {
+  return {
+    bloomDay: { ref: 'bloomDay' },
+    m,
+    k,
+    ...extra,
   }
 }
 
@@ -91,8 +130,11 @@ function generateSteps({ bloomDay, m, k }: Input): Step[] {
   const n = bloomDay.length
   const need = m * k
 
-  steps.push({
-    id: id++,
+  const push = (step: Omit<Step, 'id'>) => {
+    steps.push({ ...step, id: id++ })
+  }
+
+  push({
     narrative: `Need m=${m} bouquets of k=${k} adjacent flowers each (${need} flowers total).`,
     why: 'If m*k exceeds the garden size, no day can work.',
     codeFocus: L.early,
@@ -100,20 +142,14 @@ function generateSteps({ bloomDay, m, k }: Input): Step[] {
       {
         name: 'minDays',
         active: true,
-        locals: {
-          bloomDay: { ref: 'bloomDay' },
-          m,
-          k,
-          need,
-        },
+        locals: minDaysLocals(m, k, { need }),
       },
     ],
     heap: [bloomHeap(bloomDay, [])],
   })
 
   if (need > n) {
-    steps.push({
-      id: id++,
+    push({
       narrative: `m*k = ${need} > n = ${n} → return -1.`,
       why: 'Not enough flowers exist, even if every bloom is used.',
       codeFocus: L.early,
@@ -121,13 +157,7 @@ function generateSteps({ bloomDay, m, k }: Input): Step[] {
         {
           name: 'minDays',
           active: true,
-          locals: {
-            bloomDay: { ref: 'bloomDay' },
-            m,
-            k,
-            need,
-            result: -1,
-          },
+          locals: minDaysLocals(m, k, { need, result: -1 }),
         },
       ],
       heap: [
@@ -150,8 +180,7 @@ function generateSteps({ bloomDay, m, k }: Input): Step[] {
     right = Math.max(right, d)
   }
 
-  steps.push({
-    id: id++,
+  push({
     narrative: `Answer space is days. left = min(bloomDay) = ${left}, right = max(bloomDay) = ${right}.`,
     why: 'Before the earliest bloom nothing is ready; after the latest bloom everything is ready.',
     codeFocus: L.bound,
@@ -159,7 +188,7 @@ function generateSteps({ bloomDay, m, k }: Input): Step[] {
       {
         name: 'minDays',
         active: true,
-        locals: { bloomDay: { ref: 'bloomDay' }, m, k, left, right },
+        locals: minDaysLocals(m, k, { left, right }),
       },
     ],
     heap: [bloomHeap(bloomDay, [])],
@@ -168,8 +197,7 @@ function generateSteps({ bloomDay, m, k }: Input): Step[] {
   let walkedFirst = false
 
   while (left < right) {
-    steps.push({
-      id: id++,
+    push({
       narrative: `While left (${left}) < right (${right}): shrink the day range.`,
       why: 'Invariant: the earliest feasible day is always inside [left, right].',
       codeFocus: L.while,
@@ -177,43 +205,56 @@ function generateSteps({ bloomDay, m, k }: Input): Step[] {
         {
           name: 'minDays',
           active: true,
-          locals: { bloomDay: { ref: 'bloomDay' }, m, k, left, right },
+          locals: minDaysLocals(m, k, { left, right }),
         },
       ],
-      heap: [bloomHeap(bloomDay, bloomHighlights(bloomDay, null, null))],
+      heap: [
+        bloomHeap(
+          bloomDay,
+          Array.from({ length: n }, (_, i) => ({
+            index: i,
+            role: 'compare' as const,
+          })),
+        ),
+      ],
     })
 
     const mid = left + Math.floor((right - left) / 2)
+    const openCount = bloomDay.filter((d) => d <= mid).length
 
-    steps.push({
-      id: id++,
-      narrative: `Try day mid = ${mid}. Flowers with bloomDay[i] ≤ ${mid} are open.`,
-      why: 'mid is a candidate calendar day, not an array index.',
+    push({
+      narrative: `Try day mid = ${mid}. Highlight open flowers: bloomDay[i] <= ${mid} (${openCount} open, ${n - openCount} still closed).`,
+      why: 'mid is a candidate calendar day, not an array index. Closed flowers break adjacent runs.',
       codeFocus: L.mid,
       callStack: [
         {
           name: 'minDays',
           active: true,
-          locals: {
-            bloomDay: { ref: 'bloomDay' },
-            m,
-            k,
+          locals: minDaysLocals(m, k, {
             left,
             mid,
             right,
             day: mid,
-          },
+          }),
         },
       ],
-      heap: [bloomHeap(bloomDay, bloomHighlights(bloomDay, mid, null))],
+      heap: [
+        bloomHeap(bloomDay, bloomHighlights(bloomDay, mid), mid),
+        bouquetsHeap([]),
+      ],
     })
 
-    if (!walkedFirst) {
-      walkedFirst = true
-      steps.push({
-        id: id++,
-        narrative: `First check counts runs of k=${k} adjacent open flowers (bloomDay ≤ ${mid}), resetting a run on any closed flower.`,
-        why: 'Each completed run of length k makes one bouquet; need at least m.',
+    const detailWalk = !walkedFirst || n <= 8
+    walkedFirst = true
+
+    let bouquets = 0
+    let run = 0
+    const markers: string[] = []
+
+    if (detailWalk) {
+      push({
+        narrative: `canMake(day=${mid}): walk left to right. Count adjacent open streak; every ${k} open in a row makes one bouquet.`,
+        why: 'A closed flower resets the streak. Need bouquets >= m.',
         codeFocus: L.canMake,
         callStack: [
           {
@@ -221,6 +262,7 @@ function generateSteps({ bloomDay, m, k }: Input): Step[] {
             active: true,
             locals: {
               bloomDay: { ref: 'bloomDay' },
+              bouquetMarkers: { ref: 'bouquetMarkers' },
               m,
               k,
               day: mid,
@@ -231,20 +273,119 @@ function generateSteps({ bloomDay, m, k }: Input): Step[] {
           {
             name: 'minDays',
             active: false,
-            locals: { bloomDay: { ref: 'bloomDay' }, m, k, left, mid, right },
+            locals: minDaysLocals(m, k, { left, mid, right }),
           },
         ],
-        heap: [bloomHeap(bloomDay, bloomHighlights(bloomDay, mid, null))],
+        heap: [
+          bloomHeap(bloomDay, bloomHighlights(bloomDay, mid), mid),
+          bouquetsHeap([]),
+        ],
+      })
+
+      for (let i = 0; i < n; i++) {
+        const d = bloomDay[i]!
+        const open = d <= mid
+        let justBouquet = false
+
+        if (open) {
+          run++
+          if (run === k) {
+            bouquets++
+            markers.push(`B${bouquets}`)
+            run = 0
+            justBouquet = true
+          }
+        } else {
+          run = 0
+        }
+
+        const narrative = open
+          ? justBouquet
+            ? `i=${i}: bloomDay[${i}]=${d} <= ${mid} (open). streak hits k=${k} → bouquet #${bouquets}, reset streak to 0.`
+            : `i=${i}: bloomDay[${i}]=${d} <= ${mid} (open). streak/run = ${run} (need ${k} for a bouquet).`
+          : `i=${i}: bloomDay[${i}]=${d} > ${mid} (closed). Reset streak to 0.`
+
+        push({
+          narrative,
+          why: justBouquet
+            ? 'Those k adjacent open flowers are picked; the next bouquet must start fresh.'
+            : open
+              ? 'Keep walking; only a full streak of k adjacent opens counts as a bouquet.'
+              : 'A gap breaks adjacency, so the current streak is gone.',
+          codeFocus: L.canMake,
+          callStack: [
+            {
+              name: 'canMake',
+              active: true,
+              locals: {
+                bloomDay: { ref: 'bloomDay' },
+                bouquetMarkers: { ref: 'bouquetMarkers' },
+                m,
+                k,
+                day: mid,
+                i,
+                bloomDay_i: d,
+                open,
+                bouquets,
+                run,
+              },
+            },
+            {
+              name: 'minDays',
+              active: false,
+              locals: minDaysLocals(m, k, { left, mid, right }),
+            },
+          ],
+          heap: [
+            bloomHeap(
+              bloomDay,
+              bloomHighlights(bloomDay, mid, i),
+              mid,
+              true,
+            ),
+            bouquetsHeap(markers, justBouquet, justBouquet),
+          ],
+        })
+      }
+    } else {
+      bouquets = countBouquets(bloomDay, mid, k)
+      for (let b = 1; b <= bouquets; b++) markers.push(`B${b}`)
+      push({
+        narrative: `canMake(day=${mid}) summary: ${bouquets} bouquet(s) from runs of k=${k} adjacent open flowers.`,
+        why: 'Same left-to-right streak scan as the first mid; condensed so the day search stays readable.',
+        codeFocus: L.canMake,
+        callStack: [
+          {
+            name: 'canMake',
+            active: true,
+            locals: {
+              bloomDay: { ref: 'bloomDay' },
+              bouquetMarkers: { ref: 'bouquetMarkers' },
+              m,
+              k,
+              day: mid,
+              bouquets,
+            },
+          },
+          {
+            name: 'minDays',
+            active: false,
+            locals: minDaysLocals(m, k, { left, mid, right }),
+          },
+        ],
+        heap: [
+          bloomHeap(bloomDay, bloomHighlights(bloomDay, mid), mid),
+          bouquetsHeap(markers),
+        ],
       })
     }
 
-    const { ok: feasible, bouquets } = canMake(bloomDay, m, k, mid)
+    const feasible = bouquets >= m
 
-    steps.push({
-      id: id++,
+    push({
       narrative: `On day ${mid}: bouquets = ${bouquets}. ${
         feasible
-          ? `${bouquets} ≥ m=${m}: feasible.`
+          ? `${bouquets} >= m=${m}: feasible.`
           : `${bouquets} < m=${m}: not enough (infeasible).`
       }`,
       why: feasible
@@ -255,26 +396,29 @@ function generateSteps({ bloomDay, m, k }: Input): Step[] {
         {
           name: 'minDays',
           active: true,
-          locals: {
-            bloomDay: { ref: 'bloomDay' },
-            m,
-            k,
+          locals: minDaysLocals(m, k, {
             left,
             mid,
             right,
             day: mid,
             bouquets,
             feasible,
-          },
+          }),
         },
       ],
-      heap: [bloomHeap(bloomDay, bloomHighlights(bloomDay, mid, feasible))],
+      heap: [
+        bloomHeap(
+          bloomDay,
+          bloomHighlights(bloomDay, mid, null, feasible ? 'window' : 'compare'),
+          mid,
+        ),
+        bouquetsHeap(markers, false, true),
+      ],
     })
 
     if (feasible) {
       right = mid
-      steps.push({
-        id: id++,
+      push({
         narrative: `Feasible → right = mid → ${right}. New day window [${left}, ${right}].`,
         why: 'Keep mid as a possible answer; try an earlier day next.',
         codeFocus: L.rightDec,
@@ -282,15 +426,21 @@ function generateSteps({ bloomDay, m, k }: Input): Step[] {
           {
             name: 'minDays',
             active: true,
-            locals: { bloomDay: { ref: 'bloomDay' }, m, k, left, right },
+            locals: minDaysLocals(m, k, { left, right }),
           },
         ],
-        heap: [bloomHeap(bloomDay, bloomHighlights(bloomDay, mid, true))],
+        heap: [
+          bloomHeap(
+            bloomDay,
+            bloomHighlights(bloomDay, mid, null, 'window'),
+            mid,
+          ),
+          bouquetsHeap(markers),
+        ],
       })
     } else {
       left = mid + 1
-      steps.push({
-        id: id++,
+      push({
         narrative: `Infeasible → left = mid + 1 → ${left}. New day window [${left}, ${right}].`,
         why: 'Critical: mid + 1. Each iteration halves the remaining days.',
         codeFocus: L.leftInc,
@@ -298,16 +448,23 @@ function generateSteps({ bloomDay, m, k }: Input): Step[] {
           {
             name: 'minDays',
             active: true,
-            locals: { bloomDay: { ref: 'bloomDay' }, m, k, left, right },
+            locals: minDaysLocals(m, k, { left, right }),
           },
         ],
-        heap: [bloomHeap(bloomDay, bloomHighlights(bloomDay, mid, false))],
+        heap: [
+          bloomHeap(
+            bloomDay,
+            bloomHighlights(bloomDay, mid, null, 'compare'),
+            mid,
+            false,
+          ),
+          bouquetsHeap(markers),
+        ],
       })
     }
   }
 
-  steps.push({
-    id: id++,
+  push({
     narrative: `left == right == ${left}. Return earliest day ${left}.`,
     why: 'The window collapsed onto the minimum day that still makes m bouquets.',
     codeFocus: L.ret,
@@ -315,14 +472,11 @@ function generateSteps({ bloomDay, m, k }: Input): Step[] {
       {
         name: 'minDays',
         active: true,
-        locals: {
-          bloomDay: { ref: 'bloomDay' },
-          m,
-          k,
+        locals: minDaysLocals(m, k, {
           left,
           right,
           result: left,
-        },
+        }),
       },
     ],
     heap: [
@@ -332,6 +486,7 @@ function generateSteps({ bloomDay, m, k }: Input): Step[] {
           index: i,
           role: d <= left ? 'found' : 'discard',
         })),
+        left,
       ),
     ],
   })

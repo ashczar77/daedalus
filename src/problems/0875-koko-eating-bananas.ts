@@ -32,27 +32,79 @@ const L = {
   hours: { java: 23, kotlin: 23, python: 19 },
 } as const
 
-function hoursNeeded(piles: number[], speed: number): number {
-  let hours = 0
-  for (const pile of piles) {
-    hours += Math.floor((pile + speed - 1) / speed)
-  }
-  return hours
+function ceilDiv(pile: number, speed: number): number {
+  return Math.floor((pile + speed - 1) / speed)
+}
+
+function emptyHours(n: number): Array<string | number> {
+  return Array.from({ length: n }, () => '—')
 }
 
 function pilesHeap(
   piles: number[],
   highlights: ArrayHighlight[],
-  focused = true,
+  options: { speed?: number; focused?: boolean } = {},
 ): HeapObject {
+  const { speed, focused = true } = options
   return {
     id: 'piles',
     kind: 'array',
-    label: 'int[] piles',
+    label: speed == null ? 'int[] piles' : `piles @ speed ${speed}`,
     values: [...piles],
     highlights,
     focused,
   }
+}
+
+function hoursHeap(
+  values: Array<string | number>,
+  highlights: ArrayHighlight[],
+  options: { hoursSoFar?: number; h?: number; focused?: boolean } = {},
+): HeapObject {
+  const { hoursSoFar, h, focused = true } = options
+  const label =
+    hoursSoFar == null || h == null
+      ? 'hours[]'
+      : `hours so far ${hoursSoFar} / budget h=${h}`
+  return {
+    id: 'hours',
+    kind: 'array',
+    label,
+    values: [...values],
+    highlights,
+    focused,
+  }
+}
+
+function dualHeap(
+  piles: number[],
+  pilesHighlights: ArrayHighlight[],
+  hoursValues: Array<string | number>,
+  hoursHighlights: ArrayHighlight[],
+  options: {
+    speed?: number
+    hoursSoFar?: number
+    h?: number
+  } = {},
+): HeapObject[] {
+  return [
+    pilesHeap(piles, pilesHighlights, {
+      speed: options.speed,
+      focused: true,
+    }),
+    hoursHeap(hoursValues, hoursHighlights, {
+      hoursSoFar: options.hoursSoFar,
+      h: options.h,
+      focused: true,
+    }),
+  ]
+}
+
+function indexHighlight(
+  index: number,
+  role: ArrayHighlight['role'] = 'current',
+): ArrayHighlight[] {
+  return [{ index, role }]
 }
 
 function feasibilityHighlights(
@@ -68,6 +120,7 @@ function generateSteps({ piles, h }: Input): Step[] {
   const steps: Step[] = []
   let id = 1
   const n = piles.length
+  const blankHours = emptyHours(n)
 
   let left = 1
   let right = 0
@@ -75,7 +128,7 @@ function generateSteps({ piles, h }: Input): Step[] {
 
   steps.push({
     id: id++,
-    narrative: `Search the minimum eating speed. Answer space starts at left=${left} (speed 1).`,
+    narrative: `Search the minimum eating speed. Piles are ready; hours[] starts empty. Answer space left=${left}.`,
     why: 'Any speed in [1, max(piles)] could work; we want the smallest feasible one.',
     codeFocus: L.init,
     callStack: [
@@ -84,13 +137,14 @@ function generateSteps({ piles, h }: Input): Step[] {
         active: true,
         locals: {
           piles: { ref: 'piles' },
+          hours: { ref: 'hours' },
           h,
           left,
           right: 0,
         },
       },
     ],
-    heap: [pilesHeap(piles, [])],
+    heap: dualHeap(piles, [], blankHours, [], { hoursSoFar: 0, h }),
   })
 
   steps.push({
@@ -102,13 +156,17 @@ function generateSteps({ piles, h }: Input): Step[] {
       {
         name: 'minEatingSpeed',
         active: true,
-        locals: { piles: { ref: 'piles' }, h, left, right },
+        locals: {
+          piles: { ref: 'piles' },
+          hours: { ref: 'hours' },
+          h,
+          left,
+          right,
+        },
       },
     ],
-    heap: [pilesHeap(piles, [])],
+    heap: dualHeap(piles, [], blankHours, [], { hoursSoFar: 0, h }),
   })
-
-  let walkedFirst = false
 
   while (left < right) {
     steps.push({
@@ -120,71 +178,110 @@ function generateSteps({ piles, h }: Input): Step[] {
         {
           name: 'minEatingSpeed',
           active: true,
-          locals: { piles: { ref: 'piles' }, h, left, right },
+          locals: {
+            piles: { ref: 'piles' },
+            hours: { ref: 'hours' },
+            h,
+            left,
+            right,
+          },
         },
       ],
-      heap: [pilesHeap(piles, feasibilityHighlights(n, null))],
+      heap: dualHeap(piles, [], blankHours, [], { hoursSoFar: 0, h }),
     })
 
     const mid = left + Math.floor((right - left) / 2)
+    const hoursRow = emptyHours(n)
 
     steps.push({
       id: id++,
-      narrative: `Try speed mid = ${mid} (candidate bananas/hour).`,
-      why: 'Binary search picks the middle of the remaining answer space, not an array index.',
+      narrative: `Try speed mid = ${mid}. Reset hours[] and walk every pile at this speed.`,
+      why: 'Binary search picks the middle of the remaining answer space (speeds), not an array index.',
       codeFocus: L.mid,
       callStack: [
         {
           name: 'minEatingSpeed',
           active: true,
-          locals: { piles: { ref: 'piles' }, h, left, mid, right, speed: mid },
+          locals: {
+            piles: { ref: 'piles' },
+            hours: { ref: 'hours' },
+            h,
+            left,
+            mid,
+            right,
+            speed: mid,
+          },
         },
       ],
-      heap: [pilesHeap(piles, feasibilityHighlights(n, null))],
+      heap: dualHeap(piles, [], hoursRow, [], {
+        speed: mid,
+        hoursSoFar: 0,
+        h,
+      }),
     })
 
-    if (!walkedFirst) {
-      walkedFirst = true
-      const parts = piles.map(
-        (pile) => `ceil(${pile}/${mid})=${Math.floor((pile + mid - 1) / mid)}`,
-      )
+    let hoursSoFar = 0
+    for (let i = 0; i < n; i++) {
+      const pile = piles[i]!
+      const pileHours = ceilDiv(pile, mid)
+      hoursSoFar += pileHours
+      hoursRow[i] = `${pileHours}h`
+
       steps.push({
         id: id++,
-        narrative: `First check walks the piles: ${parts.join(', ')}.`,
-        why: 'Hours for one pile is ceil(pile/speed), computed as (pile + speed - 1) / speed (integer).',
+        narrative: `Pile ${pile} at speed ${mid} needs ceil(${pile}/${mid})=${pileHours} hours. Total now ${hoursSoFar} / budget ${h}.`,
+        why: 'Hours for one pile is ceil(pile/speed), written as (pile + speed - 1) / speed in integer arithmetic.',
         codeFocus: L.hours,
         callStack: [
+          {
+            name: 'minEatingSpeed',
+            active: false,
+            locals: {
+              piles: { ref: 'piles' },
+              hours: { ref: 'hours' },
+              h,
+              left,
+              mid,
+              right,
+            },
+          },
           {
             name: 'hoursNeeded',
             active: true,
             locals: {
               piles: { ref: 'piles' },
+              hours: { ref: 'hours' },
               speed: mid,
-              hours: '(summing)',
+              pile,
+              pileHours,
+              hoursSoFar,
+              h,
+              i,
             },
           },
-          {
-            name: 'minEatingSpeed',
-            active: false,
-            locals: { piles: { ref: 'piles' }, h, left, mid, right },
-          },
         ],
-        heap: [pilesHeap(piles, feasibilityHighlights(n, null))],
+        heap: dualHeap(
+          piles,
+          indexHighlight(i, 'current'),
+          hoursRow,
+          indexHighlight(i, 'compare'),
+          { speed: mid, hoursSoFar, h },
+        ),
       })
     }
 
-    const hours = hoursNeeded(piles, mid)
+    const hours = hoursSoFar
     const feasible = hours <= h
 
     steps.push({
       id: id++,
-      narrative: `hoursNeeded(speed=${mid}) = ${hours}. ${
+      narrative: `Total hours at speed ${mid}: ${hours}. ${
         feasible
-          ? `${hours} ≤ h=${h}: feasible.`
+          ? `${hours} <= h=${h}: feasible.`
           : `${hours} > h=${h}: too slow (infeasible).`
       }`,
       why: feasible
-        ? 'A feasible mid means every speed ≥ mid also works; search the lower half including mid.'
+        ? 'A feasible mid means every speed >= mid also works; search the lower half including mid.'
         : 'Too many hours: discard mid and everything slower; raise left to mid + 1.',
       codeFocus: L.check,
       callStack: [
@@ -193,50 +290,83 @@ function generateSteps({ piles, h }: Input): Step[] {
           active: true,
           locals: {
             piles: { ref: 'piles' },
+            hours: { ref: 'hours' },
             h,
             left,
             mid,
             right,
             speed: mid,
-            hours,
+            hoursNeeded: hours,
             feasible,
           },
         },
       ],
-      heap: [pilesHeap(piles, feasibilityHighlights(n, feasible))],
+      heap: dualHeap(
+        piles,
+        feasibilityHighlights(n, feasible),
+        hoursRow,
+        feasibilityHighlights(n, feasible),
+        { speed: mid, hoursSoFar: hours, h },
+      ),
     })
 
     if (feasible) {
       right = mid
       steps.push({
         id: id++,
-        narrative: `Feasible → right = mid → ${right}. New speed window [${left}, ${right}].`,
+        narrative: `Feasible -> right = mid -> ${right}. New speed window [${left}, ${right}].`,
         why: 'Keep mid as a possible answer; try a smaller speed next.',
         codeFocus: L.rightDec,
         callStack: [
           {
             name: 'minEatingSpeed',
             active: true,
-            locals: { piles: { ref: 'piles' }, h, left, right },
+            locals: {
+              piles: { ref: 'piles' },
+              hours: { ref: 'hours' },
+              h,
+              left,
+              mid,
+              right,
+            },
           },
         ],
-        heap: [pilesHeap(piles, feasibilityHighlights(n, true))],
+        heap: dualHeap(
+          piles,
+          feasibilityHighlights(n, true),
+          hoursRow,
+          feasibilityHighlights(n, true),
+          { speed: mid, hoursSoFar: hours, h },
+        ),
       })
     } else {
       left = mid + 1
       steps.push({
         id: id++,
-        narrative: `Infeasible → left = mid + 1 → ${left}. New speed window [${left}, ${right}].`,
+        narrative: `Infeasible -> left = mid + 1 -> ${left}. New speed window [${left}, ${right}].`,
         why: 'Critical: mid + 1 (not left++). Halving the answer space keeps O(log M).',
         codeFocus: L.leftInc,
         callStack: [
           {
             name: 'minEatingSpeed',
             active: true,
-            locals: { piles: { ref: 'piles' }, h, left, right },
+            locals: {
+              piles: { ref: 'piles' },
+              hours: { ref: 'hours' },
+              h,
+              left,
+              mid,
+              right,
+            },
           },
         ],
-        heap: [pilesHeap(piles, feasibilityHighlights(n, false))],
+        heap: dualHeap(
+          piles,
+          feasibilityHighlights(n, false),
+          hoursRow,
+          feasibilityHighlights(n, false),
+          { speed: mid, hoursSoFar: hours, h },
+        ),
       })
     }
   }
@@ -252,6 +382,7 @@ function generateSteps({ piles, h }: Input): Step[] {
         active: true,
         locals: {
           piles: { ref: 'piles' },
+          hours: { ref: 'hours' },
           h,
           left,
           right,
@@ -259,15 +390,16 @@ function generateSteps({ piles, h }: Input): Step[] {
         },
       },
     ],
-    heap: [
-      pilesHeap(
-        piles,
-        Array.from({ length: n }, (_, i) => ({
-          index: i,
-          role: 'found' as const,
-        })),
-      ),
-    ],
+    heap: dualHeap(
+      piles,
+      Array.from({ length: n }, (_, i) => ({
+        index: i,
+        role: 'found' as const,
+      })),
+      blankHours,
+      [],
+      { hoursSoFar: 0, h },
+    ),
   })
 
   return steps

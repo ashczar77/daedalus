@@ -176,6 +176,7 @@ function SystemDesignCatalog() {
 function AlgorithmsCatalog() {
   const [pattern, setPattern] = useState<string>('All')
   const [difficulty, setDifficulty] = useState<Difficulty | 'All'>('All')
+  const [query, setQuery] = useState('')
 
   const patterns = useMemo(() => {
     const set = new Set(problems.map((problem) => problem.pattern))
@@ -183,12 +184,24 @@ function AlgorithmsCatalog() {
   }, [])
 
   const filtered = useMemo(() => {
+    const needle = query.trim().toLowerCase()
     return problems.filter((problem) => {
       if (pattern !== 'All' && problem.pattern !== pattern) return false
       if (difficulty !== 'All' && problem.difficulty !== difficulty) return false
-      return true
+      if (!needle) return true
+      const hay = [
+        problem.title,
+        problem.pattern,
+        problem.difficulty,
+        problem.lcNumber > 0 ? String(problem.lcNumber) : '',
+        problem.lcNumber > 0 ? `#${problem.lcNumber}` : '',
+        problem.id,
+      ]
+        .join(' ')
+        .toLowerCase()
+      return hay.includes(needle)
     })
-  }, [pattern, difficulty])
+  }, [pattern, difficulty, query])
 
   return (
     <section className="catalog__list" aria-label="Problems">
@@ -204,6 +217,22 @@ function AlgorithmsCatalog() {
       </div>
 
       <div className="catalog__filters">
+        <div className="catalog__filter-row catalog__filter-row--search">
+          <label className="catalog__filter-label" htmlFor="catalog-search">
+            Search
+          </label>
+          <input
+            id="catalog-search"
+            type="search"
+            className="catalog__search"
+            placeholder="Title, pattern, or #number"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            autoComplete="off"
+            spellCheck={false}
+          />
+        </div>
+
         <div className="catalog__filter-row" role="group" aria-label="Filter by pattern">
           <span className="catalog__filter-label">Pattern</span>
           <div className="catalog__chips">
@@ -250,6 +279,7 @@ function AlgorithmsCatalog() {
             onClick={() => {
               setPattern('All')
               setDifficulty('All')
+              setQuery('')
             }}
           >
             Clear filters

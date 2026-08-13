@@ -1,14 +1,19 @@
 .hash-viz {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 0.75rem;
   min-width: 0;
-  width: 100%;
+  width: max-content;
+  max-width: 100%;
+  margin-inline: auto;
 }
 
 .hash-viz__label {
   margin: 0;
-  font-size: 0.8rem;
+  width: 100%;
+  text-align: center;
+  font-size: clamp(0.72rem, 2.2vw, 0.8rem);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
@@ -16,17 +21,24 @@
 
 .hash-viz__empty {
   margin: 0;
+  min-width: min(16rem, 80vw);
+  padding: 0.85rem 1rem;
+  border: 1px dashed var(--line);
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--lift) 70%, transparent);
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: clamp(0.82rem, 2.2vw, 0.92rem);
   color: var(--muted);
-  font-style: italic;
+  text-align: center;
 }
 
 .hash-viz__grid {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0.55rem;
   min-width: 0;
+  max-width: 100%;
 }
 
 .hash-viz__entry {
