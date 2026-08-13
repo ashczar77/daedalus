@@ -2,15 +2,21 @@ import type { ProblemPack } from '../engine/types'
 import { longestSubstringWithoutRepeating } from './0003-longest-substring-without-repeating-characters'
 import { permutations } from './0046-permutations'
 import { containerWithMostWater } from './0011-container-with-most-water'
+import { searchInRotatedSortedArray } from './0033-search-in-rotated-sorted-array'
+import { searchA2DMatrix } from './0074-search-a-2d-matrix'
+import { searchInRotatedSortedArrayII } from './0081-search-in-rotated-sorted-array-ii'
 import { sameTree } from './0100-same-tree'
 import { binaryTreeLevelOrderTraversal } from './0102-binary-tree-level-order-traversal'
 import { maximumDepthOfBinaryTree } from './0104-maximum-depth-of-binary-tree'
 import { balancedBinaryTree } from './0110-balanced-binary-tree'
 import { removeNthNodeFromEndOfList } from './0019-remove-nth-node-from-end-of-list'
+import { findMinimumInRotatedSortedArray } from './0153-find-minimum-in-rotated-sorted-array'
+import { findPeakElement } from './0162-find-peak-element'
 import { numberOfIslands } from './0200-number-of-islands'
 import { validParentheses } from './0020-valid-parentheses'
 import { mergeTwoSortedLists } from './0021-merge-two-sorted-lists'
 import { twoSum } from './0001-two-sum'
+import { searchA2dMatrixIi } from './0240-search-a-2d-matrix-ii'
 import { lowestCommonAncestorOfABst } from './0235-lowest-common-ancestor-of-a-bst'
 import { validateBinarySearchTree } from './0098-validate-binary-search-tree'
 import { subsets } from './0078-subsets'
@@ -31,8 +37,12 @@ import { subtreeOfAnotherTree } from './0572-subtree-of-another-tree'
 import { maxAreaOfIsland } from './0695-max-area-of-island'
 import { binarySearch } from './0704-binary-search'
 import { dailyTemperatures } from './0739-daily-temperatures'
+import { kokoEatingBananas } from './0875-koko-eating-bananas'
 import { middleOfTheLinkedList } from './0876-middle-of-the-linked-list'
+import { timeBasedKeyValueStore } from './0981-time-based-key-value-store'
 import { maxConsecutiveOnesIII } from './1004-max-consecutive-ones-iii'
+import { capacityToShipPackagesWithinDDays } from './1011-capacity-to-ship-packages-within-d-days'
+import { minimumNumberOfDaysToMakeMBouquets } from './1482-minimum-number-of-days-to-make-m-bouquets'
 import { bubbleSort } from './sort-bubble-sort'
 import { heapSort } from './sort-heap-sort'
 import { insertionSort } from './sort-insertion-sort'
@@ -79,6 +89,16 @@ export const problems: ProblemPack[] = [
   diameterOfBinaryTree,
   subtreeOfAnotherTree,
   binarySearch,
+  searchA2DMatrix,
+  searchA2dMatrixIi,
+  findMinimumInRotatedSortedArray,
+  searchInRotatedSortedArray,
+  searchInRotatedSortedArrayII,
+  findPeakElement,
+  kokoEatingBananas,
+  capacityToShipPackagesWithinDDays,
+  minimumNumberOfDaysToMakeMBouquets,
+  timeBasedKeyValueStore,
   bubbleSort,
   insertionSort,
   selectionSort,
