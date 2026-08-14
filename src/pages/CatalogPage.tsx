@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { lessons, TRACK_META } from '../academy/lessons/registry'
 import { isUnlocked, loadProgress, resetAllProgress } from '../academy/progress'
@@ -16,6 +16,65 @@ import {
 import './CatalogPage.css'
 
 const DIFFICULTIES: Array<Difficulty | 'All'> = ['All', 'Easy', 'Medium', 'Hard']
+
+const ALGORITHMS_FILTERS_KEY = 'daedalus.catalog.algorithms'
+const SYSTEM_DESIGN_FILTERS_KEY = 'daedalus.catalog.system-design'
+const TERMINAL_FILTERS_KEY = 'daedalus.catalog.terminal'
+
+type AlgorithmsFilters = {
+  query: string
+  pattern: string
+  difficulty: Difficulty | 'All'
+}
+
+function loadAlgorithmsFilters(): AlgorithmsFilters {
+  const fallback: AlgorithmsFilters = {
+    query: '',
+    pattern: 'All',
+    difficulty: 'All',
+  }
+  try {
+    const raw = sessionStorage.getItem(ALGORITHMS_FILTERS_KEY)
+    if (!raw) return fallback
+    const parsed = JSON.parse(raw) as Partial<AlgorithmsFilters>
+    const difficulty =
+      parsed.difficulty &&
+      DIFFICULTIES.includes(parsed.difficulty as Difficulty | 'All')
+        ? (parsed.difficulty as Difficulty | 'All')
+        : 'All'
+    return {
+      query: typeof parsed.query === 'string' ? parsed.query : '',
+      pattern: typeof parsed.pattern === 'string' ? parsed.pattern : 'All',
+      difficulty,
+    }
+  } catch {
+    return fallback
+  }
+}
+
+function saveAlgorithmsFilters(filters: AlgorithmsFilters): void {
+  try {
+    sessionStorage.setItem(ALGORITHMS_FILTERS_KEY, JSON.stringify(filters))
+  } catch {
+    // Ignore quota / private-mode failures; filters just will not persist.
+  }
+}
+
+function loadSessionString(key: string, fallback: string): string {
+  try {
+    return sessionStorage.getItem(key) ?? fallback
+  } catch {
+    return fallback
+  }
+}
+
+function saveSessionString(key: string, value: string): void {
+  try {
+    sessionStorage.setItem(key, value)
+  } catch {
+    // Ignore.
+  }
+}
 
 function catalogMode(pathname: string): AppMode {
   if (pathname.startsWith('/terminal')) return 'terminal'
@@ -101,7 +160,13 @@ export function CatalogPage() {
 }
 
 function SystemDesignCatalog() {
-  const [pathId, setPathId] = useState<string>('all')
+  const [pathId, setPathId] = useState<string>(() =>
+    loadSessionString(SYSTEM_DESIGN_FILTERS_KEY, 'all'),
+  )
+
+  useEffect(() => {
+    saveSessionString(SYSTEM_DESIGN_FILTERS_KEY, pathId)
+  }, [pathId])
 
   const filtered = useMemo(() => {
     if (pathId === 'all') return systemDesignLabs
@@ -174,14 +239,35 @@ function SystemDesignCatalog() {
 }
 
 function AlgorithmsCatalog() {
-  const [pattern, setPattern] = useState<string>('All')
-  const [difficulty, setDifficulty] = useState<Difficulty | 'All'>('All')
-  const [query, setQuery] = useState('')
+  const [filters, setFilters] = useState<AlgorithmsFilters>(() =>
+    loadAlgorithmsFilters(),
+  )
+  const { pattern, difficulty, query } = filters
+
+  useEffect(() => {
+    saveAlgorithmsFilters(filters)
+  }, [filters])
+
+  const setPattern = (next: string) =>
+    setFilters((prev) => ({ ...prev, pattern: next }))
+  const setDifficulty = (next: Difficulty | 'All') =>
+    setFilters((prev) => ({ ...prev, difficulty: next }))
+  const setQuery = (next: string) =>
+    setFilters((prev) => ({ ...prev, query: next }))
+  const clearFilters = () =>
+    setFilters({ query: '', pattern: 'All', difficulty: 'All' })
 
   const patterns = useMemo(() => {
     const set = new Set(problems.map((problem) => problem.pattern))
     return ['All', ...[...set].sort((a, b) => a.localeCompare(b))]
   }, [])
+
+  // Drop a persisted pattern chip if the catalog no longer has that pattern.
+  useEffect(() => {
+    if (pattern !== 'All' && !patterns.includes(pattern)) {
+      setPattern('All')
+    }
+  }, [pattern, patterns])
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase()
@@ -276,11 +362,7 @@ function AlgorithmsCatalog() {
           <button
             type="button"
             className="catalog__reset"
-            onClick={() => {
-              setPattern('All')
-              setDifficulty('All')
-              setQuery('')
-            }}
+            onClick={clearFilters}
           >
             Clear filters
           </button>
@@ -310,8 +392,20 @@ function AlgorithmsCatalog() {
 }
 
 function TerminalCatalog() {
-  const [track, setTrack] = useState<AcademyTrack | 'all'>('all')
+  const [track, setTrack] = useState<AcademyTrack | 'all'>(() => {
+    const saved = loadSessionString(TERMINAL_FILTERS_KEY, 'all')
+    if (saved === 'all') return 'all'
+    return (Object.keys(TRACK_META) as AcademyTrack[]).includes(
+      saved as AcademyTrack,
+    )
+      ? (saved as AcademyTrack)
+      : 'all'
+  })
   const [progress, setProgress] = useState<LessonProgress>(() => loadProgress(lessons))
+
+  useEffect(() => {
+    saveSessionString(TERMINAL_FILTERS_KEY, track)
+  }, [track])
 
   const filtered = useMemo(() => {
     return lessons.filter((lesson) => track === 'all' || lesson.track === track)

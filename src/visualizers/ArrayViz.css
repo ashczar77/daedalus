@@ -32,9 +32,9 @@
 
 .array-viz__cell {
   position: relative;
-  min-width: clamp(2.2rem, 8vw, 2.8rem);
+  min-width: clamp(2.4rem, 9vw, 3.2rem);
   max-width: 100%;
-  padding: 0.7rem 0.55rem 1.2rem;
+  padding: 0.7rem 0.45rem 1.2rem;
   border: 1px solid var(--line);
   border-radius: 0.55rem;
   background: color-mix(in srgb, var(--surface) 88%, var(--lift));

@@ -73,10 +73,10 @@
   overflow: auto;
   overscroll-behavior: contain;
   display: grid;
-  /* Center short demos in the band; fall back to start when content overflows. */
-  align-content: safe center;
+  /* Top-align so height changes between steps do not bounce the canvas. */
+  align-content: start;
   justify-items: center;
-  padding: 0.5rem 0;
+  padding: 0.75rem 0 0.5rem;
 }
 
 .structure-stage__canvas {

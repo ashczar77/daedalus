@@ -24,15 +24,39 @@
   gap: clamp(0.28rem, 1.2vw, 0.4rem);
   width: max-content;
   max-width: 100%;
-  /* Room for stacked pointer badges above the first row. */
-  padding-top: clamp(1.7rem, 5vw, 2.4rem);
+  align-items: center;
+}
+
+.grid-viz__axis-corner {
+  width: 1.35rem;
+  height: 1rem;
+}
+
+.grid-viz__axis-col,
+.grid-viz__axis-row {
+  font-family: var(--font-mono);
+  font-size: clamp(0.55rem, 1.8vw, 0.68rem);
+  font-weight: 700;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1;
+  z-index: 1;
+}
+
+.grid-viz__axis-row {
+  padding-right: 0.2rem;
+  text-align: right;
 }
 
 .grid-viz__cell {
   position: relative;
   aspect-ratio: 1;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.12rem;
+  padding: 0.15rem;
   border: 1px solid var(--line);
   border-radius: 0.4rem;
   background: color-mix(in srgb, var(--surface) 88%, var(--lift));
@@ -44,6 +68,13 @@
     border-color 160ms ease,
     box-shadow 160ms ease,
     opacity 160ms ease;
+}
+
+.grid-viz__cell.has-badge {
+  /* Slightly taller so the in-cell badge does not crush the value. */
+  aspect-ratio: auto;
+  min-height: clamp(1.7rem, 7.5vw, 2.5rem);
+  min-width: clamp(1.7rem, 7.5vw, 2.5rem);
 }
 
 .grid-viz__cell.is-land {
@@ -103,22 +134,19 @@
 }
 
 .grid-viz__cell.has-ptr--mid,
-.grid-viz__cell.has-ptr--tip {
+.grid-viz__cell.has-ptr--cur {
   border-color: var(--warn);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--warn) 22%, transparent);
 }
 
 .grid-viz__ptr-stack {
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 0.18rem);
-  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.12rem;
-  z-index: 3;
+  gap: 0.08rem;
+  flex-shrink: 0;
   pointer-events: none;
+  line-height: 1;
 }
 
 .grid-viz__ptr-badge {
@@ -143,7 +171,7 @@
 }
 
 .grid-viz__ptr-badge.is-mid,
-.grid-viz__ptr-badge.is-tip {
+.grid-viz__ptr-badge.is-cur {
   background: var(--warn);
 }
 
@@ -184,7 +212,7 @@
 }
 
 .grid-viz__pointer.is-mid strong,
-.grid-viz__pointer.is-tip strong {
+.grid-viz__pointer.is-cur strong {
   color: var(--warn);
 }
 
@@ -198,7 +226,8 @@
 }
 
 @media (max-width: 560px) {
-  .grid-viz__board {
-    padding-top: 2.1rem;
+  .grid-viz__cell.has-badge {
+    min-height: 2.2rem;
+    min-width: 2.2rem;
   }
 }

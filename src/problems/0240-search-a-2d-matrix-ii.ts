@@ -42,15 +42,19 @@ function staircaseHighlights(
   cols: number,
   row: number,
   col: number,
-  tipRole: HighlightRole = 'compare',
+  cellRole: HighlightRole = 'compare',
 ): Highlight[] {
   const out: Highlight[] = []
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       if (r === row && c === col) {
-        out.push({ row: r, col: c, role: tipRole })
+        out.push({ row: r, col: c, role: cellRole })
       } else if (r < row || c > col) {
+        // Already eliminated: rows above cur, columns to the right of cur.
         out.push({ row: r, col: c, role: 'discard' })
+      } else if (r === row || c === col) {
+        // Active row / column still under consideration.
+        out.push({ row: r, col: c, role: 'compare' })
       } else {
         out.push({ row: r, col: c, role: 'window' })
       }
@@ -244,7 +248,7 @@ function generateSteps({ matrix, target }: Input): Step[] {
   steps.push({
     id: id++,
     narrative: `Start at the top-right corner (${row}, ${col}). Locals row=${row}, col=${col}.`,
-    why: 'Rows increase downward and columns increase rightward, so the top-right tip can discard a whole row or column each step.',
+    why: 'Rows increase downward and columns increase rightward, so the top-right cell can discard a whole row or column each step.',
     codeFocus: L.init,
     callStack: [
       {
@@ -262,8 +266,8 @@ function generateSteps({ matrix, target }: Input): Step[] {
       gridHeap(
         cells,
         staircaseHighlights(rows, cols, row, col, 'current'),
-        { tip: [row, col] },
-        `target = ${target}`,
+        { cur: [row, col] },
+        `At r${row}, c${col}. Analyzing this cell. target = ${target}`,
       ),
     ],
   })
@@ -271,8 +275,8 @@ function generateSteps({ matrix, target }: Input): Step[] {
   while (row < rows && col >= 0) {
     steps.push({
       id: id++,
-      narrative: `While row (${row}) < ${rows} and col (${col}) ≥ 0 - tip stays inside the live rectangle.`,
-      why: 'Eliminated rows are above the tip; eliminated columns are to its right.',
+      narrative: `While row (${row}) < ${rows} and col (${col}) ≥ 0 - cur stays inside the live rectangle.`,
+      why: 'Faded cells are eliminated (rows above cur, columns right of cur). Teal cells are still live.',
       codeFocus: L.while,
       callStack: [
         {
@@ -290,8 +294,8 @@ function generateSteps({ matrix, target }: Input): Step[] {
         gridHeap(
           cells,
           staircaseHighlights(rows, cols, row, col, 'current'),
-          { tip: [row, col] },
-          `Live window: rows ≥ ${row}, cols ≤ ${col}`,
+          { cur: [row, col] },
+          `Analyzing r${row}, c${col}. Live: rows ≥ ${row}, cols ≤ ${col}. Eliminated: faded.`,
         ),
       ],
     })
@@ -322,8 +326,8 @@ function generateSteps({ matrix, target }: Input): Step[] {
           gridHeap(
             cells,
             staircaseHighlights(rows, cols, row, col, 'found'),
-            { tip: [row, col] },
-            `Found ${target} at (${row}, ${col})`,
+            { cur: [row, col] },
+            `Found ${target} at r${row}, c${col}`,
           ),
         ],
       })
@@ -357,8 +361,10 @@ function generateSteps({ matrix, target }: Input): Step[] {
         gridHeap(
           cells,
           staircaseHighlights(rows, cols, row, col, 'compare'),
-          { tip: [row, col] },
-          tooLarge ? `Discard column ${col}` : `Discard row ${row}`,
+          { cur: [row, col] },
+          tooLarge
+            ? `At r${row}, c${col}: ${cur} > ${target} → eliminate column c${col}`
+            : `At r${row}, c${col}: ${cur} < ${target} → eliminate row r${row}`,
         ),
       ],
     })
@@ -368,7 +374,7 @@ function generateSteps({ matrix, target }: Input): Step[] {
       const inBounds = col >= 0
       steps.push({
         id: id++,
-        narrative: `col-- → ${col}. Tip moves left; the previous column is discard.`,
+        narrative: `col-- → ${col}. Move cur left (col--). Column just left of cur is eliminated.`,
         why: 'Critical: one column gone. At most m + n moves total → O(m+n).',
         codeFocus: L.colDec,
         callStack: [
@@ -389,9 +395,9 @@ function generateSteps({ matrix, target }: Input): Step[] {
             inBounds
               ? staircaseHighlights(rows, cols, row, col, 'current')
               : allDiscard(rows, cols),
-            inBounds ? { tip: [row, col] } : undefined,
+            inBounds ? { cur: [row, col] } : undefined,
             inBounds
-              ? `Live window: rows ≥ ${row}, cols ≤ ${col}`
+              ? `Analyzing r${row}, c${col}. Live: rows ≥ ${row}, cols ≤ ${col}. Eliminated: faded.`
               : 'No columns left.',
           ),
         ],
@@ -401,7 +407,7 @@ function generateSteps({ matrix, target }: Input): Step[] {
       const inBounds = row < rows
       steps.push({
         id: id++,
-        narrative: `row++ → ${row}. Tip moves down; the previous row is discard.`,
+        narrative: `row++ → ${row}. Move cur down (row++). Row just above cur is eliminated.`,
         why: 'Critical: one row gone. Never restart a binary search on a flattened index.',
         codeFocus: L.rowInc,
         callStack: [
@@ -422,9 +428,9 @@ function generateSteps({ matrix, target }: Input): Step[] {
             inBounds
               ? staircaseHighlights(rows, cols, row, col, 'current')
               : allDiscard(rows, cols),
-            inBounds ? { tip: [row, col] } : undefined,
+            inBounds ? { cur: [row, col] } : undefined,
             inBounds
-              ? `Live window: rows ≥ ${row}, cols ≤ ${col}`
+              ? `Analyzing r${row}, c${col}. Live: rows ≥ ${row}, cols ≤ ${col}. Eliminated: faded.`
               : 'No rows left.',
           ),
         ],
@@ -434,7 +440,7 @@ function generateSteps({ matrix, target }: Input): Step[] {
 
   steps.push({
     id: id++,
-    narrative: 'Tip walked off the matrix with no match → return false.',
+    narrative: 'cur walked off the matrix with no match → return false.',
     why: 'Every eliminated strip was proven impossible; the target is absent.',
     codeFocus: L.miss,
     callStack: [
@@ -561,7 +567,7 @@ export const searchA2dMatrixIi: ProblemPack = {
     approach: [
       'row = 0, col = n - 1.',
       'While in bounds: if matrix[row][col] == target, return true.',
-      'If cur > target, col--; else row++. Return false if the tip leaves the matrix.',
+      'If cur > target, col--; else row++. Return false if cur leaves the matrix.',
     ],
   },
 }
