@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import './ModeSwitch.css'
 
-export type AppMode = 'algorithms' | 'terminal' | 'system-design'
+export type AppMode = 'algorithms' | 'terminal' | 'system-design' | 'languages'
 
 type Props = {
   mode: AppMode
@@ -11,10 +11,11 @@ const MODES: Array<{ id: AppMode; label: string; to: string }> = [
   { id: 'algorithms', label: 'Algorithms', to: '/' },
   { id: 'terminal', label: 'Terminal', to: '/terminal' },
   { id: 'system-design', label: 'System Design', to: '/system-design' },
+  { id: 'languages', label: 'Languages', to: '/languages' },
 ]
 
 /**
- * Quiet three-way mode control. Text links, not a chunky tab bar.
+ * Quiet mode control. Text links, not a chunky tab bar.
  */
 export function ModeSwitch({ mode }: Props) {
   return (

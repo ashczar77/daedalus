@@ -13,6 +13,16 @@ import {
   systemDesignLabs,
   systemDesignPaths,
 } from '../system-design/registry'
+import {
+  languageLessons,
+  languagePaths,
+  lessonsForPath as languageLessonsForPath,
+  pathTitle as languagePathTitle,
+} from '../languages/registry'
+import {
+  isLessonComplete,
+  loadLanguageProgress,
+} from '../languages/progress'
 import './CatalogPage.css'
 
 const DIFFICULTIES: Array<Difficulty | 'All'> = ['All', 'Easy', 'Medium', 'Hard']
@@ -20,6 +30,7 @@ const DIFFICULTIES: Array<Difficulty | 'All'> = ['All', 'Easy', 'Medium', 'Hard'
 const ALGORITHMS_FILTERS_KEY = 'daedalus.catalog.algorithms'
 const SYSTEM_DESIGN_FILTERS_KEY = 'daedalus.catalog.system-design'
 const TERMINAL_FILTERS_KEY = 'daedalus.catalog.terminal'
+const LANGUAGES_FILTERS_KEY = 'daedalus.catalog.languages'
 
 type AlgorithmsFilters = {
   query: string
@@ -79,6 +90,7 @@ function saveSessionString(key: string, value: string): void {
 function catalogMode(pathname: string): AppMode {
   if (pathname.startsWith('/terminal')) return 'terminal'
   if (pathname.startsWith('/system-design')) return 'system-design'
+  if (pathname.startsWith('/languages')) return 'languages'
   return 'algorithms'
 }
 
@@ -95,14 +107,18 @@ export function CatalogPage() {
       ? 'TERMINAL'
       : mode === 'system-design'
         ? 'SYSTEM DESIGN'
-        : 'CATALOG'
+        : mode === 'languages'
+          ? 'LANGUAGES'
+          : 'CATALOG'
 
   const eyebrow =
     mode === 'terminal'
       ? 'Interactive shell academy'
       : mode === 'system-design'
         ? 'System design labs'
-        : 'Step-through algorithm lab'
+        : mode === 'languages'
+          ? 'Java · Spring · Spring Boot'
+          : 'Step-through algorithm lab'
 
   return (
     <div className="catalog">
@@ -135,6 +151,13 @@ export function CatalogPage() {
               hashing.
               <span className="is-blink catalog__caret">█</span>
             </>
+          ) : mode === 'languages' ? (
+            <>
+              Walk Java, Spring, and Spring Boot side by side - teaching beats,
+              code panes, and quizzes. Start with the map path so the three
+              layers stay distinct.
+              <span className="is-blink catalog__caret">█</span>
+            </>
           ) : (
             <>
               Watch interview patterns and sorting labs execute line by line -
@@ -151,11 +174,103 @@ export function CatalogPage() {
           <TerminalCatalog />
         ) : mode === 'system-design' ? (
           <SystemDesignCatalog />
+        ) : mode === 'languages' ? (
+          <LanguagesCatalog />
         ) : (
           <AlgorithmsCatalog />
         )}
       </div>
     </div>
+  )
+}
+
+function LanguagesCatalog() {
+  const [pathId, setPathId] = useState<string>(() =>
+    loadSessionString(LANGUAGES_FILTERS_KEY, 'all'),
+  )
+  const [progress] = useState(() => loadLanguageProgress())
+
+  useEffect(() => {
+    saveSessionString(LANGUAGES_FILTERS_KEY, pathId)
+  }, [pathId])
+
+  const filtered = useMemo(() => {
+    if (pathId === 'all') return languageLessons
+    return languageLessonsForPath(pathId)
+  }, [pathId])
+
+  const completedCount = filtered.filter((lesson) =>
+    isLessonComplete(progress, lesson.id),
+  ).length
+
+  return (
+    <section className="catalog__list" aria-label="Language lessons">
+      <div className="catalog__list-head">
+        <h2>
+          <span className="catalog__prompt">&gt;</span> Language catalog
+        </h2>
+        <p>
+          {filtered.length === languageLessons.length
+            ? `${languageLessons.length} lessons · ${completedCount} completed`
+            : `${filtered.length} of ${languageLessons.length} lessons · ${completedCount} completed`}
+        </p>
+      </div>
+
+      <div className="catalog__filters">
+        <div className="catalog__filter-row" role="group" aria-label="Filter by path">
+          <span className="catalog__filter-label">Path</span>
+          <div className="catalog__chips">
+            <button
+              type="button"
+              className={`catalog__chip${pathId === 'all' ? ' is-active' : ''}`}
+              aria-pressed={pathId === 'all'}
+              onClick={() => setPathId('all')}
+            >
+              All
+            </button>
+            {languagePaths.map((path) => (
+              <button
+                key={path.id}
+                type="button"
+                className={`catalog__chip${pathId === path.id ? ' is-active' : ''}`}
+                aria-pressed={pathId === path.id}
+                onClick={() => setPathId(path.id)}
+              >
+                {path.title}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <ul>
+        {filtered.map((lesson) => {
+          const pathLessons = languageLessonsForPath(lesson.pathId)
+          const done = isLessonComplete(progress, lesson.id)
+          return (
+            <li key={lesson.id}>
+              <Link to={`/languages/${lesson.id}`} className="catalog__card">
+                <div className="catalog__card-top">
+                  <span className="catalog__lc">
+                    Lesson {lesson.order}/{pathLessons.length}
+                  </span>
+                  <span className={`catalog__level is-${lesson.level}`}>
+                    {lesson.level}
+                  </span>
+                  {done ? (
+                    <span className="catalog__level is-core">done</span>
+                  ) : null}
+                </div>
+                <h3>{lesson.title}</h3>
+                <p>
+                  {languagePathTitle(lesson.pathId)} · {lesson.summary}
+                </p>
+              </Link>
+            </li>
+          )
+        })}
+      </ul>
+    </section>
   )
 }
 

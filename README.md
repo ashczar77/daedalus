@@ -2,7 +2,7 @@
 
 In the old stories, Daedalus was the craftsman who built the Labyrinth: clever enough to design a maze you could get lost in, and careful enough to leave himself a way through it. That is roughly the spirit of this project. Interview algorithms can feel like a maze of pointers, stacks, and recursive returns. Daedalus is here so you can walk the path with the lights on.
 
-**Daedalus is a growing learning platform:** a browser lab for stepping through coding-interview algorithms, a Terminal Academy for shell basics, and System Design labs with live sims. Curated execution traces, animated structures, and the same idea in Java, Kotlin, and Python side by side. The catalog and curriculum expand as people solve new problems and teach them well.
+**Daedalus is a growing learning platform:** a browser lab for stepping through coding-interview algorithms, a Terminal Academy for shell basics, System Design labs with live sims, and a Languages mode for Java, Spring, and Spring Boot. Curated execution traces, animated structures, and the same idea in Java, Kotlin, and Python side by side. The catalog and curriculum expand as people solve new problems and teach them well.
 
 **Repo:** https://github.com/ashczar77/daedalus
 
@@ -22,6 +22,8 @@ In the old stories, Daedalus was the craftsman who built the Labyrinth: clever e
 
 **System Design.** Open `/system-design` for concept labs: short teaching beats, then a live simulation. Paths include Load Balancing (round robin, weighted round robin, least connections, consistent hashing), Caching (cache-aside, read-through, write-through, write-behind, plus LRU, LFU, FIFO, and TTL), CAP Theorem (overview plus Consistency, Availability, and Partition tolerance), and Networking & APIs (HTTP/REST, TCP, HTTP/2, gRPC, realtime, gateway, rate limiting, retries, circuit breaker, and bulkhead). Labs are listed in a suggested order and all start unlocked.
 
+**Languages.** Open `/languages` for Java, Spring Framework, and Spring Boot lessons. Each lesson has teaching beats, optional code panes, an explicit Java vs Spring vs Boot compare block, and a quiz you must pass to mark complete. Start with **Java · Spring · Boot map**, then **Java advanced**, **Spring core**, and the denser **Spring Boot** path.
+
 ## Contributing
 
 Engineers are welcome, especially if you care about clear teaching, not just "another LeetCode dump." Good PRs make a pattern easier to *see*.
@@ -34,6 +36,7 @@ Engineers are welcome, especially if you care about clear teaching, not just "an
 | Stronger visualizations | Sharper structure drawings, better focus beats, clearer unlink / heap / tree cues |
 | Terminal Academy lessons | More shell drills, better checks, new tracks |
 | System Design labs | New paths/sims under `src/system-design/` (teaching beats + live viz) |
+| Languages lessons | New paths under `src/languages/` (beats + code panes + quizzes) |
 | Engine / UX polish | Playback, inputs, accessibility, catalog ergonomics |
 | Tests & docs | Keep generators honest; leave the next author a map |
 
@@ -90,7 +93,8 @@ npm run preview           # serve the production build locally
 | `src/visualizers/` | Structure drawings (arrays, trees, heaps, lists, etc.) |
 | `src/academy/` | Terminal Academy lessons, VFS shell, checkers |
 | `src/system-design/` | System Design paths, labs, sims, and viz |
-| `src/pages/` | Catalog, problem player, academy / system-design pages |
+| `src/languages/` | Languages paths, lessons, quiz runner, progress |
+| `src/pages/` | Catalog, problem player, academy / system-design / languages pages |
 | `docs/authoring-packs.md` | Checklist for adding problem packs |
 | `docs/reviews/` | Local phase write-ups only (gitignored, not on GitHub) |
 | `docs/media/` | Screenshots used in this README |

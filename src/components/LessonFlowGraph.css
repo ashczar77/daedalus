@@ -1,0 +1,160 @@
+.flow-graph {
+  margin: 0;
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.flow-graph__title {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+
+.flow-graph__stage {
+  position: relative;
+  width: 100%;
+  min-height: clamp(14rem, 36vw, 18rem);
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 0.35rem;
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--lift) 55%, var(--surface)),
+      color-mix(in srgb, var(--bg) 35%, var(--surface))
+    );
+  overflow: hidden;
+}
+
+.flow-graph__edges {
+  position: absolute;
+  inset: 0.85rem;
+  width: calc(100% - 1.7rem);
+  height: calc(100% - 1.7rem);
+  pointer-events: none;
+  z-index: 1;
+  overflow: visible;
+}
+
+.flow-graph__edge {
+  fill: none;
+  stroke: color-mix(in srgb, var(--accent) 55%, var(--line));
+  stroke-width: 0.45;
+  stroke-linecap: round;
+}
+
+.flow-graph__arrowhead {
+  fill: color-mix(in srgb, var(--accent) 70%, var(--ink-soft));
+}
+
+.flow-graph__grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(var(--flow-cols, 3), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--flow-rows, 3), minmax(3.2rem, 1fr));
+  gap: 0.65rem 0.75rem;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  align-items: center;
+  justify-items: center;
+}
+
+.flow-graph__node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  width: min(100%, 9.5rem);
+  min-height: 3.1rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 0.55rem;
+  background: color-mix(in srgb, var(--surface) 88%, var(--lift));
+  text-align: center;
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--ink) 6%, transparent);
+}
+
+.flow-graph__node.is-accent {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, var(--lift));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.flow-graph__node.is-window {
+  border-color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 14%, var(--lift));
+}
+
+.flow-graph__node.is-warn {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 14%, var(--lift));
+}
+
+.flow-graph__node.is-good {
+  border-color: var(--good);
+  background: color-mix(in srgb, var(--good) 16%, var(--lift));
+}
+
+.flow-graph__node.is-muted {
+  opacity: 0.72;
+}
+
+.flow-graph__node-label {
+  font-family: var(--font-mono);
+  font-size: clamp(0.72rem, 2vw, 0.82rem);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.flow-graph__node-detail {
+  font-size: clamp(0.62rem, 1.7vw, 0.7rem);
+  color: var(--muted);
+  line-height: 1.25;
+}
+
+.flow-graph__edge-labels {
+  position: absolute;
+  inset: 0.85rem;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.flow-graph__edge-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 0.12rem 0.4rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 80%, var(--surface));
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.flow-graph__caption {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  .flow-graph__stage {
+    min-height: 16rem;
+  }
+
+  .flow-graph__node {
+    width: min(100%, 7.5rem);
+    min-height: 2.8rem;
+    padding: 0.45rem 0.4rem;
+  }
+}

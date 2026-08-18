@@ -1,0 +1,371 @@
+.lang-lesson {
+  width: min(1100px, calc(100% - 1rem));
+  margin: 0 auto;
+  padding: 0.85rem 0 2.5rem;
+  display: grid;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.lang-lesson--missing {
+  padding-top: 4rem;
+}
+
+.lang-lesson__header {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.lang-lesson__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.lang-lesson__back {
+  width: fit-content;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: var(--font-display);
+}
+
+.lang-lesson__back:hover {
+  color: var(--accent);
+}
+
+.lang-lesson__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+}
+
+.lang-lesson__level,
+.lang-lesson__done,
+.lang-lesson__focus {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 0.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.68rem;
+}
+
+.lang-lesson__level.is-intro {
+  color: var(--accent-2);
+}
+
+.lang-lesson__level.is-core {
+  color: var(--warn);
+}
+
+.lang-lesson__level.is-advanced {
+  color: var(--accent);
+}
+
+.lang-lesson__done {
+  color: var(--good);
+  border-color: color-mix(in srgb, var(--good) 40%, var(--line));
+}
+
+.lang-lesson__header h1 {
+  margin: 0.1rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 3.5vw, 2rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
+
+.lang-lesson__insight {
+  margin: 0.15rem 0 0;
+  color: var(--ink-soft);
+  max-width: 52rem;
+  line-height: 1.45;
+}
+
+.lang-lesson__focuses {
+  margin: 0.35rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.lang-lesson__focus.is-java {
+  color: var(--ink-soft);
+}
+
+.lang-lesson__focus.is-spring {
+  color: var(--accent-2);
+}
+
+.lang-lesson__focus.is-spring-boot {
+  color: var(--warn);
+}
+
+.lang-lesson__nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.lang-lesson__nav a {
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+.lang-lesson__nav a:hover {
+  color: var(--accent);
+}
+
+.lang-lesson__teach,
+.lang-lesson__code,
+.lang-lesson__diagrams,
+.lang-lesson__compare,
+.lang-lesson__quiz,
+.lang-lesson__tradeoffs,
+.lang-lesson__walk {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, var(--surface) 92%, var(--lift));
+}
+
+.lang-lesson__walk {
+  padding: 1rem 1.15rem 1.15rem;
+}
+
+.lang-lesson__section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.lang-lesson__section-head h2,
+.lang-lesson__compare h2,
+.lang-lesson__tradeoffs h2,
+.lang-lesson__walk h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-family: var(--font-display);
+}
+
+.lang-lesson__section-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+}
+
+.lang-lesson__prompt {
+  color: var(--accent);
+  margin-right: 0.35rem;
+}
+
+.lang-lesson__narrative {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.lang-lesson__why {
+  margin: 0;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.lang-lesson__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.lang-lesson__btn {
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--lift) 70%, var(--surface));
+  color: var(--ink-soft);
+  border-radius: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.lang-lesson__btn:hover:not(:disabled) {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+}
+
+.lang-lesson__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.lang-lesson__btn.is-accent {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  color: var(--accent);
+}
+
+.lang-lesson__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.lang-lesson__tab {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  border-radius: 0.3rem;
+  padding: 0.25rem 0.6rem;
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.lang-lesson__tab.is-active {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  background: color-mix(in srgb, var(--accent) 10%, var(--lift));
+}
+
+.lang-lesson__diagram-list {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.lang-lesson__pre {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, var(--bg) 70%, var(--surface));
+  font-family: var(--font-mono);
+  font-size: clamp(0.72rem, 1.8vw, 0.82rem);
+  line-height: 1.45;
+  max-height: 22rem;
+  color: var(--ink-soft);
+  white-space: pre;
+}
+
+.java-code code {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.java-code__keyword {
+  color: #3d9cf0;
+  font-weight: 600;
+}
+
+.java-code__type {
+  color: #5ec8a0;
+}
+
+.java-code__annotation {
+  color: #e0a355;
+}
+
+.java-code__string {
+  color: #d4a017;
+}
+
+.java-code__number {
+  color: #c97ad4;
+}
+
+.java-code__comment {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.java-code__punctuation {
+  color: color-mix(in srgb, var(--ink-soft) 75%, var(--muted));
+}
+
+.lang-lesson__compare ul,
+.lang-lesson__tradeoffs ul,
+.lang-lesson__walk ol {
+  margin: 0;
+  padding-left: 1.75rem;
+  padding-right: 0.35rem;
+  display: grid;
+  gap: 0.45rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.lang-lesson__compare li,
+.lang-lesson__tradeoffs li,
+.lang-lesson__walk li {
+  padding-left: 0.35rem;
+}
+
+.lang-lesson__quiz-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.lang-lesson__q {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.lang-lesson__q legend {
+  padding: 0;
+  margin-bottom: 0.25rem;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.lang-lesson__choice {
+  display: flex;
+  gap: 0.45rem;
+  align-items: flex-start;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
+.lang-lesson__quiz-msg {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.lang-lesson__walk p {
+  margin: 0;
+  padding: 0 0.15rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.lang-lesson__walk strong {
+  color: var(--ink);
+}
