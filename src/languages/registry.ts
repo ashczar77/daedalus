@@ -8,8 +8,10 @@ import {
   javaConcurrencyLesson,
   javaEqualsHashLesson,
   javaGcGenerationsLesson,
+  javaGcTuningLesson,
   javaGenericsLesson,
   javaMemoryGcLesson,
+  javaStaticLesson,
   javaStreamsOptionalLesson,
 } from './lessons/java-advanced/index'
 import { doINeedBootLesson } from './lessons/java-spring-boot-map/do-i-need-boot'
@@ -18,6 +20,7 @@ import { annotationsGuideLesson } from './lessons/java-spring-boot-map/annotatio
 import { whatIsWhatLesson } from './lessons/java-spring-boot-map/what-is-what'
 import {
   springAopProxiesLesson,
+  springBeansGcLesson,
   springComponentScanLesson,
   springContextScopesLesson,
   springEnvironmentLesson,
@@ -52,6 +55,8 @@ export const languageLessons: LanguageLesson[] = [
   doINeedBootLesson,
   javaMemoryGcLesson,
   javaGcGenerationsLesson,
+  javaGcTuningLesson,
+  javaStaticLesson,
   javaConcurrencyLesson,
   javaEqualsHashLesson,
   javaGenericsLesson,
@@ -60,6 +65,7 @@ export const languageLessons: LanguageLesson[] = [
   javaCollectionsHashMapLesson,
   springIocDiLesson,
   springContextScopesLesson,
+  springBeansGcLesson,
   springComponentScanLesson,
   springAopProxiesLesson,
   springEnvironmentLesson,
